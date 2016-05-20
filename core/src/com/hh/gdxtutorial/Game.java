@@ -3,16 +3,17 @@ package com.hh.gdxtutorial;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.g3d.Environment;
-import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.*;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+
+import java.util.Random;
 
 public class Game extends ApplicationAdapter {
 	public PerspectiveCamera camera;
@@ -27,9 +28,10 @@ public class Game extends ApplicationAdapter {
 	public CameraInputController camController;
 
 	public boolean loading = true;
+	public Random random = new Random();
 
 	@Override
-	public void create () {
+	public void create (){
 		// declare and configure the camera.
 		camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		camera.position.set(0, 5, 5);
@@ -43,7 +45,7 @@ public class Game extends ApplicationAdapter {
 		// declare the modelBatch and environment, add a light to the environment.
 		modelBatch = new ModelBatch();
 		environment = new Environment();
-		environment.add(new DirectionalLight().set(0.8f, 0.8f, 1.8f, -1f, -0.8f, 0.2f));
+		environment.add(new DirectionalLight().set(1.0f, 1.0f, 1.0f, -0.5f, 0.5f, -1.0f));
 		// declare the assetManager and load the model.
 		assetManager = new AssetManager();
 		assetManager.load("models/cube.g3dj", Model.class);
@@ -52,7 +54,7 @@ public class Game extends ApplicationAdapter {
 	}
 
 	@Override
-	public void render () {
+	public void render (){
 		// cache delta
 		final float delta = Math.min(1/30f, Gdx.graphics.getDeltaTime());
 		// update the camController (this also updates the camera).
@@ -65,8 +67,11 @@ public class Game extends ApplicationAdapter {
 			doneLoading();
 
 		// set model rotations.
-		for(ModelInstance instance: instances)
-			instance.transform.rotate(new Vector3(0, 1, 0), (90 * delta) % 360);
+		for (int i = 0; i < instances.size; i++) {
+			// use the instances index to give some variation to the rotation speeds
+			int f = (i % 5) + 1;
+			instances.get(i).transform.rotate(new Vector3(0, 1, 0), (90 * f * delta) % 360);
+		}
 
 		// render the scene
 		modelBatch.begin(camera);
@@ -79,7 +84,7 @@ public class Game extends ApplicationAdapter {
 	 * Reset the camera viewportWidth and viewportHeight
 	 */
 	@Override
-	public void resize (int width, int height) {
+	public void resize(int width, int height) {
 		camera.viewportWidth = width;
 		camera.viewportHeight = height;
 		camera.update();
@@ -95,8 +100,15 @@ public class Game extends ApplicationAdapter {
 	 */
 	public void doneLoading() {
 		loading = false;
-		ModelInstance instance = new ModelInstance(assetManager.get("models/cube.g3dj", Model.class));
-		instance.transform.setTranslation(0.0f, 0.0f, 0.0f);
-		instances.add(instance);
+
+		for (float x = -3.0f; x <= 3.0f; x+=2) {
+			for (float y = -3.0f; y <= 3.0f; y+=2) {
+				ModelInstance instance = new ModelInstance(assetManager.get("models/cube.g3dj", Model.class));
+				Material mat = instance.getMaterial("skin");
+				mat.set(ColorAttribute.createDiffuse(new Color(random.nextFloat(), 0.0f, random.nextFloat(), 1.0f)));
+				instance.transform.setTranslation(x, y, 0.0f);
+				instances.add(instance);
+			}
+		}
 	}
 }
