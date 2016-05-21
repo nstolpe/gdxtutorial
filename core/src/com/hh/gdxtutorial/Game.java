@@ -47,7 +47,7 @@ public class Game extends ApplicationAdapter {
 		// declare the modelBatch and environment, add a light to the environment.
 		modelBatch = new ModelBatch(new CelShaderProvider());
 		environment = new Environment();
-		environment.add(new DirectionalLight().set(1.0f, 1.0f, 1.0f, -0.5f, 0.5f, -1.0f));
+		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -0.5f, 0.5f, -1.0f));
 		// declare the assetManager and load the model.
 		assetManager = new AssetManager();
 		assetManager.load("models/cube.g3dj", Model.class);
@@ -72,7 +72,7 @@ public class Game extends ApplicationAdapter {
 		for (int i = 0; i < instances.size; i++) {
 			// use the instances index to give some variation to the rotation speeds
 			int f = (i % 5) + 1;
-			instances.get(i).transform.rotate(new Vector3(0, 1, 0), (90 * f * delta) % 360);
+			instances.get(i).transform.rotate(new Vector3(0, 1, 0), (90 * f / 2 * delta) % 360);
 		}
 
 		// render the scene
@@ -126,16 +126,16 @@ public class Game extends ApplicationAdapter {
 	 * Inner class to for custom shader. Should move to its own class file in actual use.
 	 */
 	public class CelShader extends DefaultShader {
-		public boolean celOn = true;
 		public CelShader(Renderable renderable) {
 			this(
 				renderable,
-				new Config(Gdx.files.classpath("com/badlogic/gdx/graphics/g3d/shaders/default.vertex.glsl").readString(), Gdx.files.internal("shaders/cel.frag.glsl").readString())
+				new Config(Gdx.files.classpath("com/badlogic/gdx/graphics/g3d/shaders/default.vertex.glsl").readString(), Gdx.files.internal("shaders/cel.frag.glsl").readString()),
+				true
 			);
 		}
 
-		public CelShader(Renderable renderable, Config config) {
-			super(renderable, config, createPrefix(renderable, config) + "#define celFlag\n");
+		public CelShader(Renderable renderable, Config config, boolean on) {
+			super(renderable, config, createPrefix(renderable, config) + (on ? "#define celFlag\n" : ""));
 		}
 	}
 }
