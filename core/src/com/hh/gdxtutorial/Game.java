@@ -3,15 +3,16 @@ package com.hh.gdxtutorial;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
+import com.badlogic.gdx.graphics.g3d.shaders.DepthShader;
 import com.badlogic.gdx.graphics.g3d.utils.BaseShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
+import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 
@@ -24,6 +25,9 @@ public class Game extends ApplicationAdapter {
 	public Array<ModelInstance> instances = new Array<ModelInstance>();
 
 	public ModelBatch modelBatch;
+	public ModelBatch depthBatch;
+
+	public FrameBuffer fbo;
 
 	public Environment environment;
 
@@ -41,18 +45,23 @@ public class Game extends ApplicationAdapter {
 		camera.near = 1;
 		camera.far = 1000;
 		camera.update();
+
 		// declare camController and set it as the input processor.
 		camController = new CameraInputController(camera);
 		Gdx.input.setInputProcessor(camController);
-		// declare the modelBatch and environment, add a light to the environment.
+
+		// declare the modelBatch, depthBatch and environment, add a light to the environment.
 		modelBatch = new ModelBatch(new CelShaderProvider());
+		depthBatch = new ModelBatch(new CelDepthShaderProvider());
 		environment = new Environment();
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -0.5f, 0.5f, -1.0f));
+
 		// declare the assetManager and load the model.
 		assetManager = new AssetManager();
 		assetManager.load("models/cube.g3dj", Model.class);
+
 		// set the clear color
-		Gdx.gl.glClearColor(1, 1, 1, 1);
+		Gdx.gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
 	@Override
@@ -61,8 +70,6 @@ public class Game extends ApplicationAdapter {
 		final float delta = Math.min(1/30f, Gdx.graphics.getDeltaTime());
 		// update the camController (this also updates the camera).
 		camController.update();
-		// clear color and depth buffers.
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
 		// trigger done loading when the assets are loaded.
 		if (loading && assetManager.update())
@@ -74,6 +81,14 @@ public class Game extends ApplicationAdapter {
 			int f = (i % 5) + 1;
 			instances.get(i).transform.rotate(new Vector3(0, 1, 0), (90 * f / 2 * delta) % 360);
 		}
+
+		// clear color and depth buffers.
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+
+		// render the scene
+		depthBatch.begin(camera);
+		depthBatch.render(instances);
+		depthBatch.end();
 
 		// render the scene
 		modelBatch.begin(camera);
@@ -90,6 +105,9 @@ public class Game extends ApplicationAdapter {
 		camera.viewportWidth = width;
 		camera.viewportHeight = height;
 		camera.update();
+
+		if (fbo != null) fbo.dispose();
+		fbo = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
 	}
 
 	@Override
@@ -128,14 +146,40 @@ public class Game extends ApplicationAdapter {
 	public class CelShader extends DefaultShader {
 		public CelShader(Renderable renderable) {
 			this(
-				renderable,
-				new Config(Gdx.files.classpath("com/badlogic/gdx/graphics/g3d/shaders/default.vertex.glsl").readString(), Gdx.files.internal("shaders/cel.frag.glsl").readString()),
-				true
+					renderable,
+					new Config(
+							Gdx.files.classpath("com/badlogic/gdx/graphics/g3d/shaders/default.vertex.glsl").readString(),
+							Gdx.files.internal("shaders/cel.main.fragment.glsl").readString()
+					),
+					true
 			);
 		}
 
 		public CelShader(Renderable renderable, Config config, boolean on) {
 			super(renderable, config, createPrefix(renderable, config) + (on ? "#define celFlag\n" : ""));
+		}
+	}
+
+	public class CelDepthShaderProvider extends BaseShaderProvider {
+		@Override
+		protected Shader createShader(final Renderable renderable) {
+			return new CelDepthShader(renderable);
+		}
+	}
+
+	public class CelDepthShader extends DepthShader {
+		public final int u_near = register("u_near");
+		public final int u_far = register("u_far");
+
+		public CelDepthShader(Renderable renderable) {
+			super(renderable, new DepthShader.Config(Gdx.files.internal("shaders/cel.depth.vertex.glsl").readString(), Gdx.files.internal("shaders/cel.depth.fragment.glsl").readString()));
+		}
+
+		@Override
+		public void begin (Camera camera, RenderContext context) {
+			super.begin(camera, context);
+			set(u_near, camera.near);
+			set(u_far, camera.far);
 		}
 	}
 }
