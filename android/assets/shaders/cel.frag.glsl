@@ -104,6 +104,36 @@ uniform vec4 u_fogColor;
 varying float v_fog;
 #endif // fogFlag
 
+float celFactor2(vec3 origin, vec2 cuttoffs, vec2 factors) {
+	float intensity = max(origin.r, max(origin.g, origin.b));
+	float factor;
+
+	if (intensity > cuttoffs.x)
+		factor = factors.x;
+	else if (intensity > cuttoffs.y)
+		factor = factors.y;
+	else
+		factor = 0.1;
+
+	return factor;
+}
+
+float celFactor3(vec3 origin, vec3 cuttoffs, vec3 factors) {
+	float intensity = max(origin.r, max(origin.g, origin.b));
+	float factor;
+
+	if (intensity > cuttoffs.x)
+		factor = factors.x;
+	else if (intensity > cuttoffs.y)
+		factor = factors.y;
+	else if (intensity > cuttoffs.z)
+		factor = factors.z;
+	else
+		factor = 0.1;
+
+	return factor;
+}
+
 void main() {
 	#if defined(normalFlag) 
 		vec3 normal = v_normal;
@@ -155,6 +185,10 @@ void main() {
 			vec3 specular = v_lightSpecular;
 		#endif
 
+		#if defined(celFlag)
+			specular *= celFactor2(specular, vec2(0.6, 0.3), vec2(1.0, 0.5));
+		#endif
+
 		#if defined(ambientFlag) && defined(separateAmbientFlag)
 			#ifdef shadowMapFlag
 			gl_FragColor.rgb = (diffuse.rgb * (getShadow() * v_lightDiffuse + v_ambientLight)) + specular;
@@ -183,6 +217,10 @@ void main() {
 		#endif
 	#else
 		gl_FragColor.a = 1.0;
+	#endif
+
+	#if defined(celFlag)
+		gl_FragColor *= celFactor3(gl_FragColor, vec3(0.8, 0.5, 0.25), vec3(1.0, 0.8, 0.3));
 	#endif
 
 }

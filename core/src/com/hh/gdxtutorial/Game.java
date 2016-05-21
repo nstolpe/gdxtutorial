@@ -126,12 +126,16 @@ public class Game extends ApplicationAdapter {
 	 * Inner class to for custom shader. Should move to its own class file in actual use.
 	 */
 	public class CelShader extends DefaultShader {
-
+		public boolean celOn = true;
 		public CelShader(Renderable renderable) {
-			super(
+			this(
 				renderable,
 				new Config(Gdx.files.classpath("com/badlogic/gdx/graphics/g3d/shaders/default.vertex.glsl").readString(), Gdx.files.internal("shaders/cel.frag.glsl").readString())
 			);
+		}
+
+		public CelShader(Renderable renderable, Config config) {
+			super(renderable, config, createPrefix(renderable, config) + "#define celFlag\n");
 		}
 	}
 }
