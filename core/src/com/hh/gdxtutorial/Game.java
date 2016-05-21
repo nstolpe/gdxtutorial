@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
+import com.badlogic.gdx.graphics.g3d.utils.BaseShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
@@ -43,7 +45,7 @@ public class Game extends ApplicationAdapter {
 		camController = new CameraInputController(camera);
 		Gdx.input.setInputProcessor(camController);
 		// declare the modelBatch and environment, add a light to the environment.
-		modelBatch = new ModelBatch();
+		modelBatch = new ModelBatch(new CelShaderProvider());
 		environment = new Environment();
 		environment.add(new DirectionalLight().set(1.0f, 1.0f, 1.0f, -0.5f, 0.5f, -1.0f));
 		// declare the assetManager and load the model.
@@ -109,6 +111,25 @@ public class Game extends ApplicationAdapter {
 				instance.transform.setTranslation(x, y, 0.0f);
 				instances.add(instance);
 			}
+		}
+	}
+	/*
+	 * Inner class to for custom shader provider. Should move to its own class file in actual use.
+	 */
+	public class CelShaderProvider extends BaseShaderProvider {
+
+		@Override
+		protected Shader createShader(Renderable renderable) {
+			return new CelShader(renderable);
+		}
+	}
+	/*
+	 * Inner class to for custom shader. Should move to its own class file in actual use.
+	 */
+	public class CelShader extends DefaultShader {
+
+		public CelShader(Renderable renderable) {
+			super(renderable);
 		}
 	}
 }
