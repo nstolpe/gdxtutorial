@@ -58,7 +58,7 @@ public class Game extends ApplicationAdapter {
 		Gdx.input.setInputProcessor(camController);
 
 		// declare the modelBatch, depthBatch and outlineBatch.
-		modelBatch = new ModelBatch();
+		modelBatch = new ModelBatch(new CelShaderProvider());
 		depthBatch = new ModelBatch(new CelDepthShaderProvider());
 		outlineBatch= new SpriteBatch();
 
@@ -92,7 +92,7 @@ public class Game extends ApplicationAdapter {
 		for (int i = 0; i < instances.size; i++) {
 			// use the instances index to give some variation to the rotation speeds
 			int f = (i % 5) + 1;
-//			instances.get(i).transform.rotate(new Vector3(0, 1, 0), (90 * f / 8 * delta) % 360);
+			instances.get(i).transform.rotate(new Vector3(0, 1, 0), (90 * f / 8 * delta) % 360);
 		}
 
 		// clear color and depth buffers.

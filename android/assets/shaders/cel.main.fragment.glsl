@@ -1,4 +1,4 @@
-#ifdef GL_ES 
+#ifdef GL_ES
 #define LOWP lowp
 #define MED mediump
 #define HIGH highp
@@ -80,12 +80,12 @@ varying vec3 v_shadowMapUv;
 float getShadowness(vec2 offset)
 {
     const vec4 bitShifts = vec4(1.0, 1.0 / 255.0, 1.0 / 65025.0, 1.0 / 160581375.0);
-    return step(v_shadowMapUv.z, dot(texture2D(u_shadowTexture, v_shadowMapUv.xy + offset), bitShifts));//+(1.0/255.0));	
+    return step(v_shadowMapUv.z, dot(texture2D(u_shadowTexture, v_shadowMapUv.xy + offset), bitShifts));//+(1.0/255.0));
 }
 
-float getShadow() 
+float getShadow()
 {
-	return (//getShadowness(vec2(0,0)) + 
+	return (//getShadowness(vec2(0,0)) +
 			getShadowness(vec2(u_shadowPCFOffset, u_shadowPCFOffset)) +
 			getShadowness(vec2(-u_shadowPCFOffset, u_shadowPCFOffset)) +
 			getShadowness(vec2(u_shadowPCFOffset, -u_shadowPCFOffset)) +
@@ -135,10 +135,10 @@ float celFactor3(vec3 origin, vec3 cuttoffs, vec3 factors) {
 }
 
 void main() {
-	#if defined(normalFlag) 
+	#if defined(normalFlag)
 		vec3 normal = v_normal;
 	#endif // normalFlag
-		
+
 	#if defined(diffuseTextureFlag) && defined(diffuseColorFlag) && defined(colorFlag)
 		vec4 diffuse = texture2D(u_diffuseTexture, v_diffuseUV) * u_diffuseColor * v_color;
 	#elif defined(diffuseTextureFlag) && defined(diffuseColorFlag)
@@ -157,7 +157,7 @@ void main() {
 		vec4 diffuse = vec4(1.0);
 	#endif
 
-	#if (!defined(lightingFlag))  
+	#if (!defined(lightingFlag))
 		gl_FragColor.rgb = diffuse.rgb;
 	#elif (!defined(specularFlag))
 		#if defined(ambientFlag) && defined(separateAmbientFlag)
@@ -220,7 +220,7 @@ void main() {
 	#endif
 
 	#if defined(celFlag)
-		gl_FragColor *= celFactor3(gl_FragColor, vec3(0.8, 0.5, 0.25), vec3(1.0, 0.8, 0.3));
+		gl_FragColor *= celFactor3(gl_FragColor.rgb, vec3(0.8, 0.5, 0.25), vec3(1.0, 0.8, 0.3));
 	#endif
 
 }
