@@ -142,6 +142,10 @@ public class Game extends ApplicationAdapter {
 	@Override
 	public void dispose () {
 		modelBatch.dispose();
+		depthBatch.dispose();
+		outlineBatch.dispose();
+		outlineShader.dispose();
+		fbo.dispose();
 		assetManager.dispose();
 	}
 	/*
@@ -161,7 +165,7 @@ public class Game extends ApplicationAdapter {
 		}
 	}
 	/*
-	 * Inner class to for custom shader provider. Should move to its own class file in actual use.
+	 * Inner class for custom shader provider. Should move to its own class file in actual use.
 	 */
 	public class CelShaderProvider extends BaseShaderProvider {
 		@Override
@@ -170,7 +174,7 @@ public class Game extends ApplicationAdapter {
 		}
 	}
 	/*
-	 * Inner class to for custom shader. Should move to its own class file in actual use.
+	 * Inner class for custom shader. Should move to its own class file in actual use.
 	 */
 	public class CelShader extends DefaultShader {
 		public CelShader(Renderable renderable) {
