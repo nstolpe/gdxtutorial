@@ -17,6 +17,7 @@ import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 
@@ -62,8 +63,9 @@ public class Game extends ApplicationAdapter {
 		depthBatch = new ModelBatch(new CelDepthShaderProvider());
 		outlineBatch= new SpriteBatch();
 
-		// declare the cel line shader.
+		// declare the cel line shader and set it to use the outlineShader
 		outlineShader = new CelLineShaderProgram();
+		outlineBatch.setShader(outlineShader);
 
 		// add an environment and add a light to it.
 		environment = new Environment();
@@ -114,24 +116,23 @@ public class Game extends ApplicationAdapter {
 		modelBatch.render(instances, environment);
 		modelBatch.end();
 
-		outlineBatch.setShader(outlineShader);
 		outlineBatch.begin();
+		outlineShader.setUniformf("u_size", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		outlineBatch.draw(textureRegion, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		outlineBatch.end();
-		outlineBatch.setShader(null);
 	}
 
 	/*
 	 * On screen/window resize:
 	 * Reset the camera viewportWidth and viewportHeight
+	 * Set the outlineBatch's projection matrix.
+	 * Init/reinit the fbo
 	 */
 	@Override
 	public void resize(int width, int height) {
 		camera.viewportWidth = width;
 		camera.viewportHeight = height;
 		camera.update();
-
-		outlineShader.setUniformf("u_size", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
 		outlineBatch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, width, height));
 
@@ -224,7 +225,6 @@ public class Game extends ApplicationAdapter {
 		@Override
 		public void begin() {
 			super.begin();
-			setUniformf("u_size", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		}
 	}
 }
