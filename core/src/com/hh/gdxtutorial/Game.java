@@ -117,7 +117,6 @@ public class Game extends ApplicationAdapter {
 	 * Inner class to for custom shader provider. Should move to its own class file in actual use.
 	 */
 	public class CelShaderProvider extends BaseShaderProvider {
-
 		@Override
 		protected Shader createShader(Renderable renderable) {
 			return new CelShader(renderable);
@@ -129,7 +128,10 @@ public class Game extends ApplicationAdapter {
 	public class CelShader extends DefaultShader {
 
 		public CelShader(Renderable renderable) {
-			super(renderable);
+			super(
+				renderable,
+				new Config(Gdx.files.classpath("com/badlogic/gdx/graphics/g3d/shaders/default.vertex.glsl").readString(), Gdx.files.internal("shaders/cel.frag.glsl").readString())
+			);
 		}
 	}
 }
