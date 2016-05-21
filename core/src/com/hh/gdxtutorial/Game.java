@@ -58,7 +58,7 @@ public class Game extends ApplicationAdapter {
 		Gdx.input.setInputProcessor(camController);
 
 		// declare the modelBatch, depthBatch and outlineBatch.
-		modelBatch = new ModelBatch(new CelShaderProvider());
+		modelBatch = new ModelBatch();
 		depthBatch = new ModelBatch(new CelDepthShaderProvider());
 		outlineBatch= new SpriteBatch();
 
@@ -92,7 +92,7 @@ public class Game extends ApplicationAdapter {
 		for (int i = 0; i < instances.size; i++) {
 			// use the instances index to give some variation to the rotation speeds
 			int f = (i % 5) + 1;
-			instances.get(i).transform.rotate(new Vector3(0, 1, 0), (90 * f / 2 * delta) % 360);
+//			instances.get(i).transform.rotate(new Vector3(0, 1, 0), (90 * f / 8 * delta) % 360);
 		}
 
 		// clear color and depth buffers.
@@ -158,7 +158,7 @@ public class Game extends ApplicationAdapter {
 			for (float y = -21.0f; y <= 21.0f; y+=2) {
 				ModelInstance instance = new ModelInstance(assetManager.get("models/cube.g3dj", Model.class));
 				Material mat = instance.getMaterial("skin");
-				mat.set(ColorAttribute.createDiffuse(new Color(random.nextFloat(), 0.0f, random.nextFloat(), 1.0f)));
+				mat.set(ColorAttribute.createDiffuse(new Color(random.nextFloat() * 2.0f, 0.0f, random.nextFloat() / 2.0f, 1.0f)));
 				instance.transform.setTranslation(x, y, 0.0f);
 				instances.add(instance);
 			}
