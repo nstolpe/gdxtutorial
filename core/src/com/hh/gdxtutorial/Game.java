@@ -154,8 +154,8 @@ public class Game extends ApplicationAdapter {
 	public void doneLoading() {
 		loading = false;
 
-		for (float x = -3.0f; x <= 3.0f; x+=2) {
-			for (float y = -3.0f; y <= 3.0f; y+=2) {
+		for (float x = -21.0f; x <= 21.0f; x+=2) {
+			for (float y = -21.0f; y <= 21.0f; y+=2) {
 				ModelInstance instance = new ModelInstance(assetManager.get("models/cube.g3dj", Model.class));
 				Material mat = instance.getMaterial("skin");
 				mat.set(ColorAttribute.createDiffuse(new Color(random.nextFloat(), 0.0f, random.nextFloat(), 1.0f)));
