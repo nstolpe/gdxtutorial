@@ -4,6 +4,8 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
@@ -20,20 +22,22 @@ import java.util.Random;
 
 public class Game extends ApplicationAdapter {
 	public PerspectiveCamera camera;
+	public CameraInputController camController;
 
 	public AssetManager assetManager;
 	public Array<ModelInstance> instances = new Array<ModelInstance>();
 
 	public ModelBatch modelBatch;
 	public ModelBatch depthBatch;
+	public SpriteBatch outlineBatch;
 
 	public FrameBuffer fbo;
+	public TextureRegion textureRegion;
 
 	public Environment environment;
 
-	public CameraInputController camController;
-
 	public boolean loading = true;
+
 	public Random random = new Random();
 
 	@Override
@@ -50,9 +54,12 @@ public class Game extends ApplicationAdapter {
 		camController = new CameraInputController(camera);
 		Gdx.input.setInputProcessor(camController);
 
-		// declare the modelBatch, depthBatch and environment, add a light to the environment.
+		// declare the modelBatch, depthBatch and outlineBatch.
 		modelBatch = new ModelBatch(new CelShaderProvider());
 		depthBatch = new ModelBatch(new CelDepthShaderProvider());
+		outlineBatch= new SpriteBatch();
+
+		// add an environment and add a light to it.
 		environment = new Environment();
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -0.5f, 0.5f, -1.0f));
 
@@ -85,15 +92,25 @@ public class Game extends ApplicationAdapter {
 		// clear color and depth buffers.
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-		// render the scene
+		// render depth to the framebuffer
+		fbo.begin();
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		depthBatch.begin(camera);
 		depthBatch.render(instances);
 		depthBatch.end();
+		fbo.end();
+
+		textureRegion = new TextureRegion(fbo.getColorBufferTexture());
+		textureRegion.flip(false, true);
 
 		// render the scene
 		modelBatch.begin(camera);
 		modelBatch.render(instances, environment);
 		modelBatch.end();
+
+		outlineBatch.begin();
+		outlineBatch.draw(textureRegion, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		outlineBatch.end();
 	}
 
 	/*
