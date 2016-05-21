@@ -15,6 +15,8 @@ import com.badlogic.gdx.graphics.g3d.utils.BaseShaderProvider;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 
@@ -30,6 +32,7 @@ public class Game extends ApplicationAdapter {
 	public ModelBatch modelBatch;
 	public ModelBatch depthBatch;
 	public SpriteBatch outlineBatch;
+	public CelLineShaderProgram outlineShader;
 
 	public FrameBuffer fbo;
 	public TextureRegion textureRegion;
@@ -58,6 +61,9 @@ public class Game extends ApplicationAdapter {
 		modelBatch = new ModelBatch(new CelShaderProvider());
 		depthBatch = new ModelBatch(new CelDepthShaderProvider());
 		outlineBatch= new SpriteBatch();
+
+		// declare the cel line shader.
+		outlineShader = new CelLineShaderProgram();
 
 		// add an environment and add a light to it.
 		environment = new Environment();
@@ -108,9 +114,11 @@ public class Game extends ApplicationAdapter {
 		modelBatch.render(instances, environment);
 		modelBatch.end();
 
+		outlineBatch.setShader(outlineShader);
 		outlineBatch.begin();
 		outlineBatch.draw(textureRegion, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		outlineBatch.end();
+		outlineBatch.setShader(null);
 	}
 
 	/*
@@ -123,8 +131,12 @@ public class Game extends ApplicationAdapter {
 		camera.viewportHeight = height;
 		camera.update();
 
+		outlineShader.setUniformf("u_size", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+		outlineBatch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, width, height));
+
 		if (fbo != null) fbo.dispose();
-		fbo = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
+		fbo = new FrameBuffer(Pixmap.Format.RGBA8888, width, height, true);
 	}
 
 	@Override
@@ -197,6 +209,18 @@ public class Game extends ApplicationAdapter {
 			super.begin(camera, context);
 			set(u_near, camera.near);
 			set(u_far, camera.far);
+		}
+	}
+
+	public class CelLineShaderProgram extends ShaderProgram {
+		public CelLineShaderProgram() {
+			super(Gdx.files.internal("shaders/cel.line.vertex.glsl"), Gdx.files.internal("shaders/cel.line.fragment.glsl"));
+		}
+
+		@Override
+		public void begin() {
+			super.begin();
+			setUniformf("u_size", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		}
 	}
 }
