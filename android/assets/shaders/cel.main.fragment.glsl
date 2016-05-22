@@ -220,7 +220,7 @@ void main() {
 	#endif
 
 	#if defined(celFlag)
-		gl_FragColor *= celFactor3(gl_FragColor.rgb, vec3(0.8, 0.5, 0.25), vec3(1.0, 0.8, 0.3));
+		gl_FragColor.rgb *= celFactor3(gl_FragColor.rgb, vec3(0.8, 0.5, 0.25), vec3(1.0, 0.8, 0.3));
 	#endif
 
 }

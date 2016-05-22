@@ -1,19 +1,17 @@
 #ifdef GL_ES
 #define LOWP lowp
-#define MED mediump
-precision lowp float;
+precision mediump float;
 #else
 #define LOWP
-#define MED
 #endif
 
 uniform sampler2D u_texture;
 
-varying MED vec2 v_texCoords0;
-varying MED vec2 v_texCoords1;
-varying MED vec2 v_texCoords2;
-varying MED vec2 v_texCoords3;
-varying MED vec2 v_texCoords4;
+varying vec2 v_texCoords0;
+varying vec2 v_texCoords1;
+varying vec2 v_texCoords2;
+varying vec2 v_texCoords3;
+varying vec2 v_texCoords4;
 
 void main() {
 	const vec4 bitShifts = vec4(1.0, 1.0 / 255.0, 1.0 / 65025.0, 1.0 / 160581375.0);

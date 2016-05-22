@@ -17,9 +17,9 @@ import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import java.util.Random;
 
@@ -32,11 +32,14 @@ public class Game extends ApplicationAdapter {
 
 	public ModelBatch modelBatch;
 	public ModelBatch depthBatch;
-	public SpriteBatch outlineBatch;
-	public CelLineShaderProgram outlineShader;
+	public SpriteBatch spriteBatch;
+	public CelLineShaderProgram celLineShader;
+	public TiltShiftShaderProgram tiltShiftShader;
 
-	public FrameBuffer fbo;
-	public TextureRegion textureRegion;
+	public FrameBuffer sceneBuffer;
+	public FrameBuffer depthBuffer;
+	public TextureRegion depthTextureRegion;
+	public TextureRegion sceneTextureRegion;
 
 	public Environment environment;
 
@@ -45,7 +48,7 @@ public class Game extends ApplicationAdapter {
 	public Random random = new Random();
 
 	@Override
-	public void create (){
+	public void create () {
 		// declare and configure the camera.
 		camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		camera.position.set(0, 5, 5);
@@ -58,14 +61,14 @@ public class Game extends ApplicationAdapter {
 		camController = new CameraInputController(camera);
 		Gdx.input.setInputProcessor(camController);
 
-		// declare the modelBatch, depthBatch and outlineBatch.
+		// declare the modelBatch, depthBatch and spriteBatch.
 		modelBatch = new ModelBatch(new CelShaderProvider());
 		depthBatch = new ModelBatch(new CelDepthShaderProvider());
-		outlineBatch= new SpriteBatch();
+		spriteBatch = new SpriteBatch();
 
-		// declare the cel line shader and set it to use the outlineShader
-		outlineShader = new CelLineShaderProgram();
-		outlineBatch.setShader(outlineShader);
+		// declare the cel line shader and set it to use the celLineShader
+		celLineShader = new CelLineShaderProgram();
+		tiltShiftShader = new TiltShiftShaderProgram();
 
 		// add an environment and add a light to it.
 		environment = new Environment();
@@ -94,39 +97,54 @@ public class Game extends ApplicationAdapter {
 		for (int i = 0; i < instances.size; i++) {
 			// use the instances index to give some variation to the rotation speeds
 			int f = (i % 5) + 1;
-//			instances.get(i).transform.rotate(new Vector3(0, 1, 0), (90 * f / 8 * delta) % 360);
+			instances.get(i).transform.rotate(new Vector3(0, 1, 0), (90 * f / 8 * delta) % 360);
 		}
 
 		// clear color and depth buffers.
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
 		// render depth to the framebuffer
-		fbo.begin();
+		depthBuffer.begin();
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		depthBatch.begin(camera);
 		depthBatch.render(instances);
 		depthBatch.end();
-		fbo.end();
+		depthBuffer.end();
 
-		textureRegion = new TextureRegion(fbo.getColorBufferTexture());
-		textureRegion.flip(false, true);
+		depthTextureRegion = new TextureRegion(depthBuffer.getColorBufferTexture());
+		depthTextureRegion.flip(false, true);
 
-		// render the scene
+		// render the scene and the outlines to sceneBuffer
+		sceneBuffer.begin();
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+
 		modelBatch.begin(camera);
 		modelBatch.render(instances, environment);
 		modelBatch.end();
 
-		outlineBatch.begin();
-		outlineShader.setUniformf("u_size", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		outlineBatch.draw(textureRegion, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		outlineBatch.end();
+		spriteBatch.setShader(celLineShader);
+		spriteBatch.begin();
+		celLineShader.setUniformf("u_size", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		spriteBatch.draw(depthTextureRegion, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		spriteBatch.end();
+
+		sceneBuffer.end();
+
+		sceneTextureRegion = new TextureRegion(sceneBuffer.getColorBufferTexture());
+		sceneTextureRegion.flip(false, true);
+
+		spriteBatch.setShader(tiltShiftShader);
+		spriteBatch.begin();
+		spriteBatch.draw(sceneTextureRegion, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		spriteBatch.end();
+		spriteBatch.setShader(null);
 	}
 
 	/*
 	 * On screen/window resize:
 	 * Reset the camera viewportWidth and viewportHeight
-	 * Set the outlineBatch's projection matrix.
-	 * Init/reinit the fbo
+	 * Set the spriteBatch's projection matrix.
+	 * Init/reinit the depthBuffer
 	 */
 	@Override
 	public void resize(int width, int height) {
@@ -134,19 +152,24 @@ public class Game extends ApplicationAdapter {
 		camera.viewportHeight = height;
 		camera.update();
 
-		outlineBatch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, width, height));
+		spriteBatch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, width, height));
 
-		if (fbo != null) fbo.dispose();
-		fbo = new FrameBuffer(Pixmap.Format.RGBA8888, width, height, true);
+		if (sceneBuffer != null) sceneBuffer.dispose();
+		sceneBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, width, height, true);
+
+		if (depthBuffer != null) depthBuffer.dispose();
+		depthBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, width, height, true);
 	}
 
 	@Override
 	public void dispose () {
 		modelBatch.dispose();
 		depthBatch.dispose();
-		outlineBatch.dispose();
-		outlineShader.dispose();
-		fbo.dispose();
+		spriteBatch.dispose();
+		celLineShader.dispose();
+		tiltShiftShader.dispose();
+		sceneBuffer.dispose();
+		depthBuffer.dispose();
 		assetManager.dispose();
 	}
 	/*
@@ -179,14 +202,10 @@ public class Game extends ApplicationAdapter {
 	 */
 	public class CelShader extends DefaultShader {
 		public CelShader(Renderable renderable) {
-			this(
-					renderable,
-					new Config(
-							Gdx.files.classpath("com/badlogic/gdx/graphics/g3d/shaders/default.vertex.glsl").readString(),
-							Gdx.files.internal("shaders/cel.main.fragment.glsl").readString()
-					),
-					true
-			);
+			this(renderable,
+				new Config(Gdx.files.classpath("com/badlogic/gdx/graphics/g3d/shaders/default.vertex.glsl").readString(),
+					Gdx.files.internal("shaders/cel.main.fragment.glsl").readString()),
+				true);
 		}
 
 		public CelShader(Renderable renderable, Config config, boolean on) {
@@ -221,10 +240,12 @@ public class Game extends ApplicationAdapter {
 		public CelLineShaderProgram() {
 			super(Gdx.files.internal("shaders/cel.line.vertex.glsl"), Gdx.files.internal("shaders/cel.line.fragment.glsl"));
 		}
+	}
 
-		@Override
-		public void begin() {
-			super.begin();
+	public class TiltShiftShaderProgram extends ShaderProgram {
+		public TiltShiftShaderProgram() {
+			super(Gdx.files.internal("shaders/tilt.shift.vertex.glsl"), Gdx.files.internal("shaders/tilt.shift.fragment.glsl"));
 		}
 	}
+
 }
