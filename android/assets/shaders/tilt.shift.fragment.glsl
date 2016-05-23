@@ -8,59 +8,43 @@ precision mediump float;
 uniform sampler2D u_texture;
 uniform vec2 u_size;
 uniform float u_tiltPercentage;
+uniform vec2 u_dimension;
 varying vec2 v_texCoords;
 
+
 void main() {
+	float y = v_texCoords.y;
+	float[9] weights;
+	weights[0] = 0.063327;
+	weights[1] = 0.093095;
+	weights[2] = 0.122589;
+	weights[3] = 0.144599;
+	weights[4] = 0.152781;
+	weights[5] = 0.144599;
+	weights[6] = 0.122589;
+	weights[7] = 0.093095;
+	weights[8] = 0.063327;
+
 	vec2 offset = vec2(1.0, 1.0) / u_size;
 	float cuttoffHigh = 1.0 - (u_size.y * offset.y * u_tiltPercentage / 2.0);
 	float cuttoffLow = 0.0 + (u_size.y * offset.y * u_tiltPercentage / 2.0);
 
-	if (v_texCoords.y < cuttoffLow || v_texCoords.y > cuttoffHigh) {
-		vec3 sum = vec3(0.0,0.0,0.0);
-		sum += texture2D(u_texture, v_texCoords + vec2(-1.0, 1.0) * offset).rgb * 0.107035f;
-		sum += texture2D(u_texture, v_texCoords + vec2(0.0, 1.0) * offset).rgb * 0.113092f;
-		sum += texture2D(u_texture, v_texCoords + vec2(1.0, 1.0) * offset).rgb * 0.107035f;
-		sum += texture2D(u_texture, v_texCoords + vec2(-1.0, 0.0) * offset).rgb * 0.113092f;
-		sum += texture2D(u_texture, v_texCoords).rgb * 0.119491f;
-		sum += texture2D(u_texture, v_texCoords + vec2(1.0, 0.0) * offset).rgb * 0.113092f;
-		sum += texture2D(u_texture, v_texCoords + vec2(-1.0, -1.0) * offset).rgb * 0.107035f;
-		sum += texture2D(u_texture, v_texCoords + vec2(0.0, -1.0) * offset).rgb * 0.113092f;
-		sum += texture2D(u_texture, v_texCoords + vec2(1.0, -1.0) * offset).rgb * 0.107035f;
+	if (y < cuttoffLow || y > cuttoffHigh) {
+		float cutoffDistance = y < cuttoffLow ? cuttoffLow - y : y - cuttoffHigh;
+		vec2 multiplier = u_dimension / u_size * cutoffDistance * 10.0;
+		vec4 sum = texture2D(u_texture, v_texCoords) * weights[4];
 
-//		sum += texture2D(u_texture, v_texCoords + vec2(1.0, -1.0) / u_size).rgb;
-//		sum += texture2D(u_texture, v_texCoords + vec2(1.0, 0.0) / u_size).rgb;
-//		sum += texture2D(u_texture, v_texCoords + vec2(1.0, 1.0) / u_size).rgb;
-//		sum += texture2D(u_texture, v_texCoords + vec2(-1.0, 0.0) / u_size).rgb;
-//		sum += texture2D(u_texture, v_texCoords).rgb;
-//		sum += texture2D(u_texture, v_texCoords + vec2(1.0, 0.0) / u_size).rgb;
-//		sum += texture2D(u_texture, v_texCoords + vec2(-1.0, -1.0) / u_size).rgb;
-//		sum += texture2D(u_texture, v_texCoords + vec2(0.0, -1.0) / u_size).rgb;
-//		sum += texture2D(u_texture, v_texCoords + vec2(1.0, -1.0) / u_size).rgb;
-		gl_FragColor = vec4(sum, 1.0f);
-//		vec3 sum = vec3(0.0);
-//		for (float x = 1.0; x <= 9.0; x++) {
-//			for (float y = 1.0; y <= 9.0; y++) {
-//				sum += texture2D(u_texture, v_texCoords + vec2(x, y) * offset).rgb;
-//			}
-//		}
-//		gl_FragColor = vec4(sum / 81.0, 1.0);
+		sum += texture2D(u_texture, v_texCoords + -3.0 * multiplier) * weights[1];
+		sum += texture2D(u_texture, v_texCoords + -2.0 * multiplier) * weights[2];
+		sum += texture2D(u_texture, v_texCoords + -4.0 * multiplier) * weights[0];
+		sum += texture2D(u_texture, v_texCoords + -1.0 * multiplier) * weights[3];
+		sum += texture2D(u_texture, v_texCoords +  1.0 * multiplier) * weights[5];
+		sum += texture2D(u_texture, v_texCoords +  2.0 * multiplier) * weights[6];
+		sum += texture2D(u_texture, v_texCoords +  3.0 * multiplier) * weights[7];
+		sum += texture2D(u_texture, v_texCoords +  4.0 * multiplier) * weights[8];
+
+		gl_FragColor = sum;
 	} else {
-//		gl_FragColor = vec4(texture2D(u_texture, v_texCoords).rgb, 1.0);
-//		vec3 sum = texture2D(u_texture, v_texCoords).rgb;
-
-//		sum += texture2D(u_texture, v_texCoords + vec2(-1.0, 1.0) * offset).rgb;
-//		sum += texture2D(u_texture, v_texCoords + vec2(0.0, 1.0) * offset).rgb;
-//		sum += texture2D(u_texture, v_texCoords + vec2(1.0, 1.0) * offset).rgb;
-//		sum += texture2D(u_texture, v_texCoords + vec2(-1.0, 0.0) * offset).rgb;
-//		sum += texture2D(u_texture, v_texCoords + vec2(1.0, 0.0) * offset).rgb;
-//		sum += texture2D(u_texture, v_texCoords + vec2(-1.0, -1.0) * offset).rgb;
-//		sum += texture2D(u_texture, v_texCoords + vec2(0.0, -1.0) * offset).rgb;
-//		sum += texture2D(u_texture, v_texCoords + vec2(1.0, -1.0) * offset).rgb;
-//		gl_FragColor = vec4(sum / 5.0, 1.0f);
-
-
-
 		gl_FragColor = texture2D(u_texture, v_texCoords);
-//		gl_FragColor = texture2D(u_texture, v_texCoords) * u_tiltPercentage;
 	}
 }

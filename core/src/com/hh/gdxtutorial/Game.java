@@ -20,7 +20,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.ArrayMap;
 
 import java.util.Random;
 
@@ -37,10 +37,10 @@ public class Game extends ApplicationAdapter {
 	public CelLineShaderProgram celLineShader;
 	public TiltShiftShaderProgram tiltShiftShader;
 
-	public FrameBuffer sceneBuffer;
-	public FrameBuffer depthBuffer;
-	public TextureRegion depthTextureRegion;
-	public TextureRegion sceneTextureRegion;
+	public FrameBuffer fbo2;
+	public FrameBuffer fbo1;
+	public TextureRegion depthTextureRegion = new TextureRegion();
+	public TextureRegion sceneTextureRegion = new TextureRegion();
 
 	public Environment environment;
 
@@ -52,7 +52,7 @@ public class Game extends ApplicationAdapter {
 	public void create () {
 		// declare and configure the camera.
 		camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		camera.position.set(0, 5, 5);
+		camera.position.set(0.48f, 5.67f, 2.37f);
 		camera.lookAt(0, 0, 0);
 		camera.near = 1;
 		camera.far = 1000;
@@ -89,66 +89,106 @@ public class Game extends ApplicationAdapter {
 		final float delta = Math.min(1/30f, Gdx.graphics.getDeltaTime());
 		// update the camController (this also updates the camera).
 		camController.update();
-
+		System.out.println(camera.position);
 		// trigger done loading when the assets are loaded.
 		if (loading && assetManager.update())
 			doneLoading();
 
+		updateModels(delta);
+		// render depth to fbo1
+		drawDepth();
+		// render scene (cel and outline) to fbo2
+		drawScene();
+
+		drawTiltShift();
+	}
+
+	private void drawTiltShift() {
+		int blurPasses = 4;
+
+		for (int i = 1; i <= blurPasses; i++) {
+			fbo1.begin();
+			spriteBatch.setShader(tiltShiftShader);
+			spriteBatch.begin();
+			tiltShiftShader.setUniformf("u_size", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+			tiltShiftShader.setUniformf("u_tiltPercentage", 0.75f);
+			tiltShiftShader.setUniformf("u_dimension", new Vector2(0, 1));
+
+			if (i == 1) spriteBatch.draw(sceneTextureRegion, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+			else spriteBatch.draw(fbo2.getColorBufferTexture(), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+			spriteBatch.end();
+			fbo1.end();
+
+			if (i != blurPasses) fbo2.begin();
+
+			spriteBatch.begin();
+			tiltShiftShader.setUniformf("u_size", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+			tiltShiftShader.setUniformf("u_tiltPercentage", 0.75f);
+			tiltShiftShader.setUniformf("u_dimension", new Vector2(1, 0));
+			spriteBatch.draw(fbo1.getColorBufferTexture(), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+			spriteBatch.end();
+
+			if (i != blurPasses) fbo2.end();
+			else spriteBatch.setShader(null);
+		}
+	}
+
+	/*
+	 * Draws a bunch of models.
+	 */
+	private void drawModels(ModelBatch modelBatch, Camera camera, Array<ModelInstance> instances, Environment environment) {
+		modelBatch.begin(camera);
+		modelBatch.render(instances, environment);
+		modelBatch.end();
+	}
+	private void drawScene() {
+		// render the scene and the outlines to fbo2
+		fbo2.begin();
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+		drawModels(modelBatch, camera, instances, environment);
+		drawOutlines();
+		fbo2.end();
+
+		sceneTextureRegion.setRegion(fbo2.getColorBufferTexture());
+		sceneTextureRegion.flip(false, true);
+	}
+
+	private void drawDepth() {
+		fbo1.begin();
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+		drawModels(depthBatch, camera, instances, null);
+		fbo1.end();
+
+		depthTextureRegion.setRegion(fbo1.getColorBufferTexture());
+		depthTextureRegion.flip(false, true);
+	}
+
+	/*
+	 * Draws the outlines.
+	 */
+	private void drawOutlines() {
+		spriteBatch.setShader(celLineShader);
+		spriteBatch.begin();
+		celLineShader.setUniformf("u_size", depthTextureRegion.getRegionWidth(), depthTextureRegion.getRegionHeight());
+		spriteBatch.draw(depthTextureRegion, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		spriteBatch.end();
+	}
+
+	private void updateModels(float delta) {
 		// set model rotations.
 		for (int i = 0; i < instances.size; i++) {
 			// use the instances index to give some variation to the rotation speeds
 			int f = (i % 5) + 1;
 			instances.get(i).transform.rotate(new Vector3(0, 1, 0), (90 * f / 8 * delta) % 360);
 		}
-
-		// clear color and depth buffers.
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-
-		// render depth to the framebuffer
-		depthBuffer.begin();
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-		depthBatch.begin(camera);
-		depthBatch.render(instances);
-		depthBatch.end();
-		depthBuffer.end();
-
-		depthTextureRegion = new TextureRegion(depthBuffer.getColorBufferTexture());
-		depthTextureRegion.flip(false, true);
-
-		// render the scene and the outlines to sceneBuffer
-		sceneBuffer.begin();
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-
-		modelBatch.begin(camera);
-		modelBatch.render(instances, environment);
-		modelBatch.end();
-
-		spriteBatch.setShader(celLineShader);
-		spriteBatch.begin();
-		celLineShader.setUniformf("u_size", depthTextureRegion.getRegionWidth(), depthTextureRegion.getRegionHeight());
-		spriteBatch.draw(depthTextureRegion, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		spriteBatch.end();
-
-		sceneBuffer.end();
-
-		sceneTextureRegion = new TextureRegion(sceneBuffer.getColorBufferTexture());
-		sceneTextureRegion.flip(false, true);
-
-		if (!tiltShiftShader.isCompiled()) Gdx.app.log("Shader", tiltShiftShader.getLog());
-		spriteBatch.setShader(tiltShiftShader);
-		spriteBatch.begin();
-		tiltShiftShader.setUniformf("u_size", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		tiltShiftShader.setUniformf("u_tiltPercentage", 0.6f);
-		spriteBatch.draw(sceneTextureRegion, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		spriteBatch.end();
-		spriteBatch.setShader(null);
 	}
 
 	/*
 	 * On screen/window resize:
 	 * Reset the camera viewportWidth and viewportHeight
 	 * Set the spriteBatch's projection matrix.
-	 * Init/reinit the depthBuffer
+	 * Init/reinit the fbo1
 	 */
 	@Override
 	public void resize(int width, int height) {
@@ -158,11 +198,11 @@ public class Game extends ApplicationAdapter {
 
 		spriteBatch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, width, height));
 
-		if (sceneBuffer != null) sceneBuffer.dispose();
-		sceneBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, width, height, true);
+		if (fbo2 != null) fbo2.dispose();
+		fbo2 = new FrameBuffer(Pixmap.Format.RGBA8888, width, height, true);
 
-		if (depthBuffer != null) depthBuffer.dispose();
-		depthBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, width, height, true);
+		if (fbo1 != null) fbo1.dispose();
+		fbo1 = new FrameBuffer(Pixmap.Format.RGBA8888, width, height, true);
 	}
 
 	@Override
@@ -172,8 +212,8 @@ public class Game extends ApplicationAdapter {
 		spriteBatch.dispose();
 		celLineShader.dispose();
 		tiltShiftShader.dispose();
-		sceneBuffer.dispose();
-		depthBuffer.dispose();
+		fbo2.dispose();
+		fbo1.dispose();
 		assetManager.dispose();
 	}
 	/*
