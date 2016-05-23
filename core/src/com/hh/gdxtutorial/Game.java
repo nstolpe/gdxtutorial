@@ -20,7 +20,6 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ArrayMap;
 
 import java.util.Random;
 
@@ -70,6 +69,7 @@ public class Game extends ApplicationAdapter {
 		// declare the cel line shader and set it to use the celLineShader
 		celLineShader = new CelLineShaderProgram();
 		tiltShiftShader = new TiltShiftShaderProgram();
+		if (tiltShiftShader.isCompiled() == false) throw new IllegalArgumentException("Error compiling shader: " + tiltShiftShader.getLog());
 
 		// add an environment and add a light to it.
 		environment = new Environment();
@@ -80,7 +80,7 @@ public class Game extends ApplicationAdapter {
 		assetManager.load("models/cube.g3dj", Model.class);
 
 		// set the clear color
-		Gdx.gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	}
 
 	@Override
@@ -99,7 +99,7 @@ public class Game extends ApplicationAdapter {
 		drawDepth();
 		// render scene (cel and outline) to fbo2
 		drawScene();
-
+		// draw tilt shift passes and output the last.
 		drawTiltShift();
 	}
 
@@ -111,7 +111,7 @@ public class Game extends ApplicationAdapter {
 			spriteBatch.setShader(tiltShiftShader);
 			spriteBatch.begin();
 			tiltShiftShader.setUniformf("u_size", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-			tiltShiftShader.setUniformf("u_tiltPercentage", 0.75f);
+			tiltShiftShader.setUniformf("u_tiltPercentage", 0.85f);
 			tiltShiftShader.setUniformf("u_dimension", new Vector2(0, 1));
 
 			if (i == 1) spriteBatch.draw(sceneTextureRegion, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -124,7 +124,7 @@ public class Game extends ApplicationAdapter {
 
 			spriteBatch.begin();
 			tiltShiftShader.setUniformf("u_size", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-			tiltShiftShader.setUniformf("u_tiltPercentage", 0.75f);
+			tiltShiftShader.setUniformf("u_tiltPercentage", 0.85f);
 			tiltShiftShader.setUniformf("u_dimension", new Vector2(1, 0));
 			spriteBatch.draw(fbo1.getColorBufferTexture(), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 			spriteBatch.end();
