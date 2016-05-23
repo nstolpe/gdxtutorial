@@ -6,34 +6,61 @@ precision mediump float;
 #endif
 
 uniform sampler2D u_texture;
+uniform vec2 u_size;
+uniform float u_tiltPercentage;
 varying vec2 v_texCoords;
-const float bluramount  = 1.0;
-const float center      = 1.0;
-const float stepSize    = 0.004;
-const float steps       = 6.0;
-const float minOffs     = (float(steps-1.0)) / -2.0;
-const float maxOffs     = (float(steps-1.0)) / +2.0;
+
 void main() {
-	float amount;
-	vec4 blurred;
-	//Work out how much to blur based on the mid point
-	amount = pow((v_texCoords.y * center) * 2.0 - 1.0, 2.0) * bluramount;
-	//This is the accumulation of color from the surrounding pixels in the texture
-	blurred = vec4(0.0, 0.0, 0.0, 1.0);
-	//From minimum offset to maximum offset
-	for (float offsX = minOffs; offsX <= maxOffs; ++offsX) {
-		for (float offsY = minOffs; offsY <= maxOffs; ++offsY) {
-			//copy the coord so we can mess with it
-			vec2 temp_v_texCoords = v_texCoords.xy;
-			//work out which uv we want to sample now
-			temp_v_texCoords.x += offsX * amount * stepSize;
-			temp_v_texCoords.y += offsY * amount * stepSize;
-			//accumulate the sample
-			blurred += texture2D(u_texture, temp_v_texCoords);
-		}
+	vec2 offset = vec2(1.0, 1.0) / u_size;
+	float cuttoffHigh = 1.0 - (u_size.y * offset.y * u_tiltPercentage / 2.0);
+	float cuttoffLow = 0.0 + (u_size.y * offset.y * u_tiltPercentage / 2.0);
+
+	if (v_texCoords.y < cuttoffLow || v_texCoords.y > cuttoffHigh) {
+		vec3 sum = vec3(0.0,0.0,0.0);
+		sum += texture2D(u_texture, v_texCoords + vec2(-1.0, 1.0) * offset).rgb * 0.107035f;
+		sum += texture2D(u_texture, v_texCoords + vec2(0.0, 1.0) * offset).rgb * 0.113092f;
+		sum += texture2D(u_texture, v_texCoords + vec2(1.0, 1.0) * offset).rgb * 0.107035f;
+		sum += texture2D(u_texture, v_texCoords + vec2(-1.0, 0.0) * offset).rgb * 0.113092f;
+		sum += texture2D(u_texture, v_texCoords).rgb * 0.119491f;
+		sum += texture2D(u_texture, v_texCoords + vec2(1.0, 0.0) * offset).rgb * 0.113092f;
+		sum += texture2D(u_texture, v_texCoords + vec2(-1.0, -1.0) * offset).rgb * 0.107035f;
+		sum += texture2D(u_texture, v_texCoords + vec2(0.0, -1.0) * offset).rgb * 0.113092f;
+		sum += texture2D(u_texture, v_texCoords + vec2(1.0, -1.0) * offset).rgb * 0.107035f;
+
+//		sum += texture2D(u_texture, v_texCoords + vec2(1.0, -1.0) / u_size).rgb;
+//		sum += texture2D(u_texture, v_texCoords + vec2(1.0, 0.0) / u_size).rgb;
+//		sum += texture2D(u_texture, v_texCoords + vec2(1.0, 1.0) / u_size).rgb;
+//		sum += texture2D(u_texture, v_texCoords + vec2(-1.0, 0.0) / u_size).rgb;
+//		sum += texture2D(u_texture, v_texCoords).rgb;
+//		sum += texture2D(u_texture, v_texCoords + vec2(1.0, 0.0) / u_size).rgb;
+//		sum += texture2D(u_texture, v_texCoords + vec2(-1.0, -1.0) / u_size).rgb;
+//		sum += texture2D(u_texture, v_texCoords + vec2(0.0, -1.0) / u_size).rgb;
+//		sum += texture2D(u_texture, v_texCoords + vec2(1.0, -1.0) / u_size).rgb;
+		gl_FragColor = vec4(sum, 1.0f);
+//		vec3 sum = vec3(0.0);
+//		for (float x = 1.0; x <= 9.0; x++) {
+//			for (float y = 1.0; y <= 9.0; y++) {
+//				sum += texture2D(u_texture, v_texCoords + vec2(x, y) * offset).rgb;
+//			}
+//		}
+//		gl_FragColor = vec4(sum / 81.0, 1.0);
+	} else {
+//		gl_FragColor = vec4(texture2D(u_texture, v_texCoords).rgb, 1.0);
+//		vec3 sum = texture2D(u_texture, v_texCoords).rgb;
+
+//		sum += texture2D(u_texture, v_texCoords + vec2(-1.0, 1.0) * offset).rgb;
+//		sum += texture2D(u_texture, v_texCoords + vec2(0.0, 1.0) * offset).rgb;
+//		sum += texture2D(u_texture, v_texCoords + vec2(1.0, 1.0) * offset).rgb;
+//		sum += texture2D(u_texture, v_texCoords + vec2(-1.0, 0.0) * offset).rgb;
+//		sum += texture2D(u_texture, v_texCoords + vec2(1.0, 0.0) * offset).rgb;
+//		sum += texture2D(u_texture, v_texCoords + vec2(-1.0, -1.0) * offset).rgb;
+//		sum += texture2D(u_texture, v_texCoords + vec2(0.0, -1.0) * offset).rgb;
+//		sum += texture2D(u_texture, v_texCoords + vec2(1.0, -1.0) * offset).rgb;
+//		gl_FragColor = vec4(sum / 5.0, 1.0f);
+
+
+
+		gl_FragColor = texture2D(u_texture, v_texCoords);
+//		gl_FragColor = texture2D(u_texture, v_texCoords) * u_tiltPercentage;
 	}
-	//because we are doing an average, we divide by the amount (x AND y, hence steps * steps)\n
-	blurred /= float(steps * steps);
-	//return the final blurred color
-	gl_FragColor = blurred;
 }

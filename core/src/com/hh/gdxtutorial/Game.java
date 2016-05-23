@@ -17,6 +17,7 @@ import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -124,7 +125,7 @@ public class Game extends ApplicationAdapter {
 
 		spriteBatch.setShader(celLineShader);
 		spriteBatch.begin();
-		celLineShader.setUniformf("u_size", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		celLineShader.setUniformf("u_size", depthTextureRegion.getRegionWidth(), depthTextureRegion.getRegionHeight());
 		spriteBatch.draw(depthTextureRegion, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		spriteBatch.end();
 
@@ -133,8 +134,11 @@ public class Game extends ApplicationAdapter {
 		sceneTextureRegion = new TextureRegion(sceneBuffer.getColorBufferTexture());
 		sceneTextureRegion.flip(false, true);
 
+		if (!tiltShiftShader.isCompiled()) Gdx.app.log("Shader", tiltShiftShader.getLog());
 		spriteBatch.setShader(tiltShiftShader);
 		spriteBatch.begin();
+		tiltShiftShader.setUniformf("u_size", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		tiltShiftShader.setUniformf("u_tiltPercentage", 0.6f);
 		spriteBatch.draw(sceneTextureRegion, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		spriteBatch.end();
 		spriteBatch.setShader(null);
