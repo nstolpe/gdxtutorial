@@ -89,7 +89,6 @@ public class Game extends ApplicationAdapter {
 		final float delta = Math.min(1/30f, Gdx.graphics.getDeltaTime());
 		// update the camController (this also updates the camera).
 		camController.update();
-		System.out.println(camera.position);
 		// trigger done loading when the assets are loaded.
 		if (loading && assetManager.update())
 			doneLoading();
