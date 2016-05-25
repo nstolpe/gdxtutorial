@@ -7,7 +7,7 @@ import com.badlogic.gdx.backends.gwt.preloader.Preloader;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.*;
-import com.hh.gdxtutorial.Game;
+import com.hh.gdxtutorial.Tutorial;
 
 public class HtmlLauncher extends GwtApplication {
 
@@ -21,7 +21,7 @@ public class HtmlLauncher extends GwtApplication {
 
         @Override
         public ApplicationListener createApplicationListener () {
-                return new Game();
+                return new Tutorial();
         }
 
 		@Override
