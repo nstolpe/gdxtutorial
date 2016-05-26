@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.GL20;
 
 public abstract class AbstractScreen implements Screen {
 	protected boolean loading = true;
-	protected Color clear = new Color(0.0f, 0.0f, 0.0f, 0.0f);
+	protected Color clear = new Color(0.0f, 0.0f, 0.0f, 1.0f);
 
 	@Override
 	public void show() {

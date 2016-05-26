@@ -8,6 +8,6 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
  */
 public class TiltShiftShaderProgram extends ShaderProgram {
 	public TiltShiftShaderProgram() {
-		super(Gdx.files.internal("shaders/tilt.shift.vertex.glsl"), Gdx.files.internal("shaders/tilt.shift.fragment.glsl"));
+		super(Gdx.files.internal("shaders/pass.through.vertex.glsl"), Gdx.files.internal("shaders/tilt.shift.fragment.glsl"));
 	}
 }

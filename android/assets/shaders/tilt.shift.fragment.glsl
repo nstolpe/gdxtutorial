@@ -37,4 +37,5 @@ void main() {
 	} else {
 		gl_FragColor = texture2D(u_texture, v_texCoords);
 	}
+	gl_FragColor.a = 1.0;
 }

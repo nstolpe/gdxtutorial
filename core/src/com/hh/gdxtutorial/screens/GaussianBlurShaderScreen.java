@@ -14,8 +14,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import com.hh.gdxtutorial.screens.AbstractScreen;
-import com.hh.gdxtutorial.shaders.TiltShiftShaderProgram;
+import com.hh.gdxtutorial.shaders.GaussianBlurShaderProgram;
 
 import java.util.Random;
 
@@ -32,13 +31,14 @@ public class GaussianBlurShaderScreen extends AbstractScreen {
 	public ModelBatch modelBatch;
 	public SpriteBatch spriteBatch;
 
-	public TiltShiftShaderProgram tiltShiftShader;
+	public GaussianBlurShaderProgram gaussianBlurShader;
 
 	public Array<FrameBuffer> fbos = new Array<FrameBuffer>();
 	public TextureRegion tr = new TextureRegion();
 	public Environment environment;
 
 	public Random random = new Random();
+	public Vector2 dimension = new Vector2(1, 0);
 
 	@Override
 	public void show() {
@@ -51,17 +51,15 @@ public class GaussianBlurShaderScreen extends AbstractScreen {
 		camera.near = 1;
 		camera.far = 1000;
 		camera.update();
-
 		// declare camController and set it as the input processor.
 		camController = new CameraInputController(camera);
 		Gdx.input.setInputProcessor(camController);
 
-		// declare the modelBatch, depthBatch and spriteBatch.
+		gaussianBlurShader = new GaussianBlurShaderProgram();
 		modelBatch = new ModelBatch();
 		spriteBatch = new SpriteBatch();
+		spriteBatch.setShader(gaussianBlurShader);
 
-		// declare the cel line shader and set it to use the celLineShader
-		tiltShiftShader = new TiltShiftShaderProgram();
 
 		environment = new Environment();
 //		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 1f, 1f, 1f, 1f));
@@ -85,35 +83,28 @@ public class GaussianBlurShaderScreen extends AbstractScreen {
 		tr.setRegion(fbo.getColorBufferTexture());
 		tr.flip(false, true);
 
-		postProcess();
+		gaussianBlur();
 	}
 
-	private void postProcess() {
-		int blurPasses = 4;
+	private void gaussianBlur() {
+		int blurPasses = 10;
 		for (int i = 1; i <= blurPasses; i++) {
-			fbos.get(0).begin();
-			spriteBatch.setShader(tiltShiftShader);
-			spriteBatch.begin();
-			tiltShiftShader.setUniformf("u_size", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-			tiltShiftShader.setUniformf("u_dimension", new Vector2(0, 1));
-
-			if (i == 1) spriteBatch.draw(tr, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-			else spriteBatch.draw(fbos.get(1).getColorBufferTexture(), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
-			spriteBatch.end();
-			fbos.get(0).end();
-
-			if (i != blurPasses) fbos.get(1).begin();
-			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-
-			spriteBatch.begin();
-			tiltShiftShader.setUniformf("u_size", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-			tiltShiftShader.setUniformf("u_dimension", new Vector2(1, 0));
-			spriteBatch.draw(fbos.get(0).getColorBufferTexture(), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-			spriteBatch.end();
-			if (i != blurPasses) fbos.get(1).end();
-			else spriteBatch.setShader(null);
+			gaussianPass(dimension, tr, fbos.get(0));
+			dimension.set(dimension.y, dimension.x);
+			tr.setRegion(fbos.get(0).getColorBufferTexture());
+			gaussianPass(dimension, tr, i == blurPasses ? null : fbos.get(1));
+			dimension.set(dimension.y, dimension.x);
+			tr.setRegion(fbos.get(1).getColorBufferTexture());
 		}
+	}
+	private void gaussianPass(Vector2 dimension, TextureRegion source, FrameBuffer fbo) {
+		if (fbo != null) fbo.begin();
+		spriteBatch.begin();
+		gaussianBlurShader.setUniformf("u_size", fbos.get(0).getWidth(), fbos.get(0).getHeight());
+		gaussianBlurShader.setUniformf("u_dimension", dimension);
+		spriteBatch.draw(source, 0, 0, source.getRegionWidth(), source.getRegionHeight());
+		spriteBatch.end();
+		if (fbo != null) fbo.end();
 	}
 
 	public void runModelBatch(ModelBatch batch, Camera camera, Array<ModelInstance> instances, Environment env) {
@@ -161,7 +152,7 @@ public class GaussianBlurShaderScreen extends AbstractScreen {
 	public void dispose() {
 		modelBatch.dispose();
 		spriteBatch.dispose();
-		tiltShiftShader.dispose();
+		gaussianBlurShader.dispose();
 		assetManager.dispose();
 
 		for (FrameBuffer fbo: fbos) fbo.dispose();
