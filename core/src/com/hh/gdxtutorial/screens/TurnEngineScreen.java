@@ -25,18 +25,11 @@ public class TurnEngineScreen  extends AbstractScreen {
 	public Array<ModelInstance> instances = new Array<ModelInstance>();
 
 	public ModelBatch modelBatch;
-	public SpriteBatch spriteBatch;
 
-	public GaussianBlurShaderProgram gaussianBlurShader;
-
-	public Array<FrameBuffer> fbos = new Array<FrameBuffer>();
-	public TextureRegion tr = new TextureRegion();
 	public Environment environment;
 
 	@Override
 	public void show() {
-		fbos.setSize(2);
-
 		// declare and configure the camera.
 		camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		camera.position.set(0.48f, 5.67f, 2.37f);
@@ -48,25 +41,28 @@ public class TurnEngineScreen  extends AbstractScreen {
 		camController = new CameraInputController(camera);
 		Gdx.input.setInputProcessor(camController);
 
-		gaussianBlurShader = new GaussianBlurShaderProgram();
 		modelBatch = new ModelBatch();
-		spriteBatch = new SpriteBatch();
-		spriteBatch.setShader(gaussianBlurShader);
 
 
 		environment = new Environment();
-//		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 1f, 1f, 1f, 1f));
+		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 1f, 1f, 1f, 1f));
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -0.5f, 0.5f, -1.0f));
 
 		assetManager = new AssetManager();
 		assetManager.load("models/plane.g3dj", Model.class);
 	}
-
+	@Override
+	public void render(float delta) {
+		camController.update();
+		if (loading && assetManager.update()) doneLoading();
+		runModelBatch(modelBatch, camera, instances, environment);
+	}
 	@Override
 	public void doneLoading() {
 		super.doneLoading();
 
 		ModelInstance instance = new ModelInstance(assetManager.get("models/plane.g3dj", Model.class));
+		instance.transform.setTranslation(0.0f, 0.0f, 0.0f);
 		instances.add(instance);
 	}
 }

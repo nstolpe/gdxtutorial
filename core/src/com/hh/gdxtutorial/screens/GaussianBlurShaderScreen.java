@@ -107,11 +107,6 @@ public class GaussianBlurShaderScreen extends AbstractScreen {
 		if (fbo != null) fbo.end();
 	}
 
-	public void runModelBatch(ModelBatch batch, Camera camera, Array<ModelInstance> instances, Environment env) {
-		batch.render(instances, environment);
-		batch.end();
-		batch.begin(camera);
-	}
 	public void updateModels(float delta) {
 		// set model rotations.
 		for (int i = 0; i < instances.size; i++) {

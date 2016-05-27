@@ -2,8 +2,13 @@ package com.hh.gdxtutorial.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.utils.Array;
 
 public abstract class AbstractScreen implements Screen {
 	protected boolean loading = true;
@@ -41,5 +46,11 @@ public abstract class AbstractScreen implements Screen {
 
 	public void doneLoading() {
 		loading = false;
+	}
+
+	public void runModelBatch(ModelBatch batch, Camera camera, Array<ModelInstance> instances, Environment environment) {
+		batch.render(instances, environment);
+		batch.end();
+		batch.begin(camera);
 	}
 }
