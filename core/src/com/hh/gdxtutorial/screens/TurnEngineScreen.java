@@ -3,16 +3,16 @@ package com.hh.gdxtutorial.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.g3d.*;
+import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
-import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.utils.Array;
-import com.hh.gdxtutorial.shaders.GaussianBlurShaderProgram;
 
 /**
  * Created by nils on 5/27/16.
@@ -30,9 +30,11 @@ public class TurnEngineScreen  extends AbstractScreen {
 
 	@Override
 	public void show() {
+		clear = new Color(1.0f, 0.0f, 0.0f, 1.0f);
+
 		// declare and configure the camera.
 		camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		camera.position.set(0.48f, 5.67f, 2.37f);
+		camera.position.set(5.0f, 5.0f, 5.0f);
 		camera.lookAt(0, 0, 0);
 		camera.near = 1;
 		camera.far = 1000;
@@ -54,6 +56,8 @@ public class TurnEngineScreen  extends AbstractScreen {
 	@Override
 	public void render(float delta) {
 		camController.update();
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+
 		if (loading && assetManager.update()) doneLoading();
 		runModelBatch(modelBatch, camera, instances, environment);
 	}

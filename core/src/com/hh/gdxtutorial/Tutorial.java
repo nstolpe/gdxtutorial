@@ -3,6 +3,7 @@ package com.hh.gdxtutorial;
 import com.badlogic.gdx.Game;
 import com.hh.gdxtutorial.screens.CelShaderScreen;
 import com.hh.gdxtutorial.screens.GaussianBlurShaderScreen;
+import com.hh.gdxtutorial.screens.TiltShiftShaderScreen;
 import com.hh.gdxtutorial.screens.TurnEngineScreen;
 
 public class Tutorial extends Game {
