@@ -16,6 +16,8 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.hh.gdxtutorial.engines.turn.Actor;
+import com.hh.gdxtutorial.engines.turn.TurnEngine;
 
 /**
  * Created by nils on 5/27/16.
@@ -35,7 +37,9 @@ public class TurnEngineScreen  extends AbstractScreen {
 	public ModelInstance playerSphere;
 	public Texture tex;
 
-	Vector3 origin = new Vector3(0, 2, 0);
+	public Vector3 origin = new Vector3(0, 2, 0);
+
+	public TurnEngine turnEngine;
 
 	@Override
 	public void show() {
@@ -53,7 +57,6 @@ public class TurnEngineScreen  extends AbstractScreen {
 		Gdx.input.setInputProcessor(camController);
 
 		modelBatch = new ModelBatch();
-
 
 		environment = new Environment();
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 1f, 1f, 1f, 1f));
@@ -95,6 +98,16 @@ public class TurnEngineScreen  extends AbstractScreen {
 		super.doneLoading();
 		setupPlane();
 		setupSpheres();
+		setupTurnEngine();
+	}
+
+	public void setupTurnEngine() {
+		Array<Actor> actors = new Array<Actor>();
+		actors.add(new Actor(playerSphere, Actor.PLAYER));
+		for (ModelInstance ms : mobSpheres) {
+			actors.add(new Actor(ms, Actor.MOB));
+		}
+		turnEngine = new TurnEngine(actors);
 	}
 
 	public void setupSpheres() {
