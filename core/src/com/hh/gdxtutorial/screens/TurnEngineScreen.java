@@ -73,19 +73,19 @@ public class TurnEngineScreen  extends AbstractScreen {
 
 		if (loading && assetManager.update()) doneLoading();
 
-		Vector3 currentPos = new Vector3();
+//		Vector3 currentPos = new Vector3();
 
-		for(ModelInstance ms : mobSpheres) {
-			ms.transform.getTranslation(currentPos);
-			if (currentPos.dst(origin) >= 0) {
-				Vector3 direction = origin.sub(currentPos).nor();
-				ms.transform.translate(direction.x * delta * 20, 0, direction.z * delta * 20);
-			} else {
-				ms.transform.setTranslation(origin);
-			}
-		}
+//		for(ModelInstance ms : mobSpheres) {
+//			ms.transform.getTranslation(currentPos);
+//			if (currentPos.dst(origin) >= 0) {
+//				Vector3 direction = origin.sub(currentPos).nor();
+//				ms.transform.translate(direction.x * delta * 20, 0, direction.z * delta * 20);
+//			} else {
+//				ms.transform.setTranslation(origin);
+//			}
+//		}
 
-		turnEngine.update();
+		turnEngine.update(delta);
 		runModelBatch(modelBatch, camera, instances, environment);
 	}
 	@Override
@@ -109,6 +109,7 @@ public class TurnEngineScreen  extends AbstractScreen {
 			actors.add(new Actor(ms, Actor.MOB));
 		}
 		turnEngine.actors.addAll(actors);
+		turnEngine.start(null);
 	}
 
 	public void setupSpheres() {

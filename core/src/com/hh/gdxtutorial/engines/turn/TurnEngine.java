@@ -9,6 +9,7 @@ public class TurnEngine {
     public Array<Actor> actors = new Array<Actor>();
 	public Actor active;
 	public int turnCount = 0;
+	public boolean running = false;
 
 	public TurnEngine() {}
 
@@ -18,11 +19,12 @@ public class TurnEngine {
 
 	public void start(Actor first) {
 		active = first == null ? actors.get(0) : first;
-
+		running = true;
+		active.startTurn();
 	}
 
-	public void update() {
-
+	public void update(float delta) {
+		if (running && active.inTurn) active.update(delta);
 	}
 	public void advanceTurn() {
 
