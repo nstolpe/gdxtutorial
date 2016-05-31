@@ -35,6 +35,8 @@ public class TurnEngineScreen  extends AbstractScreen {
 	public ModelInstance playerSphere;
 	public Texture tex;
 
+	Vector3 origin = new Vector3(0, 2, 0);
+
 	@Override
 	public void show() {
 		clear = new Color(1.0f, 0.0f, 0.0f, 1.0f);
@@ -67,6 +69,19 @@ public class TurnEngineScreen  extends AbstractScreen {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
 		if (loading && assetManager.update()) doneLoading();
+
+		Vector3 currentPos = new Vector3();
+
+		for(ModelInstance ms : mobSpheres) {
+			ms.transform.getTranslation(currentPos);
+			if (currentPos.dst(origin) >= 0) {
+				Vector3 direction = origin.sub(currentPos).nor();
+				System.out.println(direction);
+				ms.transform.translate(direction.x * delta * 20, 0, direction.z * delta * 20);
+			} else {
+				ms.transform.setTranslation(origin);
+			}
+		}
 		runModelBatch(modelBatch, camera, instances, environment);
 	}
 	@Override
