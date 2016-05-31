@@ -51,7 +51,7 @@
 	],
 	"materials": [
 		{
-			"id": "skin",
+			"id": "Material",
 			"ambient": [ 0.000000,  0.000000,  0.000000],
 			"diffuse": [ 1.000000,  1.000000,  1.000000],
 			"emissive": [ 0.000000,  0.000000,  0.000000],
@@ -60,7 +60,7 @@
 			"shininess":  9.607843,
 			"textures": [
 				{
-					"id": "skin",
+					"id": "Texture.002",
 					"filename": "plane.png",
 					"type": "DIFFUSE"
 				}
@@ -75,7 +75,7 @@
 			"parts": [
 				{
 					"meshpartid": "Plane_part1",
-					"materialid": "skin",
+					"materialid": "Material",
 					"uvMapping": [[]]
 				}
 			]

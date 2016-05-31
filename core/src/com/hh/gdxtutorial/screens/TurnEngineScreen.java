@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -23,6 +24,7 @@ public class TurnEngineScreen  extends AbstractScreen {
 
 	public AssetManager assetManager;
 	public Array<ModelInstance> instances = new Array<ModelInstance>();
+	public ModelInstance plane;
 
 	public ModelBatch modelBatch;
 
@@ -52,6 +54,7 @@ public class TurnEngineScreen  extends AbstractScreen {
 
 		assetManager = new AssetManager();
 		assetManager.load("models/plane.g3dj", Model.class);
+		assetManager.load("models/sphere.g3dj", Model.class);
 	}
 	@Override
 	public void render(float delta) {
@@ -62,11 +65,20 @@ public class TurnEngineScreen  extends AbstractScreen {
 		runModelBatch(modelBatch, camera, instances, environment);
 	}
 	@Override
+	public void resize(int width, int height) {
+		camera.viewportWidth = width;
+		camera.viewportHeight = height;
+		camera.update();
+	}
+	@Override
 	public void doneLoading() {
 		super.doneLoading();
 
-		ModelInstance instance = new ModelInstance(assetManager.get("models/plane.g3dj", Model.class));
-		instance.transform.setTranslation(0.0f, 0.0f, 0.0f);
-		instances.add(instance);
+		plane = new ModelInstance(assetManager.get("models/plane.g3dj", Model.class));
+		plane.transform.setTranslation(0.0f, 0.0f, 0.0f);
+		plane.transform.setToRotation(new Vector3(1.0f, 0.0f, 0.0f), -90);
+		instances.add(plane);
+		ModelInstance sphere = new ModelInstance(assetManager.get("models/sphere.g3dj", Model.class));
+		instances.add(sphere);
 	}
 }
