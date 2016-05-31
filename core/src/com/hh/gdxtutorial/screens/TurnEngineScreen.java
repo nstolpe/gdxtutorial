@@ -39,7 +39,7 @@ public class TurnEngineScreen  extends AbstractScreen {
 
 	public Vector3 origin = new Vector3(0, 2, 0);
 
-	public TurnEngine turnEngine;
+	public TurnEngine turnEngine = new TurnEngine();
 
 	@Override
 	public void show() {
@@ -79,12 +79,13 @@ public class TurnEngineScreen  extends AbstractScreen {
 			ms.transform.getTranslation(currentPos);
 			if (currentPos.dst(origin) >= 0) {
 				Vector3 direction = origin.sub(currentPos).nor();
-				System.out.println(direction);
 				ms.transform.translate(direction.x * delta * 20, 0, direction.z * delta * 20);
 			} else {
 				ms.transform.setTranslation(origin);
 			}
 		}
+
+		turnEngine.update();
 		runModelBatch(modelBatch, camera, instances, environment);
 	}
 	@Override
@@ -107,7 +108,7 @@ public class TurnEngineScreen  extends AbstractScreen {
 		for (ModelInstance ms : mobSpheres) {
 			actors.add(new Actor(ms, Actor.MOB));
 		}
-		turnEngine = new TurnEngine(actors);
+		turnEngine.actors.addAll(actors);
 	}
 
 	public void setupSpheres() {

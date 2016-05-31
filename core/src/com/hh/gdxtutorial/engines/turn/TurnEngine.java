@@ -1,15 +1,16 @@
 package com.hh.gdxtutorial.engines.turn;
 
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.utils.Array;
 
 /**
  * Created by nils on 5/31/16.
  */
 public class TurnEngine {
-    public Array<Actor> actors;
+    public Array<Actor> actors = new Array<Actor>();
 	public Actor active;
 	public int turnCount = 0;
+
+	public TurnEngine() {}
 
 	public TurnEngine(Array<Actor> actors) {
 		this.actors = actors;

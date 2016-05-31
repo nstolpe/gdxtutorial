@@ -12,6 +12,7 @@ public class Actor {
 	public int type;
 	public float zPos = 2.0f;
 	public Vector3 destination = new Vector3();
+	public boolean inTurn = false;
 
 	public Actor(ModelInstance instance, int type) {
 		this.instance = instance;
