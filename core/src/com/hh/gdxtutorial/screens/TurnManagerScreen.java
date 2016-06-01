@@ -16,30 +16,29 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import com.hh.gdxtutorial.engines.turn.Actor;
-import com.hh.gdxtutorial.engines.turn.TurnEngine;
+import com.hh.gdxtutorial.managers.turn.Actor;
+import com.hh.gdxtutorial.managers.turn.TurnManager;
 
 /**
  * Created by nils on 5/27/16.
  */
-public class TurnEngineScreen  extends AbstractScreen {
+public class TurnManagerScreen extends AbstractScreen {
 	public PerspectiveCamera camera;
 	public CameraInputController camController;
 
 	public AssetManager assetManager;
 	public Array<ModelInstance> instances = new Array<ModelInstance>();
-	public Array<ModelInstance> mobSpheres = new Array<ModelInstance>();
+	public Array<Actor> actors = new Array<Actor>();
 	public ModelInstance plane;
 
 	public ModelBatch modelBatch;
 
 	public Environment environment;
-	public ModelInstance playerSphere;
 	public Texture tex;
 
 	public Vector3 origin = new Vector3(0, 2, 0);
 
-	public TurnEngine turnEngine = new TurnEngine();
+	public TurnManager turnManager = new TurnManager();
 
 	@Override
 	public void show() {
@@ -73,19 +72,7 @@ public class TurnEngineScreen  extends AbstractScreen {
 
 		if (loading && assetManager.update()) doneLoading();
 
-//		Vector3 currentPos = new Vector3();
-
-//		for(ModelInstance ms : mobSpheres) {
-//			ms.transform.getTranslation(currentPos);
-//			if (currentPos.dst(origin) >= 0) {
-//				Vector3 direction = origin.sub(currentPos).nor();
-//				ms.transform.translate(direction.x * delta * 20, 0, direction.z * delta * 20);
-//			} else {
-//				ms.transform.setTranslation(origin);
-//			}
-//		}
-
-		turnEngine.update(delta);
+		turnManager.update(delta);
 		runModelBatch(modelBatch, camera, instances, environment);
 	}
 	@Override
@@ -97,42 +84,39 @@ public class TurnEngineScreen  extends AbstractScreen {
 	@Override
 	public void doneLoading() {
 		super.doneLoading();
-		setupPlane();
-		setupSpheres();
-		setupTurnEngine();
+		setupScene();
+		setupActors();
 	}
 
-	public void setupTurnEngine() {
-		Array<Actor> actors = new Array<Actor>();
-		actors.add(new Actor(playerSphere, Actor.PLAYER));
-		for (ModelInstance ms : mobSpheres) {
-			actors.add(new Actor(ms, Actor.MOB));
-		}
-		turnEngine.actors.addAll(actors);
-		turnEngine.start(null);
-	}
 
-	public void setupSpheres() {
-		playerSphere = new ModelInstance(assetManager.get("models/sphere.g3dj", Model.class));
-		playerSphere.transform.setTranslation(0, 2, 0);
-		instances.add(playerSphere);
+	public void setupActors() {
+		// create the player sphere/Actor, set it's position, add to actors and instances.
+		Actor player = new Actor(new ModelInstance(assetManager.get("models/sphere.g3dj", Model.class)), Actor.PLAYER);
+		player.position.set(0, 2, 0);
+		instances.add(player.instance);
+		actors.add(player);
 
+		// create texture for mobs
 		tex = new Texture(Gdx.files.internal("models/sphere-purple.png"), true);
 		tex.setFilter(Texture.TextureFilter.MipMapLinearNearest, Texture.TextureFilter.Nearest);
 		TextureAttribute texAttr = new TextureAttribute(TextureAttribute.Diffuse, tex);
 
+		// create and position the mobs spheres/Actors
 		for (int i = -1; i <= 1; i += 2) {
 			for (int j = -1; j <= 1; j += 2) {
-				ModelInstance sphere = new ModelInstance(assetManager.get("models/sphere.g3dj", Model.class));
-				sphere.getMaterial("skin").set(texAttr);
-				sphere.transform.setTranslation(i * 20, 2, j * 20);
-				instances.add(sphere);
-				mobSpheres.add(sphere);
+				Actor mob = new Actor(new ModelInstance(assetManager.get("models/sphere.g3dj", Model.class)), Actor.MOB);
+				mob.instance.getMaterial("skin").set(texAttr);
+				mob.position.set(i * 20, 2, j * 20);
+				actors.add(mob);
+				instances.add(mob.instance);
 			}
 		}
+
+		turnManager.actors.addAll(actors);
+		turnManager.start(null);
 	}
 
-	public void setupPlane() {
+	public void setupScene() {
 		plane = new ModelInstance(assetManager.get("models/plane.g3dj", Model.class));
 		plane.transform.setTranslation(0.0f, 0.0f, 0.0f);
 		plane.transform.setToRotation(new Vector3(1.0f, 0.0f, 0.0f), -90);
