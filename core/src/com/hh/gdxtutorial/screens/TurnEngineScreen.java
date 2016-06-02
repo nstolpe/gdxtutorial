@@ -17,12 +17,12 @@ import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.hh.gdxtutorial.managers.turn.Actor;
-import com.hh.gdxtutorial.managers.turn.TurnManager;
+import com.hh.gdxtutorial.managers.turn.TurnEngine;
 
 /**
  * Created by nils on 5/27/16.
  */
-public class TurnManagerScreen extends AbstractScreen {
+public class TurnEngineScreen extends AbstractScreen {
 	public PerspectiveCamera camera;
 	public CameraInputController camController;
 
@@ -38,7 +38,7 @@ public class TurnManagerScreen extends AbstractScreen {
 
 	public Vector3 origin = new Vector3(0, 2, 0);
 
-	public TurnManager turnManager = new TurnManager();
+	public TurnEngine turnEngine = new TurnEngine();
 
 	@Override
 	public void show() {
@@ -72,7 +72,7 @@ public class TurnManagerScreen extends AbstractScreen {
 
 		if (loading && assetManager.update()) doneLoading();
 
-		turnManager.update(delta);
+		turnEngine.update(delta);
 		runModelBatch(modelBatch, camera, instances, environment);
 	}
 	@Override
@@ -112,8 +112,8 @@ public class TurnManagerScreen extends AbstractScreen {
 			}
 		}
 
-		turnManager.actors.addAll(actors);
-		turnManager.start(null);
+		turnEngine.actors.addAll(actors);
+		turnEngine.start();
 	}
 
 	public void setupScene() {

@@ -1,16 +1,15 @@
-package com.hh.gdxtutorial.managers.turn;
+package com.hh.gdxtutorial.engines.turn;
 
-import aurelienribon.tweenengine.Tween;
-import aurelienribon.tweenengine.TweenAccessor;
-import aurelienribon.tweenengine.TweenManager;
+import aurelienribon.tweenengine.*;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 
 /**
  * Created by nils on 5/31/16.
  */
-public class TurnManager {
-    public Array<Actor> actors = new Array<Actor>();
+public class TurnEngine {
+    public Array<Actor> actors;
 	public Actor active;
 	public int turnCount = 0;
 	public boolean running = false;
@@ -20,30 +19,45 @@ public class TurnManager {
 	/*
 	 * Empty constructor
 	 */
-	public TurnManager() {}
+	public TurnEngine() {
+		this(new Array<Actor>());
+	}
 
-	public TurnManager(Array<Actor> actors) {
+	public TurnEngine(Array<Actor> actors) {
 		this.actors = actors;
 		Tween.registerAccessor(Vector3.class, new Vector3Accessor());
 	}
-
+	public void start() {
+		start(actors.get(0));
+	}
 	public void start(Actor first) {
+		active = first;
+		running = true;
+
+		// put actors in their starting positions (and @TODO other transforms)
 		for (Actor a : actors) {
 			a.instance.transform.setTranslation(a.position);
 		}
-		active = first == null ? actors.get(0) : first;
-		running = true;
 		active.startTurn();
+
+		float x = MathUtils.random(-20, 20);
+		float z = MathUtils.random(-20, 20);
+		Tween.to(active.position, Vector3Accessor.XYZ, active.position.dst(x, 2, z) / 4).target(x, 2, z).setCallback(new TweenCallback() {
+			@Override
+			public void onEvent(int type, BaseTween<?> source) {
+
+			}
+		}).start(tweenManager);
 	}
 
 	public void update(float delta) {
 		if (running) {
 			tweenManager.update(delta);
 
-			if (!active.inTurn) {
-				active = actors.get((actors.indexOf(active, true) + 1) % actors.size);
-				active.startTurn();
-			}
+//			if (!active.inTurn) {
+//				active = actors.get((actors.indexOf(active, true) + 1) % actors.size);
+//				active.startTurn();
+//			}
 			for (Actor actor : actors)
 				actor.update(delta);
 		}
