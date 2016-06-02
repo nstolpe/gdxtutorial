@@ -1,15 +1,16 @@
 package com.hh.gdxtutorial;
 
 import com.badlogic.gdx.Game;
-import com.hh.gdxtutorial.screens.TurnManagerScreen;
+import com.hh.gdxtutorial.screens.CelShaderScreen;
+import com.hh.gdxtutorial.screens.TurnEngineScreen;
 
 public class Tutorial extends Game {
 
 	@Override
 	public void create () {
-//		setScreen(new CelShaderScreen());
+		setScreen(new CelShaderScreen());
 //		setScreen(new GaussianBlurShaderScreen());
-		setScreen(new TurnManagerScreen());
+//		setScreen(new TurnEngineScreen());
 //		setScreen(new TiltShiftShaderScreen());
 	}
 

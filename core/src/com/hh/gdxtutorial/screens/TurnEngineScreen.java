@@ -1,6 +1,7 @@
 package com.hh.gdxtutorial.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -16,8 +17,8 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import com.hh.gdxtutorial.managers.turn.Actor;
-import com.hh.gdxtutorial.managers.turn.TurnEngine;
+import com.hh.gdxtutorial.engines.turn.Actor;
+import com.hh.gdxtutorial.engines.turn.TurnEngine;
 
 /**
  * Created by nils on 5/27/16.
@@ -72,6 +73,7 @@ public class TurnEngineScreen extends AbstractScreen {
 
 		if (loading && assetManager.update()) doneLoading();
 
+		MessageManager.getInstance().update();
 		turnEngine.update(delta);
 		runModelBatch(modelBatch, camera, instances, environment);
 	}

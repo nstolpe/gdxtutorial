@@ -23,24 +23,7 @@ public class Actor {
 		this.type = type;
 	}
 
-	public void act() {
-//		if (inTurn) update();
-//		else startTurn();
-	}
-	public void startTurn() {
-		inTurn = true;
-
-		origin.set(position);
-		// get random new values for x and z
-		float x = MathUtils.random(-20, 20);
-		float z = MathUtils.random(-20, 20);
-		// cache the generated destination as destination
-		destination.set(x, 2, z);
-		// get the normalized direction vector to translate with
-		direction = origin.sub(destination).nor();
-	}
-
-	public void update(float delta) {
+	public void update() {
 		instance.transform.setTranslation(position);
 	}
 
