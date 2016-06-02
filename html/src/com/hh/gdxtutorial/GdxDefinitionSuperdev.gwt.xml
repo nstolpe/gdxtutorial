@@ -3,12 +3,15 @@
 <module rename-to="html">
 	<inherits name='com.badlogic.gdx.backends.gdx_backends_gwt' />
 	<inherits name='com.badlogic.gdx.physics.box2d.box2d-gwt' />
+    <inherits name='com.badlogic.ashley_gwt' />
+    <inherits name='com.badlogic.gdx.ai' />
+    <inherits name='aurelienribon.tweenengine'/>
 
     <inherits name='com.hh.gdxtutorial.GdxDefinition' />
-    
+
     <collapse-all-properties />
-    
-	<add-linker name="xsiframe"/>	
+
+	<add-linker name="xsiframe"/>
 	<set-configuration-property name="devModeRedirectEnabled" value="true"/>
-	<set-configuration-property name='xsiframe.failIfScriptTag' value='FALSE'/>	
+	<set-configuration-property name='xsiframe.failIfScriptTag' value='FALSE'/>
 </module>
