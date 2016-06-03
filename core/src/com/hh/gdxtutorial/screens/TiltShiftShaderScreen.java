@@ -88,7 +88,7 @@ public class TiltShiftShaderScreen extends FpsScreen {
 		tr.flip(false, true);
 
 		postProcess();
-		drawFpsStage();
+		super.render(delta);
 	}
 
 	private void postProcess() {

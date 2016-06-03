@@ -80,7 +80,7 @@ public class TurnEngineScreen extends FpsScreen {
 		turnEngine.update(delta);
 		runModelBatch(modelBatch, camera, instances, environment);
 
-		drawFpsStage();
+		super.render(delta);
 	}
 	@Override
 	public void resize(int width, int height) {

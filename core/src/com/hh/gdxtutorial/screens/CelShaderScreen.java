@@ -90,7 +90,7 @@ public class CelShaderScreen extends FpsScreen {
 		spriteBatch.draw(tr, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		spriteBatch.end();
 
-		drawFpsStage();
+		super.render(delta);
 	}
 
 	public void updateModels(float delta) {

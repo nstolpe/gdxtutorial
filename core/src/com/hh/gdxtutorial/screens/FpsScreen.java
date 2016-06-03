@@ -13,7 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Array;
 
-public abstract class FpsScreen extends AbstractScreen{
+public abstract class FpsScreen extends AbstractScreen {
 	protected boolean loading = true;
 	protected Color clear = new Color(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -32,8 +32,10 @@ public abstract class FpsScreen extends AbstractScreen{
 
 	@Override
 	public void render(float delta) {
-		Gdx.gl.glClearColor(clear.r, clear.g, clear.b, clear.a);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+		stringBuilder.setLength(0);
+		stringBuilder.append(" FPS: ").append(Gdx.graphics.getFramesPerSecond());
+		label.setText(stringBuilder);
+		stage.draw();
 	}
 
 	@Override
@@ -71,12 +73,5 @@ public abstract class FpsScreen extends AbstractScreen{
 		label = new Label(" ", new Label.LabelStyle(font, Color.WHITE));
 		stage.addActor(label);
 		stringBuilder = new StringBuilder();
-	}
-
-	public void drawFpsStage() {
-		stringBuilder.setLength(0);
-		stringBuilder.append(" FPS: ").append(Gdx.graphics.getFramesPerSecond());
-		label.setText(stringBuilder);
-		stage.draw();
 	}
 }

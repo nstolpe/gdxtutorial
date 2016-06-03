@@ -86,7 +86,7 @@ public class GaussianBlurShaderScreen extends FpsScreen {
 		tr.flip(false, true);
 
 		gaussianBlur();
-		drawFpsStage();
+		super.render(delta);
 	}
 
 	private void gaussianBlur() {
