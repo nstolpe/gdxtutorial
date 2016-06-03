@@ -21,7 +21,7 @@ import java.util.Random;
 /**
  * Created by nils on 5/26/16.
  */
-public class GaussianBlurShaderScreen extends AbstractScreen {
+public class GaussianBlurShaderScreen extends FpsScreen {
 	public PerspectiveCamera camera;
 	public CameraInputController camController;
 

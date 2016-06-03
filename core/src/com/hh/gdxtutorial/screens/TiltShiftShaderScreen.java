@@ -22,7 +22,7 @@ import java.util.Random;
 /**
  * Created by nils on 5/25/16.
  */
-public class TiltShiftShaderScreen extends AbstractScreen {
+public class TiltShiftShaderScreen extends FpsScreen {
 	public PerspectiveCamera camera;
 	public CameraInputController camController;
 

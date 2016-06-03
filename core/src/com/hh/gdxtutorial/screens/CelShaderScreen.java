@@ -19,7 +19,7 @@ import com.hh.gdxtutorial.shaders.CelShaderProvider;
 
 import java.util.Random;
 
-public class CelShaderScreen extends AbstractScreen {
+public class CelShaderScreen extends FpsScreen {
 	public PerspectiveCamera camera;
 	public CameraInputController camController;
 

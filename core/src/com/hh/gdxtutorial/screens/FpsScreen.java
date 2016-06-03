@@ -13,7 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Array;
 
-public abstract class AbstractScreen implements Screen {
+public abstract class FpsScreen extends AbstractScreen{
 	protected boolean loading = true;
 	protected Color clear = new Color(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -60,5 +60,23 @@ public abstract class AbstractScreen implements Screen {
 		batch.render(instances, environment);
 		batch.end();
 		batch.begin(camera);
+	}
+
+	public void resizeFpsStage(int width, int height) {
+		stage.getViewport().update(width, height, true);
+	}
+	public void setupFpsStage() {
+		stage = new Stage();
+		font = new BitmapFont();
+		label = new Label(" ", new Label.LabelStyle(font, Color.WHITE));
+		stage.addActor(label);
+		stringBuilder = new StringBuilder();
+	}
+
+	public void drawFpsStage() {
+		stringBuilder.setLength(0);
+		stringBuilder.append(" FPS: ").append(Gdx.graphics.getFramesPerSecond());
+		label.setText(stringBuilder);
+		stage.draw();
 	}
 }

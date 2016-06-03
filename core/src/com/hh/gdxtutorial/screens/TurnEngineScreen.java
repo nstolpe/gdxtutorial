@@ -23,7 +23,7 @@ import com.hh.gdxtutorial.engines.turn.TurnEngine;
 /**
  * Created by nils on 5/27/16.
  */
-public class TurnEngineScreen extends AbstractScreen {
+public class TurnEngineScreen extends FpsScreen {
 	public PerspectiveCamera camera;
 	public CameraInputController camController;
 
