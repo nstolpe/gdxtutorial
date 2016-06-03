@@ -51,7 +51,7 @@ public class TurnEngineScreen extends FpsScreen {
 		camera.update();
 		// declare camController and set it as the input processor.
 		camController = new CameraInputController(camera);
-		Gdx.input.setInputProcessor(camController);
+		multiplexer.addProcessor(camController);
 
 		modelBatch = new ModelBatch();
 

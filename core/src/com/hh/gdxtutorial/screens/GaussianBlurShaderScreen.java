@@ -42,6 +42,7 @@ public class GaussianBlurShaderScreen extends FpsScreen {
 
 	@Override
 	public void show() {
+		super.show();
 		fbos.setSize(2);
 
 		// declare and configure the camera.
@@ -53,13 +54,12 @@ public class GaussianBlurShaderScreen extends FpsScreen {
 		camera.update();
 		// declare camController and set it as the input processor.
 		camController = new CameraInputController(camera);
-		Gdx.input.setInputProcessor(camController);
+		multiplexer.addProcessor(camController);
 
 		gaussianBlurShader = new GaussianBlurShaderProgram();
 		modelBatch = new ModelBatch();
 		spriteBatch = new SpriteBatch();
 		spriteBatch.setShader(gaussianBlurShader);
-
 
 		environment = new Environment();
 //		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 1f, 1f, 1f, 1f));
@@ -67,8 +67,6 @@ public class GaussianBlurShaderScreen extends FpsScreen {
 
 		assetManager = new AssetManager();
 		assetManager.load("models/cube.g3dj", Model.class);
-
-		super.show();
 	}
 	@Override
 	public void render(float delta) {

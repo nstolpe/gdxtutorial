@@ -29,6 +29,9 @@ public class Tutorial extends Game implements Telegraph {
 		} else if (TurnEngineScreen.class == msg.extraInfo) {
 			setScreen(new TurnEngineScreen());
 			return true;
+		} else if (MainMenuScreen.class == msg.extraInfo) {
+			setScreen(new MainMenuScreen());
+			return true;
 		} else {
 			return false;
 		}

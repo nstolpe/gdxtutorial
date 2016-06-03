@@ -42,6 +42,7 @@ public class TiltShiftShaderScreen extends FpsScreen {
 
 	@Override
 	public void show() {
+		super.show();
 		fbos.setSize(2);
 
 		// declare and configure the camera.
@@ -54,7 +55,7 @@ public class TiltShiftShaderScreen extends FpsScreen {
 
 		// declare camController and set it as the input processor.
 		camController = new CameraInputController(camera);
-		Gdx.input.setInputProcessor(camController);
+		multiplexer.addProcessor(camController);
 
 		// declare the modelBatch, depthBatch and spriteBatch.
 		modelBatch = new ModelBatch();
@@ -69,8 +70,6 @@ public class TiltShiftShaderScreen extends FpsScreen {
 
 		assetManager = new AssetManager();
 		assetManager.load("models/cube.g3dj", Model.class);
-
-		super.show();
 	}
 	@Override
 	public void render(float delta) {

@@ -35,7 +35,7 @@ public class MainMenuScreen extends AbstractScreen {
 		buttonStyle = new TextButtonStyle();
 		buttonStyle.font = font;
 		font.getData().setScale(2.0f, 2.0f);
-		buttonStyle.checkedFontColor = new Color(1.0f, 0.0f, 0.0f, 1.0f);
+		buttonStyle.fontColor = new Color(1.0f, 0.0f, 0.0f, 1.0f);
 
 		celShaderScreenButton = new TextButton("CelShaderScreen", buttonStyle);
 		gaussianBlurShaderScreenButton = new TextButton("GaussianBlurShaderScreen", buttonStyle);

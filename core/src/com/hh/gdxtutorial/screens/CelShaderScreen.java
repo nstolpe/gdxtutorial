@@ -39,6 +39,7 @@ public class CelShaderScreen extends FpsScreen {
 
 	@Override
 	public void show() {
+		super.show();
 		// declare and configure the camera.
 		camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		camera.position.set(0.48f, 5.67f, 2.37f);
@@ -49,7 +50,7 @@ public class CelShaderScreen extends FpsScreen {
 
 		// declare camController and set it as the input processor.
 		camController = new CameraInputController(camera);
-		Gdx.input.setInputProcessor(camController);
+		multiplexer.addProcessor(camController);
 
 		// declare the modelBatch, depthBatch and spriteBatch.
 		modelBatch = new ModelBatch(new CelShaderProvider());
@@ -65,7 +66,6 @@ public class CelShaderScreen extends FpsScreen {
 
 		assetManager = new AssetManager();
 		assetManager.load("models/cube.g3dj", Model.class);
-		super.show();
 	}
 	@Override
 	public void render(float delta) {
