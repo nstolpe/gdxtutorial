@@ -68,7 +68,7 @@ public class GaussianBlurShaderScreen extends FpsScreen {
 		assetManager = new AssetManager();
 		assetManager.load("models/cube.g3dj", Model.class);
 
-		setupFpsStage();
+		super.show();
 	}
 	@Override
 	public void render(float delta) {
@@ -150,6 +150,7 @@ public class GaussianBlurShaderScreen extends FpsScreen {
 
 	@Override
 	public void dispose() {
+		super.dispose();
 		modelBatch.dispose();
 		spriteBatch.dispose();
 		gaussianBlurShader.dispose();
@@ -157,8 +158,6 @@ public class GaussianBlurShaderScreen extends FpsScreen {
 		instances.clear();
 
 		for (FrameBuffer fbo: fbos) fbo.dispose();
-		stage.dispose();
-		font.dispose();
 	}
 }
 

@@ -65,7 +65,7 @@ public class CelShaderScreen extends FpsScreen {
 
 		assetManager = new AssetManager();
 		assetManager.load("models/cube.g3dj", Model.class);
-		setupFpsStage();
+		super.show();
 	}
 	@Override
 	public void render(float delta) {
@@ -131,6 +131,7 @@ public class CelShaderScreen extends FpsScreen {
 
 	@Override
 	public void dispose() {
+		super.dispose();
 		modelBatch.dispose();
 		depthBatch.dispose();
 		instances.clear();
@@ -138,7 +139,5 @@ public class CelShaderScreen extends FpsScreen {
 		celLineShader.dispose();
 		fbo.dispose();
 		assetManager.dispose();
-		stage.dispose();
-		font.dispose();
 	}
 }

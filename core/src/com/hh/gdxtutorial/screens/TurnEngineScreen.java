@@ -67,7 +67,7 @@ public class TurnEngineScreen extends FpsScreen {
 		assetManager.load("models/plane.g3dj", Model.class);
 		assetManager.load("models/sphere.g3dj", Model.class);
 
-		setupFpsStage();
+		super.show();
 	}
 	@Override
 	public void render(float delta) {
@@ -133,11 +133,10 @@ public class TurnEngineScreen extends FpsScreen {
 
 	@Override
 	public void dispose() {
+		super.dispose();
 		assetManager.dispose();
 		modelBatch.dispose();
 		instances.clear();
 		tex.dispose();
-		stage.dispose();
-		font.dispose();
 	}
 }

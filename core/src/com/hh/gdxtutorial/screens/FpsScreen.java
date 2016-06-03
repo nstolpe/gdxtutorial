@@ -24,6 +24,11 @@ public abstract class FpsScreen extends AbstractScreen {
 
 	@Override
 	public void show() {
+		stage = new Stage();
+		font = new BitmapFont();
+		label = new Label(" ", new Label.LabelStyle(font, Color.WHITE));
+		stage.addActor(label);
+		stringBuilder = new StringBuilder();
 	}
 
 	@Override
@@ -52,6 +57,8 @@ public abstract class FpsScreen extends AbstractScreen {
 
 	@Override
 	public void dispose() {
+		font.dispose();
+		stage.dispose();
 	}
 
 	public void doneLoading() {
@@ -60,12 +67,5 @@ public abstract class FpsScreen extends AbstractScreen {
 
 	public void resizeFpsStage(int width, int height) {
 		stage.getViewport().update(width, height, true);
-	}
-	public void setupFpsStage() {
-		stage = new Stage();
-		font = new BitmapFont();
-		label = new Label(" ", new Label.LabelStyle(font, Color.WHITE));
-		stage.addActor(label);
-		stringBuilder = new StringBuilder();
 	}
 }

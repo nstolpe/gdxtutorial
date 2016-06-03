@@ -70,7 +70,7 @@ public class TiltShiftShaderScreen extends FpsScreen {
 		assetManager = new AssetManager();
 		assetManager.load("models/cube.g3dj", Model.class);
 
-		setupFpsStage();
+		super.show();
 	}
 	@Override
 	public void render(float delta) {
@@ -160,13 +160,12 @@ public class TiltShiftShaderScreen extends FpsScreen {
 
 	@Override
 	public void dispose() {
+		super.dispose();
 		modelBatch.dispose();
 		instances.clear();
 		spriteBatch.dispose();
 		tiltShiftShader.dispose();
 		assetManager.dispose();
 		for (FrameBuffer fbo: fbos) fbo.dispose();
-		stage.dispose();
-		font.dispose();
 	}
 }
