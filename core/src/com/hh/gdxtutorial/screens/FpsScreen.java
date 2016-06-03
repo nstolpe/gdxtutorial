@@ -13,15 +13,22 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Array;
 
+/**
+ * Extend from this class if you want to have an FPS 2d overlay. Call each implemented method
+ * from the derived class via super.
+ *
+ * Make sure `super.render(delta)` comes at the end of the derived class's `render()` call so
+ * the 2d stage is drawn on top.
+ */
 public abstract class FpsScreen extends AbstractScreen {
-	protected boolean loading = true;
-	protected Color clear = new Color(0.0f, 0.0f, 0.0f, 1.0f);
-
 	protected Stage stage;
 	protected BitmapFont font;
 	protected Label label;
 	protected StringBuilder stringBuilder;
 
+	/**
+	 * Sets up everything we need to draw the FPS overlay.
+	 */
 	@Override
 	public void show() {
 		stage = new Stage();
@@ -31,11 +38,17 @@ public abstract class FpsScreen extends AbstractScreen {
 		stringBuilder = new StringBuilder();
 	}
 
+	/**
+	 * Resizes the stage.
+	 */
 	@Override
 	public void resize(int width, int height) {
 		stage.getViewport().update(width, height, true);
 	}
 
+	/**
+	 * Draws the stage.
+	 */
 	@Override
 	public void render(float delta) {
 		stringBuilder.setLength(0);
@@ -44,25 +57,12 @@ public abstract class FpsScreen extends AbstractScreen {
 		stage.draw();
 	}
 
-	@Override
-	public void hide() {
-	}
-
-	@Override
-	public void pause() {
-	}
-
-	@Override
-	public void resume() {
-	}
-
+	/**
+	 * Get rid of our disposables.
+	 */
 	@Override
 	public void dispose() {
 		font.dispose();
 		stage.dispose();
-	}
-
-	public void doneLoading() {
-		loading = false;
 	}
 }

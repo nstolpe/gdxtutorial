@@ -44,6 +44,8 @@ public class TurnEngineScreen extends FpsScreen {
 
 	@Override
 	public void show() {
+		super.show();
+
 		clear = new Color(1.0f, 0.0f, 0.0f, 1.0f);
 
 		// declare and configure the camera.
@@ -66,8 +68,6 @@ public class TurnEngineScreen extends FpsScreen {
 		assetManager = new AssetManager();
 		assetManager.load("models/plane.g3dj", Model.class);
 		assetManager.load("models/sphere.g3dj", Model.class);
-
-		super.show();
 	}
 	@Override
 	public void render(float delta) {
