@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 /**
  * Extend from this class if you want to have an FPS 2d overlay. Call each implemented method
@@ -24,7 +25,7 @@ public abstract class FpsScreen extends AbstractScreen {
 	 */
 	@Override
 	public void show() {
-		stage = new Stage();
+		stage = new Stage(new ScreenViewport());
 		font = new BitmapFont();
 		label = new Label(" ", new Label.LabelStyle(font, Color.WHITE));
 		stage.addActor(label);

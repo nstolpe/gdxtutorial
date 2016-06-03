@@ -22,7 +22,7 @@ public class TurnEngine implements Telegraph {
 	public TweenManager tweenManager = new TweenManager();
 
 	/*
-	 * Empty constructor
+	 * Empty constructor makes an empty actor array.
 	 */
 	public TurnEngine() {
 		this(new Array<Actor>());

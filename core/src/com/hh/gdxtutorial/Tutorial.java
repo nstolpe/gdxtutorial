@@ -1,19 +1,36 @@
 package com.hh.gdxtutorial;
 
 import com.badlogic.gdx.Game;
-import com.hh.gdxtutorial.screens.CelShaderScreen;
-import com.hh.gdxtutorial.screens.GaussianBlurShaderScreen;
-import com.hh.gdxtutorial.screens.TiltShiftShaderScreen;
-import com.hh.gdxtutorial.screens.TurnEngineScreen;
+import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.ai.msg.MessageManager;
+import com.badlogic.gdx.ai.msg.Telegram;
+import com.badlogic.gdx.ai.msg.Telegraph;
+import com.hh.gdxtutorial.screens.*;
 
-public class Tutorial extends Game {
+public class Tutorial extends Game implements Telegraph {
 
 	@Override
 	public void create () {
-//		setScreen(new CelShaderScreen());
-//		setScreen(new GaussianBlurShaderScreen());
-		setScreen(new TurnEngineScreen());
-//		setScreen(new TiltShiftShaderScreen());
+		MessageManager.getInstance().addListener(this, 0x02);
+		setScreen(new MainMenuScreen());
 	}
 
+	@Override
+	public boolean handleMessage(Telegram msg) {
+		if (CelShaderScreen.class == msg.extraInfo) {
+			setScreen(new CelShaderScreen());
+			return true;
+		} else if (GaussianBlurShaderScreen.class == msg.extraInfo) {
+			setScreen(new GaussianBlurShaderScreen());
+			return true;
+		} else if (TiltShiftShaderScreen.class == msg.extraInfo) {
+			setScreen(new TiltShiftShaderScreen());
+			return true;
+		} else if (TurnEngineScreen.class == msg.extraInfo) {
+			setScreen(new TurnEngineScreen());
+			return true;
+		} else {
+			return false;
+		}
+	}
 }

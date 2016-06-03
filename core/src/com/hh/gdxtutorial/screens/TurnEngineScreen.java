@@ -42,9 +42,6 @@ public class TurnEngineScreen extends FpsScreen {
 	@Override
 	public void show() {
 		super.show();
-
-		clearColor = new Color(1.0f, 0.0f, 0.0f, 1.0f);
-
 		// declare and configure the camera.
 		camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		camera.position.set(20.0f, 20.0f, 20.0f);
@@ -68,8 +65,9 @@ public class TurnEngineScreen extends FpsScreen {
 	}
 	@Override
 	public void render(float delta) {
-		camController.update();
+		Gdx.gl.glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+		camController.update();
 
 		if (loading && assetManager.update()) doneLoading();
 
@@ -92,7 +90,6 @@ public class TurnEngineScreen extends FpsScreen {
 		setupScene();
 		setupActors();
 	}
-
 
 	public void setupActors() {
 		// create the player sphere/Actor, set it's position, add to actors and instances.

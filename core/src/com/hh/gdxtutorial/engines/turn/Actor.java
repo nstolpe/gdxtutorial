@@ -1,7 +1,6 @@
 package com.hh.gdxtutorial.engines.turn;
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 
 public class Actor {
@@ -10,12 +9,8 @@ public class Actor {
 
 	public ModelInstance instance;
 	public int type;
-	public float zPos = 2.0f;
 	public Vector3 position = new Vector3();
-	public Vector3 origin = new Vector3();
-	public Vector3 destination = new Vector3();
 	public boolean inTurn = false;
-	public Vector3 direction;
 
 	public Actor() {}
 	public Actor(ModelInstance instance, int type) {
