@@ -41,6 +41,7 @@ public class TurnEngineScreen extends AbstractScreen {
 
 	public TurnEngine turnEngine = new TurnEngine();
 
+
 	@Override
 	public void show() {
 		clear = new Color(1.0f, 0.0f, 0.0f, 1.0f);
@@ -65,6 +66,8 @@ public class TurnEngineScreen extends AbstractScreen {
 		assetManager = new AssetManager();
 		assetManager.load("models/plane.g3dj", Model.class);
 		assetManager.load("models/sphere.g3dj", Model.class);
+
+		setupFpsStage();
 	}
 	@Override
 	public void render(float delta) {
@@ -76,12 +79,15 @@ public class TurnEngineScreen extends AbstractScreen {
 		MessageManager.getInstance().update();
 		turnEngine.update(delta);
 		runModelBatch(modelBatch, camera, instances, environment);
+
+		drawFpsStage();
 	}
 	@Override
 	public void resize(int width, int height) {
 		camera.viewportWidth = width;
 		camera.viewportHeight = height;
 		camera.update();
+		resizeFpsStage(width, height);
 	}
 	@Override
 	public void doneLoading() {
@@ -129,6 +135,9 @@ public class TurnEngineScreen extends AbstractScreen {
 	public void dispose() {
 		assetManager.dispose();
 		modelBatch.dispose();
+		instances.clear();
 		tex.dispose();
+		stage.dispose();
+		font.dispose();
 	}
 }

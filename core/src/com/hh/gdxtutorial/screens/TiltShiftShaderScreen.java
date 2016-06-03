@@ -69,6 +69,8 @@ public class TiltShiftShaderScreen extends AbstractScreen {
 
 		assetManager = new AssetManager();
 		assetManager.load("models/cube.g3dj", Model.class);
+
+		setupFpsStage();
 	}
 	@Override
 	public void render(float delta) {
@@ -86,6 +88,7 @@ public class TiltShiftShaderScreen extends AbstractScreen {
 		tr.flip(false, true);
 
 		postProcess();
+		drawFpsStage();
 	}
 
 	private void postProcess() {
@@ -138,6 +141,7 @@ public class TiltShiftShaderScreen extends AbstractScreen {
 			if (fbos.get(i) != null) fbos.get(i).dispose();
 			fbos.set(i, new FrameBuffer(Pixmap.Format.RGBA8888, width, height, true));
 		}
+		resizeFpsStage(width, height);
 	}
 	@Override
 	public void doneLoading() {
@@ -157,10 +161,12 @@ public class TiltShiftShaderScreen extends AbstractScreen {
 	@Override
 	public void dispose() {
 		modelBatch.dispose();
+		instances.clear();
 		spriteBatch.dispose();
 		tiltShiftShader.dispose();
 		assetManager.dispose();
-
 		for (FrameBuffer fbo: fbos) fbo.dispose();
+		stage.dispose();
+		font.dispose();
 	}
 }

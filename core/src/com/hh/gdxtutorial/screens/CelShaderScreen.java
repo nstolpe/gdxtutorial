@@ -65,6 +65,7 @@ public class CelShaderScreen extends AbstractScreen {
 
 		assetManager = new AssetManager();
 		assetManager.load("models/cube.g3dj", Model.class);
+		setupFpsStage();
 	}
 	@Override
 	public void render(float delta) {
@@ -88,6 +89,8 @@ public class CelShaderScreen extends AbstractScreen {
 		celLineShader.setUniformf("u_size", tr.getRegionWidth(), tr.getRegionHeight());
 		spriteBatch.draw(tr, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		spriteBatch.end();
+
+		drawFpsStage();
 	}
 
 	public void updateModels(float delta) {
@@ -108,6 +111,8 @@ public class CelShaderScreen extends AbstractScreen {
 
 		if (fbo != null) fbo.dispose();
 		fbo = new FrameBuffer(Pixmap.Format.RGBA8888, width, height, true);
+
+		resizeFpsStage(width, height);
 	}
 	@Override
 	public void doneLoading() {
@@ -128,9 +133,12 @@ public class CelShaderScreen extends AbstractScreen {
 	public void dispose() {
 		modelBatch.dispose();
 		depthBatch.dispose();
+		instances.clear();
 		spriteBatch.dispose();
 		celLineShader.dispose();
 		fbo.dispose();
 		assetManager.dispose();
+		stage.dispose();
+		font.dispose();
 	}
 }

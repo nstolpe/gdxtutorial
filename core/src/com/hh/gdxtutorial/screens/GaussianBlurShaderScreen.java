@@ -67,6 +67,8 @@ public class GaussianBlurShaderScreen extends AbstractScreen {
 
 		assetManager = new AssetManager();
 		assetManager.load("models/cube.g3dj", Model.class);
+
+		setupFpsStage();
 	}
 	@Override
 	public void render(float delta) {
@@ -84,6 +86,7 @@ public class GaussianBlurShaderScreen extends AbstractScreen {
 		tr.flip(false, true);
 
 		gaussianBlur();
+		drawFpsStage();
 	}
 
 	private void gaussianBlur() {
@@ -127,6 +130,8 @@ public class GaussianBlurShaderScreen extends AbstractScreen {
 			if (fbos.get(i) != null) fbos.get(i).dispose();
 			fbos.set(i, new FrameBuffer(Pixmap.Format.RGBA8888, width, height, true));
 		}
+
+		resizeFpsStage(width, height);
 	}
 	@Override
 	public void doneLoading() {
@@ -149,8 +154,11 @@ public class GaussianBlurShaderScreen extends AbstractScreen {
 		spriteBatch.dispose();
 		gaussianBlurShader.dispose();
 		assetManager.dispose();
+		instances.clear();
 
 		for (FrameBuffer fbo: fbos) fbo.dispose();
+		stage.dispose();
+		font.dispose();
 	}
 }
 
