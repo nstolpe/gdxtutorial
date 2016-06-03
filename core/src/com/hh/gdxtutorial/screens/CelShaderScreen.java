@@ -103,6 +103,7 @@ public class CelShaderScreen extends FpsScreen {
 	}
 	@Override
 	public void resize(int width, int height) {
+		super.resize(width, height);
 		camera.viewportWidth = width;
 		camera.viewportHeight = height;
 		camera.update();
@@ -111,8 +112,6 @@ public class CelShaderScreen extends FpsScreen {
 
 		if (fbo != null) fbo.dispose();
 		fbo = new FrameBuffer(Pixmap.Format.RGBA8888, width, height, true);
-
-		resizeFpsStage(width, height);
 	}
 	@Override
 	public void doneLoading() {

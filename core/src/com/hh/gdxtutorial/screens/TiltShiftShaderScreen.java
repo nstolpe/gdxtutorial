@@ -131,6 +131,7 @@ public class TiltShiftShaderScreen extends FpsScreen {
 	}
 	@Override
 	public void resize(int width, int height) {
+		super.resize(width, height);
 		camera.viewportWidth = width;
 		camera.viewportHeight = height;
 		camera.update();
@@ -141,7 +142,6 @@ public class TiltShiftShaderScreen extends FpsScreen {
 			if (fbos.get(i) != null) fbos.get(i).dispose();
 			fbos.set(i, new FrameBuffer(Pixmap.Format.RGBA8888, width, height, true));
 		}
-		resizeFpsStage(width, height);
 	}
 	@Override
 	public void doneLoading() {

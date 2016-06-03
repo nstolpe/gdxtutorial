@@ -84,10 +84,10 @@ public class TurnEngineScreen extends FpsScreen {
 	}
 	@Override
 	public void resize(int width, int height) {
+		super.resize(width, height);
 		camera.viewportWidth = width;
 		camera.viewportHeight = height;
 		camera.update();
-		resizeFpsStage(width, height);
 	}
 	@Override
 	public void doneLoading() {

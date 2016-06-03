@@ -33,6 +33,7 @@ public abstract class FpsScreen extends AbstractScreen {
 
 	@Override
 	public void resize(int width, int height) {
+		stage.getViewport().update(width, height, true);
 	}
 
 	@Override
@@ -63,9 +64,5 @@ public abstract class FpsScreen extends AbstractScreen {
 
 	public void doneLoading() {
 		loading = false;
-	}
-
-	public void resizeFpsStage(int width, int height) {
-		stage.getViewport().update(width, height, true);
 	}
 }
