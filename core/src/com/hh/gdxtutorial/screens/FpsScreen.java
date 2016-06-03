@@ -58,12 +58,6 @@ public abstract class FpsScreen extends AbstractScreen {
 		loading = false;
 	}
 
-	public void runModelBatch(ModelBatch batch, Camera camera, Array<ModelInstance> instances, Environment environment) {
-		batch.render(instances, environment);
-		batch.end();
-		batch.begin(camera);
-	}
-
 	public void resizeFpsStage(int width, int height) {
 		stage.getViewport().update(width, height, true);
 	}
