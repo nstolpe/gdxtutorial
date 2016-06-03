@@ -37,16 +37,13 @@ public class TurnEngineScreen extends FpsScreen {
 	public Environment environment;
 	public Texture tex;
 
-	public Vector3 origin = new Vector3(0, 2, 0);
-
 	public TurnEngine turnEngine = new TurnEngine();
-
 
 	@Override
 	public void show() {
 		super.show();
 
-		clear = new Color(1.0f, 0.0f, 0.0f, 1.0f);
+		clearColor = new Color(1.0f, 0.0f, 0.0f, 1.0f);
 
 		// declare and configure the camera.
 		camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());

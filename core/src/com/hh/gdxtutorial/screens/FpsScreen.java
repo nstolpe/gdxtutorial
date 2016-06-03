@@ -1,17 +1,10 @@
 package com.hh.gdxtutorial.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g3d.Environment;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.utils.Array;
 
 /**
  * Extend from this class if you want to have an FPS 2d overlay. Call each implemented method
@@ -39,7 +32,7 @@ public abstract class FpsScreen extends AbstractScreen {
 	}
 
 	/**
-	 * Resizes the stage.
+	 * Resizes the stage. Should be called from end of derived render().
 	 */
 	@Override
 	public void resize(int width, int height) {
