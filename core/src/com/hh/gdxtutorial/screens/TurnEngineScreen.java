@@ -13,18 +13,18 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.hh.gdxtutorial.engines.turn.Actor;
 import com.hh.gdxtutorial.engines.turn.TurnEngine;
+import com.hh.gdxtutorial.screens.input.TurnEngineScreenInputController;
 
 /**
  * Created by nils on 5/27/16.
  */
 public class TurnEngineScreen extends FpsScreen {
 	public PerspectiveCamera camera;
-	public CameraInputController camController;
+	public TurnEngineScreenInputController camController;
 
 	public AssetManager assetManager;
 	public Array<ModelInstance> instances = new Array<ModelInstance>();
@@ -49,7 +49,7 @@ public class TurnEngineScreen extends FpsScreen {
 		camera.far = 1000;
 		camera.update();
 		// declare camController and set it as the input processor.
-		camController = new CameraInputController(camera);
+		camController = new TurnEngineScreenInputController(camera);
 		multiplexer.addProcessor(camController);
 
 		modelBatch = new ModelBatch();
