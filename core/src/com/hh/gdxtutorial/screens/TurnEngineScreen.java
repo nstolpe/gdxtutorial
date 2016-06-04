@@ -3,6 +3,7 @@ package com.hh.gdxtutorial.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -14,6 +15,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Array;
 import com.hh.gdxtutorial.engines.turn.Actor;
 import com.hh.gdxtutorial.engines.turn.TurnEngine;
@@ -36,11 +38,16 @@ public class TurnEngineScreen extends FpsScreen {
 	public Environment environment;
 	public Texture tex;
 
+	protected Label turnLabel;
+
 	public TurnEngine turnEngine = new TurnEngine();
 
 	@Override
 	public void show() {
 		super.show();
+		turnLabel = new Label(" ", new Label.LabelStyle(font, Color.WHITE));
+		table.row();
+		table.add(turnLabel).expandY().bottom();
 		// declare and configure the camera.
 		camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		camera.position.set(20.0f, 20.0f, 20.0f);
@@ -73,6 +80,10 @@ public class TurnEngineScreen extends FpsScreen {
 		MessageManager.getInstance().update();
 		turnEngine.update(delta);
 		runModelBatch(modelBatch, camera, instances, environment);
+
+		stringBuilder.setLength(0);
+		stringBuilder.append(" Turn: ").append(turnEngine.turnCount);
+		turnLabel.setText(stringBuilder);
 
 		super.render(delta);
 	}

@@ -55,6 +55,7 @@ public class TurnEngine implements Telegraph {
 			a.instance.transform.setTranslation(a.position);
 		}
 
+		firstIndex = actors.indexOf(first, true);
 		startActor(first);
 	}
 	/**
@@ -92,7 +93,6 @@ public class TurnEngine implements Telegraph {
 	 */
 	private void startActor(Actor actor) {
 		active = actor;
-		firstIndex = actors.indexOf(active, true);
 		float x = MathUtils.random(-20, 20);
 		float z = MathUtils.random(-20, 20);
 

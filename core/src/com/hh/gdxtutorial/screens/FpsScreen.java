@@ -28,8 +28,8 @@ public abstract class FpsScreen extends AbstractScreen {
 	protected Label label;
 	protected StringBuilder stringBuilder;
 	protected Button mainMenuScreenButton;
-	private TextButtonStyle buttonStyle;
-	private Table table;
+	protected TextButtonStyle buttonStyle;
+	protected Table table;
 	protected InputMultiplexer multiplexer;
 
 	/**
@@ -56,7 +56,7 @@ public abstract class FpsScreen extends AbstractScreen {
 		});
 
 		table = new Table();
-		table.left().bottom();
+		table.left().top();
 		table.setFillParent(true);
 
 		table.add(label);
