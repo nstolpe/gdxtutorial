@@ -1,13 +1,12 @@
 package com.hh.gdxtutorial.engines.turn;
 
 import aurelienribon.tweenengine.*;
-import aurelienribon.tweenengine.equations.*;
 import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.hh.gdxtutorial.ai.Messages;
 import com.hh.gdxtutorial.tween.accessors.Vector3Accessor;
 
 /**
@@ -19,7 +18,6 @@ public class TurnEngine implements Telegraph {
 	public int turnCount = 0;
 	public boolean running = false;
 	private int firstIndex;
-	private TweenManager tweenManager = new TweenManager();
 	/**
 	 * Empty constructor creates an empty actors array
 	 */
@@ -28,13 +26,12 @@ public class TurnEngine implements Telegraph {
 	}
 	/**
 	 * Constructor. Takes an array of actors.
-	 * @TODO Make a Messages class to hold that 0x01.
 	 * @param actors
 	 */
 	public TurnEngine(Array<Actor> actors) {
 		this.actors = actors;
 		Tween.registerAccessor(Vector3.class, new Vector3Accessor());
-		MessageManager.getInstance().addListener(this, 0x01);
+		MessageManager.getInstance().addListener(this, Messages.ADVANCE_ACTOR);
 	}
 	/**
 	 * Starts a turn with the first Actor in actors.
@@ -49,6 +46,7 @@ public class TurnEngine implements Telegraph {
 	 */
 	public void start(Actor first) {
 		running = true;
+		active = first;
 
 		// put actors in their starting positions (and @TODO other transforms)
 		for (Actor a : actors) {
@@ -56,7 +54,7 @@ public class TurnEngine implements Telegraph {
 		}
 
 		firstIndex = actors.indexOf(first, true);
-		startActor(first);
+		first.startTurn();
 	}
 	/**
 	 * Updates the tweenManager and updates the actors.
@@ -65,7 +63,7 @@ public class TurnEngine implements Telegraph {
 	 */
 	public void update(float delta) {
 		if (running) {
-			tweenManager.update(delta);
+			Actor.tweenManager.update(delta);
 
 			for (Actor actor : actors) actor.update();
 		}
@@ -76,7 +74,9 @@ public class TurnEngine implements Telegraph {
 	public void advanceActor() {
 		int nextIndex = (actors.indexOf(active, true) + 1) % actors.size;
 		if (nextIndex == firstIndex) endTurn();
-		startActor(actors.get(nextIndex));
+//		startActor(actors.get(nextIndex));
+		active = actors.get(nextIndex);
+		actors.get(nextIndex).startTurn();
 	}
 
 	/**
@@ -85,34 +85,6 @@ public class TurnEngine implements Telegraph {
 	 */
 	public void endTurn() {
 		turnCount++;
-	}
-	/**
-	 * Starts a turn with an actor.
-	 * @TODO Move to actor. Make it handle player characters.
-	 * @param actor
-	 */
-	private void startActor(Actor actor) {
-		active = actor;
-		float x = MathUtils.random(-20, 20);
-		float z = MathUtils.random(-20, 20);
-
-		Tween.to(actor.position, Vector3Accessor.XYZ, actor.position.dst(x, 2, z) / 8)
-			.target(x, 2, z)
-			.setCallback(new TweenCallback() {
-				@Override
-				public void onEvent(int type, BaseTween<?> source) {
-					switch (type) {
-						case COMPLETE:
-							MessageManager.getInstance().dispatchMessage(0, 0x01);
-							break;
-						default:
-							assert false;
-							break;
-					}
-				}
-			})
-			.ease(Linear.INOUT)
-			.start(tweenManager);
 	}
 	/**
 	 * Overrides Telegraph.handleMessage.

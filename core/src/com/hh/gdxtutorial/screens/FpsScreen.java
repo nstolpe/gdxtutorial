@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.hh.gdxtutorial.ai.Messages;
 
 /**
  * Extend from this class if you want to have an FPS 2d overlay. Call each implemented method
@@ -51,7 +52,7 @@ public abstract class FpsScreen extends AbstractScreen {
 		mainMenuScreenButton.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				MessageManager.getInstance().dispatchMessage(0, 0x02, MainMenuScreen.class);
+				MessageManager.getInstance().dispatchMessage(0, Messages.CHANGE_SCREEN, new MainMenuScreen());
 			}
 		});
 

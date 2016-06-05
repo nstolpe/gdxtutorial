@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.hh.gdxtutorial.ai.Messages;
 
 /**
  * Created by nils on 6/3/16.
@@ -45,27 +46,27 @@ public class MainMenuScreen extends AbstractScreen {
 		celShaderScreenButton.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				MessageManager.getInstance().dispatchMessage(0, 0x02, CelShaderScreen.class);
+				MessageManager.getInstance().dispatchMessage(0, Messages.CHANGE_SCREEN, new CelShaderScreen());
 			}
 		});
 		gaussianBlurShaderScreenButton.pad(10.0f);
 		gaussianBlurShaderScreenButton.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				MessageManager.getInstance().dispatchMessage(0, 0x02, GaussianBlurShaderScreen.class);
+				MessageManager.getInstance().dispatchMessage(0, Messages.CHANGE_SCREEN, new GaussianBlurShaderScreen());
 			}
 		});
 		tiltShiftShaderScreenButton.pad(10.0f);
 		tiltShiftShaderScreenButton.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				MessageManager.getInstance().dispatchMessage(0, 0x02, TiltShiftShaderScreen.class);
+				MessageManager.getInstance().dispatchMessage(0, Messages.CHANGE_SCREEN, new TiltShiftShaderScreen());
 			}
 		});
 		turnEngineScreenButton.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				MessageManager.getInstance().dispatchMessage(0, 0x02, TurnEngineScreen.class);
+				MessageManager.getInstance().dispatchMessage(0, Messages.CHANGE_SCREEN, new TurnEngineScreen());
 			}
 		});
 
