@@ -6,13 +6,15 @@ import aurelienribon.tweenengine.TweenCallback;
 import aurelienribon.tweenengine.TweenManager;
 import aurelienribon.tweenengine.equations.Linear;
 import com.badlogic.gdx.ai.msg.MessageManager;
+import com.badlogic.gdx.ai.msg.Telegram;
+import com.badlogic.gdx.ai.msg.Telegraph;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.hh.gdxtutorial.ai.Messages;
 import com.hh.gdxtutorial.tween.accessors.Vector3Accessor;
 
-public class Actor {
+public class Actor implements Telegraph {
 	public static final int PLAYER = 0;
 	public static final int MOB = 1;
 	public static TweenManager tweenManager = new TweenManager();
@@ -33,11 +35,29 @@ public class Actor {
 	}
 
 	public void startTurn() {
-		float x = MathUtils.random(-20, 20);
-		float z = MathUtils.random(-20, 20);
+		switch (type) {
+			case MOB:
+				runAi();
+				break;
+			case PLAYER:
+				queuePlayerInput();
+				break;
+			default:
+				break;
+		}
+	}
 
-		Tween.to(this.position, Vector3Accessor.XYZ, this.position.dst(x, 2, z) / 8)
-			.target(x, 2, z)
+	private void queuePlayerInput() {
+		MessageManager.getInstance().addListener(this, Messages.INTERACT_TOUCH);
+	}
+
+	private void runAi() {
+		moveTo(new Vector3(MathUtils.random(-20, 20), 2, MathUtils.random(-20, 20)));
+	}
+
+	private void moveTo(Vector3 destination) {
+		Tween.to(this.position, Vector3Accessor.XYZ, this.position.dst(destination) / 8)
+			.target(destination.x, destination.y, destination.z)
 			.setCallback(new TweenCallback() {
 				@Override
 				public void onEvent(int type, BaseTween<?> source) {
@@ -56,5 +76,13 @@ public class Actor {
 	}
 	public void endTurn() {
 		inTurn = false;
+	}
+
+	@Override
+	public boolean handleMessage(Telegram msg) {
+		MessageManager.getInstance().removeListener(this, Messages.INTERACT_TOUCH);
+		Vector3 xz = (Vector3) msg.extraInfo;
+		moveTo(new Vector3(xz.x, 2, xz.z));
+		return false;
 	}
 }

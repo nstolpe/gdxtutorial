@@ -94,7 +94,14 @@ public class TurnEngine implements Telegraph {
 	 */
 	@Override
 	public boolean handleMessage(Telegram msg) {
-		advanceActor();
+		switch (msg.message) {
+			case Messages.ADVANCE_ACTOR:
+				advanceActor();
+				break;
+			case Messages.INTERACT_TOUCH:
+			default:
+				return false;
+		}
 		return true;
 	}
 }
