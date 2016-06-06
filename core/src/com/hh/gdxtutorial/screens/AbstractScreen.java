@@ -66,8 +66,8 @@ public abstract class AbstractScreen implements Screen {
 	 * @param environment
 	 */
 	protected void runModelBatch(ModelBatch batch, Camera camera, Array<ModelInstance> instances, Environment environment) {
+		batch.begin(camera);
 		batch.render(instances, environment);
 		batch.end();
-		batch.begin(camera);
 	}
 }
