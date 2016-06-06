@@ -89,7 +89,7 @@ public class TurnSystemScreen extends FpsScreen {
 		if (loading && assetManager.update()) doneLoading();
 
 		stringBuilder.setLength(0);
-		stringBuilder.append(" Turn: ").append(engine.getSystem(TurnSystem.class) == null ? "" : engine.getSystem(TurnSystem.class).turnCount);
+		stringBuilder.append(" Turn: ").append(engine.getSystem(TurnSystem.class) == null ? "" : engine.getSystem(TurnSystem.class).turnCount + ": " + engine.getSystem(TurnSystem.class).activeIndex());
 		turnLabel.setText(stringBuilder);
 
 		engine.update(delta);
@@ -127,7 +127,7 @@ public class TurnSystemScreen extends FpsScreen {
 
 		// create and position the mobs spheres/Actors
 		for (int i = -1; i <= 1; i += 2) {
-			for (int j = -1; j < 1; j += 2) {
+			for (int j = -1; j <= 1; j += 2) {
 				ModelInstance mi = new ModelInstance(assetManager.get("models/sphere.g3dj", Model.class));
 				mi.getMaterial("skin").set(texAttr);
 				mi.getMaterial("skin").set(new ColorAttribute(ColorAttribute.Diffuse, MathUtils.random(), MathUtils.random(), MathUtils.random(), 1.0f));
@@ -142,6 +142,11 @@ public class TurnSystemScreen extends FpsScreen {
 	}
 
 	public void setupScene() {
+		Entity p = new Entity()
+				.add(new ModelInstanceComponent( new ModelInstance(assetManager.get("models/plane.g3dj", Model.class))))
+				.add(new PositionComponent(new Vector3(0.0f, 0.0f, 0.0f)));
+
+		engine.addEntity(p);
 		plane = new ModelInstance(assetManager.get("models/plane.g3dj", Model.class));
 		plane.transform.setTranslation(0.0f, 0.0f, 0.0f);
 		plane.transform.setToRotation(new Vector3(1.0f, 0.0f, 0.0f), -90);
