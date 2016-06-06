@@ -20,7 +20,6 @@ import com.hh.gdxtutorial.shaders.CelShaderProvider;
 import java.util.Random;
 
 public class CelShaderScreen extends FpsScreen {
-	public PerspectiveCamera camera;
 	public CameraInputController camController;
 
 	public AssetManager assetManager;
@@ -40,13 +39,6 @@ public class CelShaderScreen extends FpsScreen {
 	@Override
 	public void show() {
 		super.show();
-		// declare and configure the camera.
-		camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		camera.position.set(0.48f, 5.67f, 2.37f);
-		camera.lookAt(0, 0, 0);
-		camera.near = 1;
-		camera.far = 1000;
-		camera.update();
 
 		// declare camController and set it as the input processor.
 		camController = new CameraInputController(camera);
@@ -66,6 +58,13 @@ public class CelShaderScreen extends FpsScreen {
 
 		assetManager = new AssetManager();
 		assetManager.load("models/cube.g3dj", Model.class);
+	}
+	@Override
+	public void initCamera() {
+		super.initCamera();
+		camera.position.set(0.48f, 5.67f, 2.37f);
+		camera.lookAt(0, 0, 0);
+		camera.update();
 	}
 	@Override
 	public void render(float delta) {

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -25,6 +26,7 @@ import com.hh.gdxtutorial.ai.Messages;
  */
 public abstract class FpsScreen extends AbstractScreen {
 	protected Stage stage;
+	protected PerspectiveCamera camera;
 	protected BitmapFont font;
 	protected Label label;
 	protected StringBuilder stringBuilder;
@@ -39,7 +41,23 @@ public abstract class FpsScreen extends AbstractScreen {
 	@Override
 	public void show() {
 		stringBuilder = new StringBuilder();
+		initCamera();
+		initStage();
 
+		multiplexer = new InputMultiplexer();
+		multiplexer.addProcessor(stage);
+		Gdx.input.setInputProcessor(multiplexer);
+	}
+
+	protected void initCamera() {
+		camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		camera.position.set(20.0f, 20.0f, 20.0f);
+		camera.lookAt(0, 0, 0);
+		camera.near = 1;
+		camera.far = 1000;
+		camera.update();
+	}
+	protected void initStage() {
 		stage = new Stage(new ScreenViewport());
 		font = new BitmapFont();
 		label = new Label(" ", new Label.LabelStyle(font, Color.WHITE));
@@ -64,10 +82,6 @@ public abstract class FpsScreen extends AbstractScreen {
 		table.add(mainMenuScreenButton).expandX().right();
 
 		stage.addActor(table);
-
-		multiplexer = new InputMultiplexer();
-		multiplexer.addProcessor(stage);
-		Gdx.input.setInputProcessor(multiplexer);
 	}
 
 	/**

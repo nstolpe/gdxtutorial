@@ -22,7 +22,6 @@ import java.util.Random;
  * Created by nils on 5/26/16.
  */
 public class GaussianBlurShaderScreen extends FpsScreen {
-	public PerspectiveCamera camera;
 	public CameraInputController camController;
 
 	public AssetManager assetManager;
@@ -46,12 +45,7 @@ public class GaussianBlurShaderScreen extends FpsScreen {
 		fbos.setSize(2);
 
 		// declare and configure the camera.
-		camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		camera.position.set(0.48f, 5.67f, 2.37f);
-		camera.lookAt(0, 0, 0);
-		camera.near = 1;
-		camera.far = 1000;
-		camera.update();
+
 		// declare camController and set it as the input processor.
 		camController = new CameraInputController(camera);
 		multiplexer.addProcessor(camController);
@@ -87,6 +81,13 @@ public class GaussianBlurShaderScreen extends FpsScreen {
 		super.render(delta);
 	}
 
+	@Override
+	public void initCamera() {
+		super.initCamera();
+		camera.position.set(0.48f, 5.67f, 2.37f);
+		camera.lookAt(0, 0, 0);
+		camera.update();
+	}
 	private void gaussianBlur() {
 		int blurPasses = 10;
 		for (int i = 1; i <= blurPasses; i++) {

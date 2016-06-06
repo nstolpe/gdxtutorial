@@ -23,7 +23,7 @@ import com.hh.gdxtutorial.tween.accessors.Vector3Accessor;
 import java.util.Comparator;
 
 /**
- * Created by nils on 6/5/16.
+ * Entity system that manages a turn-based portion of a game.
  */
 public class TurnSystem extends EntitySystem implements Telegraph {
 	private ImmutableArray<Entity> entities;
@@ -34,32 +34,24 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	public int turnCount = 0;
 
 
-	@Override
-	public void addedToEngine(Engine engine) {
-		entities = engine.getEntitiesFor(Family
-						.all(InitiativeComponent.class)
-						.one(AiComponent.class, PlayerComponent.class)
-						.get());
-
-		if (entities.size() > 0) {
-			for (int i = 0; i < entities.size(); i++) sortedEntities.add(entities.get(i));
-
-			sortedEntities.sort(new InitiativeComparator());
-		}
-
-		MessageManager.getInstance().addListener(this, Messages.ADVANCE_TURN_CONTROL);
-		Tween.registerAccessor(Vector3.class, new Vector3Accessor());
-
-		activeIndex = 0;
-	}
-
+	/**
+	 * Getter for activeIndex.
+	 * @return
+	 */
 	public int activeIndex() {
 		return activeIndex;
 	}
 
-	private void moveTo(Vector3 destination, Vector3 position, float duration) {
-		Tween.to(position, Vector3Accessor.XYZ, duration)
-			.target(destination.x, destination.y, destination.z)
+	/**
+	 * Sets up and starts a tween from Vector3 position to Vector3 destination for float duration.
+	 * @param start     Starting Vector3 for tween
+	 * @param end  Ending Vector3 for tween
+	 * @param duration     Duration of tween.
+	 * @TODO Move this to a Tween Library. Tweens.Vector3.Position(start, end, duration)
+	 */
+	private void moveTo(Vector3 start, Vector3 end, float duration) {
+		Tween.to(start, Vector3Accessor.XYZ, duration)
+			.target(end.x, end.y, end.z)
 			.setCallback(new TweenCallback() {
 				@Override
 				public void onEvent(int type, BaseTween<?> source) {
@@ -76,6 +68,12 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 			.ease(Linear.INOUT)
 			.start(tweenManager);
 	}
+
+	/**
+	 * Passes control of the turn to the next actor in sortedEntities
+	 * If the activeIndex is the last entity, generate random values
+	 * for the InitiativeComponent and resort sorted entities.
+	 */
 	public void advanceTurnControl() {
 		if (activeIndex + 1 == sortedEntities.size) {
 			sortedEntities.clear();
@@ -94,6 +92,30 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	}
 
 	/**
+	 * Gets entities from Family and builds/sorts sortedEntities by InitiativeComponent.initiative
+	 * Starts listening to ADVANCE_TURN_CONTROL and registers the Vector3Accessor
+	 * @param engine
+	 * @TODO move tween accessor registration out to a movement or transform system.
+	 */
+	@Override
+	public void addedToEngine(Engine engine) {
+		entities = engine.getEntitiesFor(Family
+				.all(InitiativeComponent.class)
+				.one(AiComponent.class, PlayerComponent.class)
+				.get());
+
+		if (entities.size() > 0) {
+			for (int i = 0; i < entities.size(); i++) sortedEntities.add(entities.get(i));
+
+			sortedEntities.sort(new InitiativeComparator());
+		}
+
+		MessageManager.getInstance().addListener(this, Messages.ADVANCE_TURN_CONTROL);
+		Tween.registerAccessor(Vector3.class, new Vector3Accessor());
+
+		activeIndex = 0;
+	}
+	/**
 	 * Checks if a entity is taking its turn (processingActive) and, if not, starts the turn
 	 * of the next entity.
 	 * @TODO Move MOB and player specific stuff out of here. Have a component handle it. AI should be pulled in
@@ -111,14 +133,18 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 				Vector3 position = Mappers.POSITION.get(sortedEntities.get(activeIndex)).position();
 				Vector3 destination = new Vector3(MathUtils.random(-20, 20), 2, MathUtils.random(-20, 20));
 
-				moveTo(destination, position, position.dst(destination) / 8);
+				moveTo(position, destination, position.dst(destination) / 8);
 			// player
 			} else if (Mappers.PLAYER.get(sortedEntities.get(activeIndex)) != null) {
 				MessageManager.getInstance().addListener(this, Messages.INTERACT_TOUCH);
 			}
 		}
 	}
-
+	/**
+	 * From Telegraph. Will listen to advance a turn and receive touch input for a user controlled character.
+	 * @param msg   extraInfo is used with INTERACT_TOUCH. It expects a Vector3 and casts to it.
+	 * @return
+	 */
 	@Override
 	public boolean handleMessage(Telegram msg) {
 		switch (msg.message) {
@@ -132,7 +158,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 				destination.y = 2;
 
 				MessageManager.getInstance().removeListener(this, Messages.INTERACT_TOUCH);
-				moveTo(destination, position, position.dst(destination) / 8);
+				moveTo(position, destination, position.dst(destination) / 8);
 				break;
 			default:
 				return false;
@@ -140,7 +166,10 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 		return true;
 
 	}
-
+	/**
+	 * Comparator for =, >, <
+	 * Used to determine sequence of turn actions.
+	 */
 	private static class InitiativeComparator implements Comparator<Entity> {
 		@Override
 		public int compare(Entity a, Entity b) {

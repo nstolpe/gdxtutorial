@@ -50,4 +50,9 @@ public class ModelBatchPass extends EntitySystem {
 		entities = engine.getEntitiesFor(Family.all(PositionComponent.class, ModelInstanceComponent.class).get());
 	}
 
+	@Override
+	public void removedFromEngine(Engine engine) {
+		System.out.println("removing from engine");
+	}
+
 }

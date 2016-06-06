@@ -19,8 +19,6 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.utils.Array;
-import com.hh.gdxtutorial.engines.turn.Actor;
 import com.hh.gdxtutorial.entity.components.*;
 import com.hh.gdxtutorial.entity.systems.ModelBatchPass;
 import com.hh.gdxtutorial.entity.systems.TurnSystem;
@@ -31,7 +29,6 @@ import com.hh.gdxtutorial.screens.input.TurnInputController;
  */
 public class TurnSystemScreen extends FpsScreen {
 	public Engine engine = new Engine();
-	public PerspectiveCamera camera;
 	public TurnInputController camController;
 
 	public AssetManager assetManager;
@@ -47,16 +44,9 @@ public class TurnSystemScreen extends FpsScreen {
 	@Override
 	public void show() {
 		super.show();
-		turnLabel = new Label(" ", new Label.LabelStyle(font, Color.WHITE));
-		table.row();
-		table.add(turnLabel).expandY().bottom();
+
 		// declare and configure the camera.
-		camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		camera.position.set(20.0f, 20.0f, 20.0f);
-		camera.lookAt(0, 0, 0);
-		camera.near = 1;
-		camera.far = 1000;
-		camera.update();
+
 		// declare camController and set it as the input processor.
 		camController = new TurnInputController(camera);
 		multiplexer.addProcessor(camController);
@@ -70,6 +60,13 @@ public class TurnSystemScreen extends FpsScreen {
 		assetManager = new AssetManager();
 		assetManager.load("models/plane.g3dj", Model.class);
 		assetManager.load("models/sphere.g3dj", Model.class);
+	}
+	@Override
+	public void initStage() {
+		super.initStage();
+		turnLabel = new Label(" ", new Label.LabelStyle(font, Color.WHITE));
+		table.row();
+		table.add(turnLabel).expandY().bottom();
 	}
 	@Override
 	public void render(float delta) {
