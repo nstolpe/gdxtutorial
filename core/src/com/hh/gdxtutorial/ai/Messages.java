@@ -9,6 +9,6 @@ public class Messages {
 	// interact button (left) has been clicked
 	public static final int INTERACT_TOUCH = 0x3c;
 	// advanceActor
-	public static final int ADVANCE_ACTOR = 0xff;
+	public static final int ADVANCE_TURN_CONTROL = 0xff;
 
 }

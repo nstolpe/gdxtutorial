@@ -1,9 +1,16 @@
 package com.hh.gdxtutorial.screens;
 
+import com.badlogic.ashley.core.Engine;
+import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.Family;
+import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
@@ -11,17 +18,22 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Array;
 import com.hh.gdxtutorial.engines.turn.Actor;
 import com.hh.gdxtutorial.engines.turn.TurnEngine;
+import com.hh.gdxtutorial.entity.components.*;
+import com.hh.gdxtutorial.entity.systems.ModelBatchPass;
+import com.hh.gdxtutorial.entity.systems.TurnSystem;
 import com.hh.gdxtutorial.screens.input.TurnInputController;
 
 /**
  * Created by nils on 5/27/16.
  */
-public class TurnEngineScreen extends FpsScreen {
+public class TurnSystemScreen extends FpsScreen {
+	public Engine engine = new Engine();
 	public PerspectiveCamera camera;
 	public TurnInputController camController;
 
@@ -37,7 +49,7 @@ public class TurnEngineScreen extends FpsScreen {
 
 	protected Label turnLabel;
 
-	public TurnEngine turnEngine = new TurnEngine();
+//	public TurnEngine turnEngine = new TurnEngine();
 
 	@Override
 	public void show() {
@@ -70,17 +82,17 @@ public class TurnEngineScreen extends FpsScreen {
 	public void render(float delta) {
 		Gdx.gl.glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+
 		camController.update();
+		MessageManager.getInstance().update();
 
 		if (loading && assetManager.update()) doneLoading();
 
-		MessageManager.getInstance().update();
-		turnEngine.update(delta);
-		runModelBatch(modelBatch, camera, instances, environment);
-
 		stringBuilder.setLength(0);
-		stringBuilder.append(" Turn: ").append(turnEngine.turnCount);
+		stringBuilder.append(" Turn: ").append(engine.getSystem(TurnSystem.class) == null ? "" : engine.getSystem(TurnSystem.class).turnCount);
 		turnLabel.setText(stringBuilder);
+
+		engine.update(delta);
 		super.render(delta);
 	}
 	@Override
@@ -95,14 +107,18 @@ public class TurnEngineScreen extends FpsScreen {
 		super.doneLoading();
 		setupScene();
 		setupActors();
+		engine.addSystem(new TurnSystem());
+		engine.addSystem(new ModelBatchPass(modelBatch, camera, environment));
 	}
 
 	public void setupActors() {
-		// create the player sphere/Actor, set it's position, add to actors and instances.
-		Actor player = new Actor(new ModelInstance(assetManager.get("models/sphere.g3dj", Model.class)), Actor.PLAYER);
-		player.position.set(0, 2, 0);
-		instances.add(player.instance);
-		actors.add(player);
+		Entity player = new Entity()
+			.add(new PositionComponent(new Vector3(0, 2, 0)))
+			.add(new ModelInstanceComponent(new ModelInstance(assetManager.get("models/sphere.g3dj", Model.class))))
+			.add(new InitiativeComponent(MathUtils.random(10)))
+			.add(new PlayerComponent());
+
+		engine.addEntity(player);
 
 		// create texture for mobs
 		tex = new Texture(Gdx.files.internal("models/sphere-purple.png"), true);
@@ -111,17 +127,18 @@ public class TurnEngineScreen extends FpsScreen {
 
 		// create and position the mobs spheres/Actors
 		for (int i = -1; i <= 1; i += 2) {
-			for (int j = -1; j <= 1; j += 2) {
-				Actor mob = new Actor(new ModelInstance(assetManager.get("models/sphere.g3dj", Model.class)), Actor.MOB);
-				mob.instance.getMaterial("skin").set(texAttr);
-				mob.position.set(i * 20, 2, j * 20);
-				actors.add(mob);
-				instances.add(mob.instance);
+			for (int j = -1; j < 1; j += 2) {
+				ModelInstance mi = new ModelInstance(assetManager.get("models/sphere.g3dj", Model.class));
+				mi.getMaterial("skin").set(texAttr);
+				mi.getMaterial("skin").set(new ColorAttribute(ColorAttribute.Diffuse, MathUtils.random(), MathUtils.random(), MathUtils.random(), 1.0f));
+				Entity mob = new Entity()
+						.add(new PositionComponent(new Vector3(i * 20, 2, j * 20)))
+						.add(new ModelInstanceComponent(mi))
+						.add(new InitiativeComponent(MathUtils.random(10)))
+						.add(new AiComponent());
+				engine.addEntity(mob);
 			}
 		}
-
-		turnEngine.actors.addAll(actors);
-		turnEngine.start();
 	}
 
 	public void setupScene() {

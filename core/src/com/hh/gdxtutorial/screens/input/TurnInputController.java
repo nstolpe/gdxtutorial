@@ -14,12 +14,12 @@ import com.hh.gdxtutorial.ai.Messages;
 /**
  * Created by nils on 6/4/16.
  */
-public class TurnEngineScreenInputController extends CameraInputController {
+public class TurnInputController extends CameraInputController {
 	public int interactButton = Input.Buttons.LEFT;
 	final Plane xzPlane = new Plane(new Vector3(0, 1, 0), 0);
 	final Vector3 intersection = new Vector3();
 
-	public TurnEngineScreenInputController(Camera camera) {
+	public TurnInputController(Camera camera) {
 		super(camera);
 		rotateButton = Input.Buttons.RIGHT;
 		translateButton = Input.Buttons.MIDDLE;

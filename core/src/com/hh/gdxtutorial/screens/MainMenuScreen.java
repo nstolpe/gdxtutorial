@@ -23,6 +23,7 @@ public class MainMenuScreen extends AbstractScreen {
 	private TextButton gaussianBlurShaderScreenButton;
 	private TextButton turnEngineScreenButton;
 	private TextButton tiltShiftShaderScreenButton;
+	private TextButton turnSystemScreenButton;
 	private TextButtonStyle buttonStyle;
 	private Table buttonColumn;
 
@@ -41,6 +42,7 @@ public class MainMenuScreen extends AbstractScreen {
 		gaussianBlurShaderScreenButton = new TextButton("GaussianBlurShaderScreen", buttonStyle);
 		tiltShiftShaderScreenButton = new TextButton("TiltShiftShaderScreen", buttonStyle);
 		turnEngineScreenButton = new TextButton("TurnEngineScreen", buttonStyle);
+		turnSystemScreenButton = new TextButton("TurnSystemScreen", buttonStyle);
 
 		celShaderScreenButton.pad(10.0f);
 		celShaderScreenButton.addListener(new ClickListener() {
@@ -69,6 +71,12 @@ public class MainMenuScreen extends AbstractScreen {
 				MessageManager.getInstance().dispatchMessage(0, Messages.CHANGE_SCREEN, new TurnEngineScreen());
 			}
 		});
+		turnSystemScreenButton.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				MessageManager.getInstance().dispatchMessage(0, Messages.CHANGE_SCREEN, new TurnSystemScreen());
+			}
+		});
 
 		buttonColumn = new Table();
 		buttonColumn.setFillParent(true);
@@ -79,6 +87,8 @@ public class MainMenuScreen extends AbstractScreen {
 		buttonColumn.add(tiltShiftShaderScreenButton);
 		buttonColumn.row();
 		buttonColumn.add(turnEngineScreenButton);
+		buttonColumn.row();
+		buttonColumn.add(turnSystemScreenButton);
 
 		stage.addActor(buttonColumn);
 	}

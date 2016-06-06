@@ -31,7 +31,7 @@ public class TurnEngine implements Telegraph {
 	public TurnEngine(Array<Actor> actors) {
 		this.actors = actors;
 		Tween.registerAccessor(Vector3.class, new Vector3Accessor());
-		MessageManager.getInstance().addListener(this, Messages.ADVANCE_ACTOR);
+		MessageManager.getInstance().addListener(this, Messages.ADVANCE_TURN_CONTROL);
 	}
 	/**
 	 * Starts a turn with the first Actor in actors.
@@ -95,10 +95,9 @@ public class TurnEngine implements Telegraph {
 	@Override
 	public boolean handleMessage(Telegram msg) {
 		switch (msg.message) {
-			case Messages.ADVANCE_ACTOR:
+			case Messages.ADVANCE_TURN_CONTROL:
 				advanceActor();
 				break;
-			case Messages.INTERACT_TOUCH:
 			default:
 				return false;
 		}

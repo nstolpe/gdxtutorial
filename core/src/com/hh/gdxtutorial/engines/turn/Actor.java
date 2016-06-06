@@ -24,7 +24,6 @@ public class Actor implements Telegraph {
 	public Vector3 position = new Vector3();
 	public boolean inTurn = false;
 
-	public Actor() {}
 	public Actor(ModelInstance instance, int type) {
 		this.instance = instance;
 		this.type = type;
@@ -63,7 +62,7 @@ public class Actor implements Telegraph {
 				public void onEvent(int type, BaseTween<?> source) {
 					switch (type) {
 						case COMPLETE:
-							MessageManager.getInstance().dispatchMessage(0, Messages.ADVANCE_ACTOR);
+							MessageManager.getInstance().dispatchMessage(0, Messages.ADVANCE_TURN_CONTROL);
 							break;
 						default:
 							assert false;
