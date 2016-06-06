@@ -147,10 +147,6 @@ public class TurnSystemScreen extends FpsScreen {
 				.add(new PositionComponent(new Vector3(0.0f, 0.0f, 0.0f)));
 
 		engine.addEntity(p);
-		plane = new ModelInstance(assetManager.get("models/plane.g3dj", Model.class));
-		plane.transform.setTranslation(0.0f, 0.0f, 0.0f);
-		plane.transform.setToRotation(new Vector3(1.0f, 0.0f, 0.0f), -90);
-		instances.add(plane);
 	}
 
 	@Override
