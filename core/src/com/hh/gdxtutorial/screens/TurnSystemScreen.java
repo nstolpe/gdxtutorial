@@ -2,8 +2,6 @@ package com.hh.gdxtutorial.screens;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.assets.AssetManager;
@@ -23,7 +21,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Array;
 import com.hh.gdxtutorial.engines.turn.Actor;
-import com.hh.gdxtutorial.engines.turn.TurnEngine;
 import com.hh.gdxtutorial.entity.components.*;
 import com.hh.gdxtutorial.entity.systems.ModelBatchPass;
 import com.hh.gdxtutorial.entity.systems.TurnSystem;
@@ -38,9 +35,6 @@ public class TurnSystemScreen extends FpsScreen {
 	public TurnInputController camController;
 
 	public AssetManager assetManager;
-	public Array<ModelInstance> instances = new Array<ModelInstance>();
-	public Array<Actor> actors = new Array<Actor>();
-	public ModelInstance plane;
 
 	public ModelBatch modelBatch;
 
@@ -49,7 +43,6 @@ public class TurnSystemScreen extends FpsScreen {
 
 	protected Label turnLabel;
 
-//	public TurnEngine turnEngine = new TurnEngine();
 
 	@Override
 	public void show() {
@@ -154,7 +147,6 @@ public class TurnSystemScreen extends FpsScreen {
 		super.dispose();
 		assetManager.dispose();
 		modelBatch.dispose();
-		instances.clear();
 		tex.dispose();
 	}
 }
