@@ -7,7 +7,6 @@ import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -41,11 +40,12 @@ public class TurnSystemScreen extends FpsScreen {
 	protected Label turnLabel;
 
 
+	/**
+	 * Setup input, 3d environment, the modelBatch and the assetManager.
+	 */
 	@Override
 	public void show() {
 		super.show();
-
-		// declare and configure the camera.
 
 		// declare camController and set it as the input processor.
 		camController = new TurnInputController(camera);
@@ -92,6 +92,11 @@ public class TurnSystemScreen extends FpsScreen {
 		camera.viewportHeight = height;
 		camera.update();
 	}
+
+	/**
+	 * Setup the models for the scene and add the entity systems that rely on actors.
+	 * The render system can be changed here, ModelBatch pass is the current.
+	 */
 	@Override
 	public void doneLoading() {
 		super.doneLoading();
