@@ -133,5 +133,6 @@ public class TurnEngineScreen extends FpsScreen {
 		modelBatch.dispose();
 		instances.clear();
 		tex.dispose();
+		turnEngine.stop();
 	}
 }

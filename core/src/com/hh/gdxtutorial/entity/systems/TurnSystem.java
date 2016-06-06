@@ -26,14 +26,12 @@ import java.util.Comparator;
  * Entity system that manages a turn-based portion of a game.
  */
 public class TurnSystem extends EntitySystem implements Telegraph {
-	private ImmutableArray<Entity> entities;
-	private Array<Entity> sortedEntities = new Array<Entity>();
+	private ImmutableArray<Entity> actors;
+	private Array<Entity> sortedActors = new Array<Entity>();
 	private int activeIndex;
 	private TweenManager tweenManager = new TweenManager();
 	private boolean processingActive = false;
 	public int turnCount = 0;
-
-
 	/**
 	 * Getter for activeIndex.
 	 * @return
@@ -41,7 +39,6 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	public int activeIndex() {
 		return activeIndex;
 	}
-
 	/**
 	 * Sets up and starts a tween from Vector3 position to Vector3 destination for float duration.
 	 * @param start     Starting Vector3 for tween
@@ -68,21 +65,23 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 			.ease(Linear.INOUT)
 			.start(tweenManager);
 	}
-
 	/**
-	 * Passes control of the turn to the next actor in sortedEntities
+	 * Passes control of the turn to the next actor in sortedActors
 	 * If the activeIndex is the last entity, generate random values
-	 * for the InitiativeComponent and resort sorted entities.
+	 * for the InitiativeComponent and resort sorted actors.
 	 */
 	public void advanceTurnControl() {
-		if (activeIndex + 1 == sortedEntities.size) {
-			sortedEntities.clear();
-			for(int i = 0; i < entities.size(); i++) {
-				Entity e = entities.get(i);
+		// if last actor is taking its turn action
+		// reset sortedActors
+		if (activeIndex + 1 == sortedActors.size) {
+			sortedActors.clear();
+			for(int i = 0; i < actors.size(); i++) {
+				Entity e = actors.get(i);
+				// this random generation should be better. random + speed/agility bonus
 				Mappers.INITIATIVE.get(e).initiative(MathUtils.random(10));
-				sortedEntities.add(e);
+				sortedActors.add(e);
 			}
-			sortedEntities.sort(new InitiativeComparator());
+			sortedActors.sort(new InitiativeComparator());
 			activeIndex = 0;
 			turnCount++;
 		} else {
@@ -92,22 +91,22 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	}
 
 	/**
-	 * Gets entities from Family and builds/sorts sortedEntities by InitiativeComponent.initiative
+	 * Gets actors from Family and builds/sorts sortedActors by InitiativeComponent.initiative
 	 * Starts listening to ADVANCE_TURN_CONTROL and registers the Vector3Accessor
 	 * @param engine
 	 * @TODO move tween accessor registration out to a movement or transform system.
 	 */
 	@Override
 	public void addedToEngine(Engine engine) {
-		entities = engine.getEntitiesFor(Family
+		actors = engine.getEntitiesFor(Family
 				.all(InitiativeComponent.class)
 				.one(AiComponent.class, PlayerComponent.class)
 				.get());
 
-		if (entities.size() > 0) {
-			for (int i = 0; i < entities.size(); i++) sortedEntities.add(entities.get(i));
+		if (actors.size() > 0) {
+			for (int i = 0; i < actors.size(); i++) sortedActors.add(actors.get(i));
 
-			sortedEntities.sort(new InitiativeComparator());
+			sortedActors.sort(new InitiativeComparator());
 		}
 
 		MessageManager.getInstance().addListener(this, Messages.ADVANCE_TURN_CONTROL);
@@ -129,13 +128,13 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 		if (!processingActive) {
 			processingActive = true;
 			// MOB
-			if (Mappers.AI.get(sortedEntities.get(activeIndex)) != null) {
-				Vector3 position = Mappers.POSITION.get(sortedEntities.get(activeIndex)).position();
+			if (Mappers.AI.get(sortedActors.get(activeIndex)) != null) {
+				Vector3 position = Mappers.POSITION.get(sortedActors.get(activeIndex)).position();
 				Vector3 destination = new Vector3(MathUtils.random(-20, 20), 2, MathUtils.random(-20, 20));
 
 				moveTo(position, destination, position.dst(destination) / 8);
 			// player
-			} else if (Mappers.PLAYER.get(sortedEntities.get(activeIndex)) != null) {
+			} else if (Mappers.PLAYER.get(sortedActors.get(activeIndex)) != null) {
 				MessageManager.getInstance().addListener(this, Messages.INTERACT_TOUCH);
 			}
 		}
@@ -153,7 +152,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 				break;
 			case Messages.INTERACT_TOUCH:
 				Vector3 destination = (Vector3) msg.extraInfo;
-				Vector3 position = Mappers.POSITION.get(sortedEntities.get(activeIndex)).position();
+				Vector3 position = Mappers.POSITION.get(sortedActors.get(activeIndex)).position();
 
 				destination.y = 2;
 

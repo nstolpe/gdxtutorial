@@ -39,6 +39,11 @@ public class TurnEngine implements Telegraph {
 	public void start() {
 		start(actors.get(0));
 	}
+	public void stop() {
+		running = false;
+		actors.clear();
+		MessageManager.getInstance().removeListener(this, Messages.ADVANCE_TURN_CONTROL);
+	}
 	/**
 	 * Starts a turn with the Actor identified by first. Actors will take their turns
 	 * according to the ordering of actors.

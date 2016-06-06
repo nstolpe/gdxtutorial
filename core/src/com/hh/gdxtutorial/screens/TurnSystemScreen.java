@@ -16,10 +16,13 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.hh.gdxtutorial.ai.Messages;
 import com.hh.gdxtutorial.entity.components.*;
-import com.hh.gdxtutorial.entity.systems.ModelBatchPass;
+import com.hh.gdxtutorial.entity.systems.CelRenderer;
+import com.hh.gdxtutorial.entity.systems.ModelBatchRenderer;
 import com.hh.gdxtutorial.entity.systems.TurnSystem;
 import com.hh.gdxtutorial.screens.input.TurnInputController;
 
@@ -38,6 +41,8 @@ public class TurnSystemScreen extends FpsScreen {
 	public Texture tex;
 
 	protected Label turnLabel;
+	private ModelBatchRenderer modelBatchRenderer;
+	private CelRenderer celRenderer;
 
 
 	/**
@@ -55,12 +60,15 @@ public class TurnSystemScreen extends FpsScreen {
 
 		environment = new Environment();
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 1f, 1f, 1f, 1f));
-		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -0.5f, 0.5f, -1.0f));
+		environment.add(new DirectionalLight().set(1.0f, 1.0f, 1.0f, -0.5f, 0.5f, -1.0f));
 
 		assetManager = new AssetManager();
 		assetManager.load("models/plane.g3dj", Model.class);
 		assetManager.load("models/sphere.g3dj", Model.class);
 	}
+	/**
+	 * Adds extra turn data to the 2d stage, super gets the fps info.
+	 */
 	@Override
 	public void initStage() {
 		super.initStage();
@@ -85,12 +93,18 @@ public class TurnSystemScreen extends FpsScreen {
 		engine.update(delta);
 		super.render(delta);
 	}
+
+	/**
+	 * Dispatches the SCREEN_RESIZE message to anything that's listening.
+	 * Current Listeners: CelRenderer
+	 * Calls super for the FpsScreen overlay.
+	 * @param width
+	 * @param height
+	 */
 	@Override
 	public void resize(int width, int height) {
 		super.resize(width, height);
-		camera.viewportWidth = width;
-		camera.viewportHeight = height;
-		camera.update();
+		MessageManager.getInstance().dispatchMessage(0, Messages.SCREEN_RESIZE, new Vector2(width, height));
 	}
 
 	/**
@@ -103,7 +117,11 @@ public class TurnSystemScreen extends FpsScreen {
 		setupScene();
 		setupActors();
 		engine.addSystem(new TurnSystem());
-		engine.addSystem(new ModelBatchPass(modelBatch, camera, environment));
+		modelBatchRenderer = new ModelBatchRenderer(modelBatch, camera, environment);
+		celRenderer = new CelRenderer(camera, environment);
+		engine.addSystem(modelBatchRenderer);
+		modelBatchRenderer.setProcessing(false);
+		engine.addSystem(celRenderer);
 	}
 
 	public void setupActors() {
@@ -148,7 +166,8 @@ public class TurnSystemScreen extends FpsScreen {
 	public void dispose() {
 		super.dispose();
 		assetManager.dispose();
-		modelBatch.dispose();
 		tex.dispose();
+		modelBatchRenderer.dispose();
+		celRenderer.dispose();
 	}
 }
