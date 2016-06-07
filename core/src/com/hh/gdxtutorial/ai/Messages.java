@@ -11,4 +11,6 @@ public class Messages {
 	// advanceActor
 	public static final int ADVANCE_TURN_CONTROL = 0x02;
 	public static final int SCREEN_RESIZE = 0x03;
+	public static final int DEFAULT_RENDERER = 0x04;
+	public static final int CEL_RENDERER = 0x05;
 }

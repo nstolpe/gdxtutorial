@@ -23,12 +23,12 @@ import com.hh.gdxtutorial.shaders.CelLineShaderProgram;
 import com.hh.gdxtutorial.shaders.CelShaderProvider;
 
 /**
- * Created by nils on 6/6/16.
+ * Draws the scene with a cel shader style.
  */
 public class CelRenderer extends ModelBatchRenderer implements Telegraph {
 	private ModelBatch depthBatch = new ModelBatch(new CelDepthShaderProvider());
 	private SpriteBatch spriteBatch = new SpriteBatch();
-	private CelLineShaderProgram celLineShader = new CelLineShaderProgram();;
+	private CelLineShaderProgram celLineShader = new CelLineShaderProgram();
 	private FrameBuffer fbo;
 	private TextureRegion tr = new TextureRegion();
 
@@ -42,6 +42,11 @@ public class CelRenderer extends ModelBatchRenderer implements Telegraph {
 		MessageManager.getInstance().addListener(this, Messages.SCREEN_RESIZE);
 
 	}
+
+	/**
+	 * Triggered when SCREEN_RESIZE message is received.
+	 * @param dimensions
+	 */
 	private void resize(Vector2 dimensions) {
 		camera.viewportWidth = dimensions.x;
 		camera.viewportHeight = dimensions.y;
@@ -94,8 +99,13 @@ public class CelRenderer extends ModelBatchRenderer implements Telegraph {
 	public void dispose() {
 		super.dispose();
 		depthBatch.dispose();
+		fbo.dispose();
 	}
-
+	/**
+	 * Handles incoming messages
+	 * @param msg
+	 * @return
+	 */
 	@Override
 	public boolean handleMessage(Telegram msg) {
 		switch (msg.message) {

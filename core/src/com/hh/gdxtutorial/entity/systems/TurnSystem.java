@@ -77,7 +77,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 			sortedActors.clear();
 			for(int i = 0; i < actors.size(); i++) {
 				Entity e = actors.get(i);
-				// this random generation should be better. random + speed/agility bonus
+				// this random generation should be better. random + speed/agility bonus? also move to another system.
 				Mappers.INITIATIVE.get(e).initiative(MathUtils.random(10));
 				sortedActors.add(e);
 			}

@@ -18,13 +18,17 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.hh.gdxtutorial.ai.Messages;
 import com.hh.gdxtutorial.entity.components.*;
 import com.hh.gdxtutorial.entity.systems.CelRenderer;
 import com.hh.gdxtutorial.entity.systems.ModelBatchRenderer;
 import com.hh.gdxtutorial.entity.systems.TurnSystem;
 import com.hh.gdxtutorial.screens.input.TurnInputController;
+import com.hh.gdxtutorial.shaders.PerPixelShaderProvider;
 
 /**
  * Created by nils on 5/27/16.
@@ -40,7 +44,10 @@ public class TurnSystemScreen extends FpsScreen {
 	public Environment environment;
 	public Texture tex;
 
-	protected Label turnLabel;
+	private Label turnLabel;
+	private TextButton defaultRendererButton;
+	private TextButton celRendererButton;
+
 	private ModelBatchRenderer modelBatchRenderer;
 	private CelRenderer celRenderer;
 
@@ -56,11 +63,12 @@ public class TurnSystemScreen extends FpsScreen {
 		camController = new TurnInputController(camera);
 		multiplexer.addProcessor(camController);
 
-		modelBatch = new ModelBatch();
+		modelBatch = new ModelBatch(new PerPixelShaderProvider());
 
 		environment = new Environment();
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 1f, 1f, 1f, 1f));
-		environment.add(new DirectionalLight().set(1.0f, 1.0f, 1.0f, -0.5f, 0.5f, -1.0f));
+		environment.add(new DirectionalLight().set(1.0f, 1.0f, 1.0f, -0.5f, -0.6f, -0.7f));
+		environment.add(new DirectionalLight().set(0.8f, 0.5f, 0.5f, -0.4f, -1.0f, 0.3f));
 
 		assetManager = new AssetManager();
 		assetManager.load("models/plane.g3dj", Model.class);
@@ -75,6 +83,28 @@ public class TurnSystemScreen extends FpsScreen {
 		turnLabel = new Label(" ", new Label.LabelStyle(font, Color.WHITE));
 		table.row();
 		table.add(turnLabel).expandY().bottom();
+
+		defaultRendererButton = new TextButton("Default Renderer", buttonStyle);
+		celRendererButton = new TextButton("Cel Renderer", buttonStyle);
+
+		defaultRendererButton.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				modelBatchRenderer.setProcessing(true);
+				celRenderer.setProcessing(false);
+			}
+		});
+
+		celRendererButton.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				modelBatchRenderer.setProcessing(false);
+				celRenderer.setProcessing(true);
+			}
+		});
+
+		table.add(defaultRendererButton).expandY().bottom();
+		table.add(celRendererButton).expandY().bottom();
 	}
 	@Override
 	public void render(float delta) {
