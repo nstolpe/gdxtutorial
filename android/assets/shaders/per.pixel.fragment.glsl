@@ -12,6 +12,10 @@ const float u_shininess = 10.0;
 #define specularFlag
 #endif
 
+#if defined(specularFlag)
+varying vec3 v_viewVec;
+#endif
+
 #if defined(specularFlag) || defined(fogFlag)
 #define cameraPositionFlag
 #endif
@@ -29,7 +33,6 @@ varying vec2 v_diffuseUV;
 #ifdef specularTextureFlag
 uniform sampler2D u_specularTexture;
 varying vec2 v_specularUV;
-varying vec3 v_viewVec;
 #endif
 
 #ifdef normalTextureFlag
@@ -42,6 +45,14 @@ varying vec3 v_tangent;
 #ifdef diffuseColorFlag
 uniform vec4 u_diffuseColor;
 #endif
+
+#ifdef ambientCubemapFlag
+uniform vec3 u_ambientCubemap[6];
+#endif
+
+#if	defined(ambientLightFlag) || defined(ambientCubemapFlag) || defined(sphericalHarmonicsFlag)
+#define ambientFlag
+#endif //ambientFlag
 
 #ifdef numDirectionalLights
 #if numDirectionalLights > 0
@@ -136,7 +147,7 @@ void main() {
 	#else
 		vec3 specular = vec3(0.0);
 	#endif
-	specular *= celFactor2(specular, vec2(0.6, 0.3), vec2(1.0, 0.5));
+//	specular *= celFactor2(specular, vec2(0.6, 0.3), vec2(1.0, 0.5));
 	#if defined(diffuseTextureFlag) && defined(diffuseColorFlag) && defined(colorFlag)
 		vec4 diffuse = texture2D(u_diffuseTexture, v_diffuseUV) * u_diffuseColor * v_color;
 	#elif defined(diffuseTextureFlag) && defined(diffuseColorFlag)
@@ -156,6 +167,23 @@ void main() {
 	#endif
 
 	#ifdef lightingFlag
+		// ambient flags aren't fully supported, ambientCubeMapFlag is for using
+		// Ambient color attributes.
+		#if	defined(ambientLightFlag)
+            vec3 ambientLight = u_ambientLight;
+        #elif defined(ambientFlag)
+            vec3 ambientLight = vec3(0.0);
+        #endif
+
+		#ifdef ambientCubemapFlag
+            vec3 squaredNormal = normal * normal;
+            vec3 isPositive  = step(0.0, normal);
+            ambientLight += squaredNormal.x * mix(u_ambientCubemap[0], u_ambientCubemap[1], isPositive.x) +
+                            squaredNormal.y * mix(u_ambientCubemap[2], u_ambientCubemap[3], isPositive.y) +
+                            squaredNormal.z * mix(u_ambientCubemap[4], u_ambientCubemap[5], isPositive.z);
+			diffuse.rgb += ambientLight;
+        #endif // ambientCubemapFlag
+
 		vec3 finalColor = vec3(0.0);
 		vec3 tmpColor = vec3(0.0);
 		const float bias = 0.01;
@@ -175,7 +203,7 @@ void main() {
 			tmpColor += diffuse.rgb * u_dirLights[i].color * NdotL;
 
 			// Specular
-			#ifdef specularTextureFlag
+			#ifdef specularFlag
 				float halfDotView = clamp(dot(normal, normalize(lightDir + v_viewVec)), 0.0, 2.0);
 				tmpColor += specular* u_dirLights[i].color * clamp(NdotL * pow(halfDotView, u_shininess), 0.0, 2.0);
 			#endif
@@ -205,7 +233,7 @@ void main() {
 				tmpColor += diffuse.rgb * u_spotLights[i].color * (NdotL * falloff) * spotEffect;
 
 				// Specular
-				#ifdef specularTextureFlag
+				#ifdef specularFlag
 					float halfDotView = clamp(dot(normal, normalize(lightDir + v_viewVec)), 0.0, 2.0);
 					tmpColor += specular * u_spotLights[i].color * clamp(NdotL * pow(halfDotView, u_shininess) * falloff, 0.0, 2.0) * spotEffect;
 				#endif
@@ -231,7 +259,7 @@ void main() {
 			tmpColor += diffuse.rgb * u_pointLights[i].color * (NdotL * falloff);
 
 			// Specular
-			#ifdef specularTextureFlag
+			#ifdef specularFlag
 				float halfDotView = clamp(dot(normal, normalize(lightDir + v_viewVec)), 0.0, 2.0);
 				tmpColor += specular * u_pointLights[i].color * clamp(NdotL * pow(halfDotView, u_shininess) * falloff, 0.0, 2.0);
 			#endif
@@ -240,7 +268,21 @@ void main() {
 		}
 	#endif
 	#endif // numPointLights
-	
-	finalColor *= celFactor3(finalColor, vec3(0.8, 0.5, 0.25), vec3(1.0, 0.8, 0.3));
-	gl_FragColor.rgb = finalColor;
+
+//	finalColor *= celFactor3(finalColor, vec3(0.8, 0.5, 0.1), vec3(1.0, 0.5, 0.3));
+	float intensity = max(finalColor.r, max(finalColor.g, finalColor.b));
+	float factor;
+
+	if (intensity > 0.8)
+		factor = 1.0;
+	else if (intensity > 0.6)
+		factor = 0.8;
+	else if (intensity > 0.4)
+		factor = 0.6;
+	else if (intensity > 0.1)
+		factor = 0.4;
+	else
+		factor = 0.1;
+
+	gl_FragColor.rgb = finalColor * factor;
 }
