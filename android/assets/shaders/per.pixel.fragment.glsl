@@ -103,6 +103,12 @@ varying vec3 v_pos;
 	varying vec3 v_normal;
 #endif // normalFlag
 
+#ifdef blendedFlag
+uniform float u_opacity;
+#else
+const float u_opacity = 1.0;
+#endif
+
 float celFactor2(vec3 origin, vec2 cuttoffs, vec2 factors) {
 	float intensity = max(origin.r, max(origin.g, origin.b));
 	float factor;
@@ -284,5 +290,6 @@ void main() {
 	else
 		factor = 0.1;
 
-	gl_FragColor.rgb = finalColor * factor;
+	gl_FragColor.a = u_opacity;
+	gl_FragColor.rgb = finalColor;// * factor;
 }
