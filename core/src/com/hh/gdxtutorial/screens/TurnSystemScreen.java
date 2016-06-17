@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -27,7 +28,7 @@ import com.hh.gdxtutorial.entity.components.*;
 import com.hh.gdxtutorial.entity.systems.CelRenderer;
 import com.hh.gdxtutorial.entity.systems.ModelBatchRenderer;
 import com.hh.gdxtutorial.entity.systems.TurnSystem;
-import com.hh.gdxtutorial.screens.input.TurnInputController;
+import com.hh.gdxtutorial.screens.input.DemoInputController;
 import com.hh.gdxtutorial.shaders.PerPixelShaderProvider;
 
 /**
@@ -35,7 +36,7 @@ import com.hh.gdxtutorial.shaders.PerPixelShaderProvider;
  */
 public class TurnSystemScreen extends FpsScreen {
 	public Engine engine = new Engine();
-	public TurnInputController camController;
+	public DemoInputController camController;
 
 	public AssetManager assetManager;
 
@@ -50,7 +51,8 @@ public class TurnSystemScreen extends FpsScreen {
 
 	private ModelBatchRenderer modelBatchRenderer;
 	private CelRenderer celRenderer;
-
+	// @TODO get animation controller to its own spot.
+	private AnimationController controller;
 
 	/**
 	 * Setup input, 3d environment, the modelBatch and the assetManager.
@@ -60,13 +62,13 @@ public class TurnSystemScreen extends FpsScreen {
 		super.show();
 
 		// declare camController and set it as the input processor.
-		camController = new TurnInputController(camera);
+		camController = new DemoInputController(camera);
 		multiplexer.addProcessor(camController);
 
 		modelBatch = new ModelBatch(new PerPixelShaderProvider());
 
 		environment = new Environment();
-		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.5f, 0f, 0f, 1f));
+		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.5f, 0.5f, 0.5f, 1f));
 		environment.add(new DirectionalLight().set(1.0f, 1.0f, 1.0f, -0.5f, -0.6f, -0.7f));
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, 0.4f, 1.0f, -0.3f));
 
@@ -111,6 +113,9 @@ public class TurnSystemScreen extends FpsScreen {
 	public void render(float delta) {
 		Gdx.gl.glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+
+		// @TODO get animation controller to its own spot.
+		if (controller != null)	controller.update(delta);
 
 		camController.update();
 		MessageManager.getInstance().update();
@@ -161,6 +166,10 @@ public class TurnSystemScreen extends FpsScreen {
 			.add(new ModelInstanceComponent(new ModelInstance(assetManager.get("models/mask.ghost.g3dj", Model.class))))
 			.add(new InitiativeComponent(MathUtils.random(10)))
 			.add(new PlayerComponent());
+
+		// @TODO get animation controller to its own spot.
+		controller = new AnimationController(player.getComponent(ModelInstanceComponent.class).instance());
+//		controller.setAnimation("skeleton|expand", -1);
 
 		engine.addEntity(player);
 
