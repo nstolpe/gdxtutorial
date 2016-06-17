@@ -23,7 +23,8 @@ import com.hh.gdxtutorial.tween.accessors.Vector3Accessor;
 import java.util.Comparator;
 
 /**
- * Entity system that manages a turn-based portion of a game.
+ * Entity system that manages a turn-based portion of a game. A turn consists of a set of actions
+ * performed by all Actors in the turn.
  */
 public class TurnSystem extends EntitySystem implements Telegraph {
 	private ImmutableArray<Entity> actors;
