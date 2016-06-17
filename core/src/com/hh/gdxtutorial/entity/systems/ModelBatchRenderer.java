@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
@@ -77,8 +78,12 @@ public class ModelBatchRenderer extends EntitySystem implements Disposable, Tele
 		Gdx.gl.glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		modelBatch.begin(camera);
+		// @TODO this updating should be somewhere else, probably an entity system.
 		for (Entity e : entities) {
 			ModelInstance instance = Mappers.MODEL_INSTANCE.get(e).instance();
+			Mappers.MODEL_INSTANCE.get(e).controller().update(deltaTime);
+			instance.transform.set(Mappers.ROTATION.get(e).rotation);
+
 			instance.transform.setTranslation(Mappers.POSITION.get(e).position());
 			modelBatch.render(instance, env);
 		}
