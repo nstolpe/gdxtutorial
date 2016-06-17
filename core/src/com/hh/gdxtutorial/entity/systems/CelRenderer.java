@@ -3,8 +3,6 @@ package com.hh.gdxtutorial.entity.systems;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.msg.MessageManager;
-import com.badlogic.gdx.ai.msg.Telegram;
-import com.badlogic.gdx.ai.msg.Telegraph;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -25,7 +23,7 @@ import com.hh.gdxtutorial.shaders.CelShaderProvider;
 /**
  * Draws the scene with a cel shader style.
  */
-public class CelRenderer extends ModelBatchRenderer implements Telegraph {
+public class CelRenderer extends ModelBatchRenderer {
 	private ModelBatch depthBatch = new ModelBatch(new CelDepthShaderProvider());
 	private SpriteBatch spriteBatch = new SpriteBatch();
 	private CelLineShaderProgram celLineShader = new CelLineShaderProgram();
@@ -39,18 +37,14 @@ public class CelRenderer extends ModelBatchRenderer implements Telegraph {
 		resize(new Vector2(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
 		// needs to resize too.
 		clearColor.set(0.5f, 0.5f, 0.5f, 1.0f);
-		MessageManager.getInstance().addListener(this, Messages.SCREEN_RESIZE);
-
 	}
 
 	/**
 	 * Triggered when SCREEN_RESIZE message is received.
 	 * @param dimensions
 	 */
-	private void resize(Vector2 dimensions) {
-		camera.viewportWidth = dimensions.x;
-		camera.viewportHeight = dimensions.y;
-		camera.update();
+	public void resize(Vector2 dimensions) {
+		super.resize(dimensions);
 		if (fbo != null) fbo.dispose();
 		fbo = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
 		spriteBatch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
@@ -100,21 +94,5 @@ public class CelRenderer extends ModelBatchRenderer implements Telegraph {
 		super.dispose();
 		depthBatch.dispose();
 		fbo.dispose();
-	}
-	/**
-	 * Handles incoming messages
-	 * @param msg
-	 * @return
-	 */
-	@Override
-	public boolean handleMessage(Telegram msg) {
-		switch (msg.message) {
-			case Messages.SCREEN_RESIZE:
-				resize((Vector2) msg.extraInfo);
-				break;
-			default:
-				return false;
-		}
-		return true;
 	}
 }

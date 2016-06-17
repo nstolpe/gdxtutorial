@@ -6,13 +6,21 @@ import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.ai.msg.MessageManager;
+import com.badlogic.gdx.ai.msg.Telegram;
+import com.badlogic.gdx.ai.msg.Telegraph;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
+import com.hh.gdxtutorial.ai.Messages;
 import com.hh.gdxtutorial.entity.components.Mappers;
 import com.hh.gdxtutorial.entity.components.ModelInstanceComponent;
 import com.hh.gdxtutorial.entity.components.PositionComponent;
@@ -20,7 +28,7 @@ import com.hh.gdxtutorial.entity.components.PositionComponent;
 /**
  * An entity system that renders all entities with a PositionComponent and ModelInstanceComponent.
  */
-public class ModelBatchRenderer extends EntitySystem implements Disposable {
+public class ModelBatchRenderer extends EntitySystem implements Disposable, Telegraph {
 	protected ImmutableArray<Entity> entities;
 	protected ModelBatch modelBatch;
 	protected Family family = Family.all(PositionComponent.class, ModelInstanceComponent.class).get();
@@ -32,6 +40,7 @@ public class ModelBatchRenderer extends EntitySystem implements Disposable {
 		this.modelBatch = modelBatch;
 		this.camera = camera;
 		this.env = env;
+		MessageManager.getInstance().addListener(this, Messages.SCREEN_RESIZE);
 	}
 
 	/**
@@ -50,7 +59,15 @@ public class ModelBatchRenderer extends EntitySystem implements Disposable {
 	public ModelBatch modelBatch() {
 		return this.modelBatch;
 	}
-
+	/**
+	 * Triggered when SCREEN_RESIZE message is received.
+	 * @param dimensions
+	 */
+	public void resize(Vector2 dimensions) {
+		camera.viewportWidth = dimensions.x;
+		camera.viewportHeight = dimensions.y;
+		camera.update();
+	}
 	/**
 	 * Run the modelBatch
 	 * @param deltaTime
@@ -82,5 +99,21 @@ public class ModelBatchRenderer extends EntitySystem implements Disposable {
 	@Override
 	public void dispose() {
 		modelBatch.dispose();
+	}
+	/**
+	 * Handles incoming messages
+	 * @param msg
+	 * @return
+	 */
+	@Override
+	public boolean handleMessage(Telegram msg) {
+		switch (msg.message) {
+			case Messages.SCREEN_RESIZE:
+				resize((Vector2) msg.extraInfo);
+				break;
+			default:
+				return false;
+		}
+		return true;
 	}
 }
