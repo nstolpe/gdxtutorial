@@ -75,7 +75,7 @@ public class TurnSystemScreen extends FpsScreen {
 		assetManager = new AssetManager();
 		assetManager.load("models/plane.g3dj", Model.class);
 		assetManager.load("models/sphere.g3dj", Model.class);
-		assetManager.load("models/mask.ghost.g3dj", Model.class);
+		assetManager.load("models/mask.ghost.red.g3dj", Model.class);
 	}
 	/**
 	 * Adds extra turn data to the 2d stage, super gets the fps info.
@@ -163,7 +163,7 @@ public class TurnSystemScreen extends FpsScreen {
 	public void setupActors() {
 		Entity player = new Entity()
 			.add(new PositionComponent(new Vector3(0, 2, 0)))
-			.add(new ModelInstanceComponent(new ModelInstance(assetManager.get("models/mask.ghost.g3dj", Model.class))))
+			.add(new ModelInstanceComponent(new ModelInstance(assetManager.get("models/mask.ghost.red.g3dj", Model.class))))
 			.add(new InitiativeComponent(MathUtils.random(10)))
 			.add(new PlayerComponent());
 
