@@ -15,7 +15,7 @@ import com.hh.gdxtutorial.ai.Messages;
  * Created by nils on 6/4/16.
  */
 public class DemoInputController extends CameraInputController {
-	// buttons and keys. see full list and whatthe constructor
+	// buttons and keys. see full list and what the constructor
 	// overrides in CameraInputController
 	public int interactButton = Input.Buttons.RIGHT;
 	public int viewButton = Input.Buttons.LEFT;
