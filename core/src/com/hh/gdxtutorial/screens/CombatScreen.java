@@ -174,7 +174,7 @@ public class CombatScreen extends FpsScreen {
 
 		// @TODO get animation controller to its own spot.
 		controller = new AnimationController(player.getComponent(ModelInstanceComponent.class).instance());
-//		controller.setAnimation("skeleton|expand", -1);
+		controller.setAnimation("skeleton|float", -1);
 
 		engine.addEntity(player);
 
