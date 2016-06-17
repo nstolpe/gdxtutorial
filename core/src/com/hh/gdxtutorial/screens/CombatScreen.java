@@ -75,7 +75,7 @@ public class CombatScreen extends FpsScreen {
 		assetManager = new AssetManager();
 		assetManager.load("models/plane.g3dj", Model.class);
 		assetManager.load("models/sphere.g3dj", Model.class);
-		assetManager.load("models/mask.ghost.red.g3dj", Model.class);
+		assetManager.load("models/mask.ghost.white.g3dj", Model.class);
 
 		// particle
 		particleSystem = new ParticleSystem();
@@ -167,8 +167,8 @@ public class CombatScreen extends FpsScreen {
 
 	public void setupActors() {
 		Entity player = new Entity()
-			.add(new PositionComponent(new Vector3(0, 2, 0)))
-			.add(new ModelInstanceComponent(new ModelInstance(assetManager.get("models/mask.ghost.red.g3dj", Model.class))))
+			.add(new PositionComponent(new Vector3(0, 0, 0)))
+			.add(new ModelInstanceComponent(new ModelInstance(assetManager.get("models/mask.ghost.white.g3dj", Model.class))))
 			.add(new InitiativeComponent(MathUtils.random(10)))
 			.add(new PlayerComponent());
 
