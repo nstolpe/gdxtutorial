@@ -2141,7 +2141,7 @@
 			"textures": [
 				{
 					"id": "skin", 
-					"filename": "ghost.png", 
+					"filename": "ghost.red.png",
 					"type": "DIFFUSE"
 				}
 			]
@@ -2157,7 +2157,7 @@
 			"textures": [
 				{
 					"id": "skin", 
-					"filename": "ghost.png", 
+					"filename": "ghost.red.png",
 					"type": "DIFFUSE"
 				}
 			]
@@ -2173,7 +2173,7 @@
 			"textures": [
 				{
 					"id": "skin", 
-					"filename": "ghost.png", 
+					"filename": "ghost.red.png",
 					"type": "DIFFUSE"
 				}
 			]
