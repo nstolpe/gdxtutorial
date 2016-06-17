@@ -19,13 +19,15 @@ import com.hh.gdxtutorial.ai.Messages;
 public class MainMenuScreen extends AbstractScreen {
 	private Stage stage;
 	private BitmapFont font;
+	private TextButtonStyle buttonStyle;
+	private Table buttonColumn;
 	private TextButton celShaderScreenButton;
 	private TextButton gaussianBlurShaderScreenButton;
 	private TextButton turnEngineScreenButton;
 	private TextButton tiltShiftShaderScreenButton;
 	private TextButton turnSystemScreenButton;
-	private TextButtonStyle buttonStyle;
-	private Table buttonColumn;
+	private TextButton combatScreenButton;
+
 
 	@Override
 	public void show() {
@@ -43,6 +45,7 @@ public class MainMenuScreen extends AbstractScreen {
 		tiltShiftShaderScreenButton = new TextButton("TiltShiftShaderScreen", buttonStyle);
 		turnEngineScreenButton = new TextButton("TurnEngineScreen", buttonStyle);
 		turnSystemScreenButton = new TextButton("TurnSystemScreen", buttonStyle);
+		combatScreenButton = new TextButton("CombatScreen", buttonStyle);
 
 		celShaderScreenButton.pad(10.0f);
 		celShaderScreenButton.addListener(new ClickListener() {
@@ -77,6 +80,12 @@ public class MainMenuScreen extends AbstractScreen {
 				MessageManager.getInstance().dispatchMessage(0, Messages.CHANGE_SCREEN, new TurnSystemScreen());
 			}
 		});
+		combatScreenButton.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				MessageManager.getInstance().dispatchMessage(0, Messages.CHANGE_SCREEN, new CombatScreen());
+			}
+		});
 
 		buttonColumn = new Table();
 		buttonColumn.setFillParent(true);
@@ -89,6 +98,8 @@ public class MainMenuScreen extends AbstractScreen {
 		buttonColumn.add(turnEngineScreenButton);
 		buttonColumn.row();
 		buttonColumn.add(turnSystemScreenButton);
+		buttonColumn.row();
+		buttonColumn.add(combatScreenButton);
 
 		stage.addActor(buttonColumn);
 	}
