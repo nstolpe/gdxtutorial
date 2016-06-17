@@ -40,7 +40,7 @@ import com.hh.gdxtutorial.shaders.PerPixelShaderProvider;
 /**
  * Created by nils on 5/27/16.
  */
-public class CombatScreen extends FpsScreen implements Telegraph {
+public class CombatScreen extends FpsScreen {
 	public Engine engine = new Engine();
 	public DemoInputController camController;
 
@@ -62,7 +62,6 @@ public class CombatScreen extends FpsScreen implements Telegraph {
 	// particle
 	private ParticleSystem particleSystem;
 	private ParticleEffect effect;
-	private boolean particles;
 
 	// particle
 
@@ -96,7 +95,6 @@ public class CombatScreen extends FpsScreen implements Telegraph {
 		particleSystem.add(billboardParticleBatch);
 		ParticleEffectLoader.ParticleEffectLoadParameter loadParam = new ParticleEffectLoader.ParticleEffectLoadParameter(particleSystem.getBatches());
 		assetManager.load("effects/blast.blue.pfx", ParticleEffect.class, loadParam);
-		MessageManager.getInstance().addListener(this, Messages.TOGGLE_PARTICLES);
 		// \particle
 	}
 	/**
@@ -151,15 +149,13 @@ public class CombatScreen extends FpsScreen implements Telegraph {
 		engine.update(delta);
 
 		// particle
-		if (particles) {
-			modelBatch.begin(camera);
-			particleSystem.update(); // technically not necessary for rendering
-			particleSystem.begin();
-			particleSystem.draw();
-			particleSystem.end();
-			modelBatch.render(particleSystem);
-			modelBatch.end();
-		}
+		modelBatch.begin(camera);
+		particleSystem.update(); // technically not necessary for rendering
+		particleSystem.begin();
+		particleSystem.draw();
+		particleSystem.end();
+		modelBatch.render(particleSystem);
+		modelBatch.end();
 		// \particle
 		super.render(delta);
 	}
@@ -201,7 +197,6 @@ public class CombatScreen extends FpsScreen implements Telegraph {
 		effect.init();
 //		effect.start();  // optional: particle will begin playing immediately
 		particleSystem.add(effect);
-		particles = true;
 		// particle
 	}
 
@@ -254,19 +249,5 @@ public class CombatScreen extends FpsScreen implements Telegraph {
 		tex.dispose();
 		modelBatchRenderer.dispose();
 		celRenderer.dispose();
-	}
-
-	@Override
-	public boolean handleMessage(Telegram msg) {
-		System.out.println("here");
-		switch (msg.message) {
-			case Messages.TOGGLE_PARTICLES:
-//				particles = !particles;
-				effect.reset();
-				break;
-			default:
-				return false;
-		}
-		return true;
 	}
 }

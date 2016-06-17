@@ -27,6 +27,7 @@ public class DemoInputController extends CameraInputController {
 	protected boolean zoomInPressed;
 	public int zoomOutKey = Input.Keys.X;
 	protected boolean zoomOutPressed;
+
 	// touch/click intersection handling.
 	final Plane xzPlane = new Plane(new Vector3(0, 1, 0), 0);
 	final Vector3 intersection = new Vector3();
