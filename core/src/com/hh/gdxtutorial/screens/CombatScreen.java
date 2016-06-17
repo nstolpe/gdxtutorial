@@ -3,26 +3,20 @@ package com.hh.gdxtutorial.screens;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem;
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch;
-import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.hh.gdxtutorial.ai.Messages;
@@ -44,13 +38,10 @@ public class CombatScreen extends FpsScreen {
 	public ModelBatch modelBatch;
 
 	public Environment environment;
-	public Texture tex;
 
 	private Label turnLabel;
 
 	private ModelBatchRenderer modelBatchRenderer;
-	// @TODO get animation controller to its own spot.
-	private AnimationController controller;
 	// particle
 	private ParticleSystem particleSystem;
 	private ParticleEffect effect;
@@ -75,8 +66,8 @@ public class CombatScreen extends FpsScreen {
 
 		assetManager = new AssetManager();
 		assetManager.load("models/plane.g3dj", Model.class);
-		assetManager.load("models/sphere.g3dj", Model.class);
 		assetManager.load("models/mask.ghost.white.g3dj", Model.class);
+		assetManager.load("models/mask.ghost.red.g3dj", Model.class);
 
 		// particle
 		particleSystem = new ParticleSystem();
@@ -103,9 +94,6 @@ public class CombatScreen extends FpsScreen {
 		Gdx.gl.glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-		// @TODO get animation controller to its own spot.
-		if (controller != null)	controller.update(delta);
-
 		camController.update();
 		MessageManager.getInstance().update();
 
@@ -117,10 +105,11 @@ public class CombatScreen extends FpsScreen {
 
 		engine.update(delta);
 
+		// @TODO get this test stuff out of here
+		// testing attaching the emitter to the ghost.
 		if (!loading) {
 			Entity p = engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).get(0);
 			ModelInstance i = Mappers.MODEL_INSTANCE.get(p).instance();
-			System.out.println(Mappers.POSITION.get(p).position().cpy().add(i.getNode("emit.root").translation));
 			effect.setTransform(new Matrix4(Mappers.POSITION.get(p).position().cpy().add(i.getNode("emit.root").translation), new Quaternion(), new Vector3(1.0f, 1.0f, 1.0f)));
 		}
 		// particle
@@ -175,37 +164,35 @@ public class CombatScreen extends FpsScreen {
 	}
 
 	public void setupActors() {
-		ModelInstance instance = new ModelInstance(assetManager.get("models/mask.ghost.white.g3dj", Model.class));
-//		Node e = instance.getNode("emit.root");
+		ModelInstance instance = new ModelInstance(assetManager.get("models/mask.ghost.red.g3dj", Model.class));
 		Entity player = new Entity()
 			.add(new PositionComponent(new Vector3(0, 0, 0)))
+			.add(new RotationComponent(new Quaternion()))
 			.add(new ModelInstanceComponent(instance))
 			.add(new InitiativeComponent(MathUtils.random(10)))
 			.add(new PlayerComponent());
 
-		// @TODO get animation controller to its own spot.
-		controller = new AnimationController(player.getComponent(ModelInstanceComponent.class).instance());
-		controller.setAnimation("skeleton|float", -1);
+		// @TODO move this to an entity system.
+		if (Mappers.MODEL_INSTANCE.get(player).instance().getAnimation("skeleton|rest") != null)
+			Mappers.MODEL_INSTANCE.get(player).controller().setAnimation("skeleton|rest", -1);
 
 		engine.addEntity(player);
 
-		// create texture for mobs
-		tex = new Texture(Gdx.files.internal("models/sphere-purple.png"), true);
-		tex.setFilter(Texture.TextureFilter.MipMapLinearNearest, Texture.TextureFilter.Nearest);
-		TextureAttribute texAttr = new TextureAttribute(TextureAttribute.Diffuse, tex);
 
 		// create and position the mobs spheres/Actors
 		for (int i = -1; i <= 1; i += 2) {
 			for (int j = -1; j <= 1; j += 2) {
-				ModelInstance mi = new ModelInstance(assetManager.get("models/sphere.g3dj", Model.class));
-				mi.getMaterial("skin").set(texAttr);
-				mi.getMaterial("skin").set(new ColorAttribute(ColorAttribute.Diffuse, MathUtils.random(), MathUtils.random(), MathUtils.random(), 1.0f));
+				ModelInstance mi = new ModelInstance(assetManager.get("models/mask.ghost.white.g3dj", Model.class));
 				Entity mob = new Entity()
-						.add(new PositionComponent(new Vector3(i * 20, 2, j * 20)))
+						.add(new PositionComponent(new Vector3(i * 20, 0, j * 20)))
+						.add(new RotationComponent(new Quaternion()))
 						.add(new ModelInstanceComponent(mi))
 						.add(new InitiativeComponent(MathUtils.random(10)))
 						.add(new AiComponent());
 				engine.addEntity(mob);
+			// @TODO move this to an entity system.
+			if (Mappers.MODEL_INSTANCE.get(mob).instance().getAnimation("skeleton|rest") != null)
+				Mappers.MODEL_INSTANCE.get(mob).controller().setAnimation("skeleton|rest", -1);
 			}
 		}
 	}
@@ -213,6 +200,7 @@ public class CombatScreen extends FpsScreen {
 	public void setupScene() {
 		Entity p = new Entity()
 				.add(new ModelInstanceComponent( new ModelInstance(assetManager.get("models/plane.g3dj", Model.class))))
+				.add(new RotationComponent(new Quaternion()))
 				.add(new PositionComponent(new Vector3(0.0f, 0.0f, 0.0f)));
 
 		engine.addEntity(p);
@@ -222,7 +210,6 @@ public class CombatScreen extends FpsScreen {
 	public void dispose() {
 		super.dispose();
 		assetManager.dispose();
-		tex.dispose();
 		modelBatchRenderer.dispose();
 	}
 }
