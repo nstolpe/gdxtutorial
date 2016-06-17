@@ -10956,7 +10956,7 @@
 			]
 		}, 
 		{
-			"id": "skeleton|float", 
+			"id": "skeleton|rest",
 			"bones": [
 				{
 					"boneId": "spine.lower", 
