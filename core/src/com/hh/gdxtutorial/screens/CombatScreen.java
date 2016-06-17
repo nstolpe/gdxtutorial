@@ -4,8 +4,6 @@ import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.msg.MessageManager;
-import com.badlogic.gdx.ai.msg.Telegram;
-import com.badlogic.gdx.ai.msg.Telegraph;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -25,13 +23,9 @@ import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.hh.gdxtutorial.ai.Messages;
 import com.hh.gdxtutorial.entity.components.*;
-import com.hh.gdxtutorial.entity.systems.CelRenderer;
 import com.hh.gdxtutorial.entity.systems.ModelBatchRenderer;
 import com.hh.gdxtutorial.entity.systems.TurnSystem;
 import com.hh.gdxtutorial.screens.input.DemoInputController;
@@ -52,17 +46,13 @@ public class CombatScreen extends FpsScreen {
 	public Texture tex;
 
 	private Label turnLabel;
-	private TextButton defaultRendererButton;
-	private TextButton celRendererButton;
 
 	private ModelBatchRenderer modelBatchRenderer;
-	private CelRenderer celRenderer;
 	// @TODO get animation controller to its own spot.
 	private AnimationController controller;
 	// particle
 	private ParticleSystem particleSystem;
 	private ParticleEffect effect;
-
 	// particle
 
 	/**
@@ -79,14 +69,13 @@ public class CombatScreen extends FpsScreen {
 		modelBatch = new ModelBatch(new PerPixelShaderProvider());
 
 		environment = new Environment();
-//		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.5f, 0.5f, 0.5f, 1f));
 		environment.add(new DirectionalLight().set(1.0f, 1.0f, 1.0f, -0.5f, -0.6f, -0.7f));
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, 0.4f, 1.0f, -0.3f));
 
 		assetManager = new AssetManager();
 		assetManager.load("models/plane.g3dj", Model.class);
 		assetManager.load("models/sphere.g3dj", Model.class);
-		assetManager.load("models/mask.ghost.g3dj", Model.class);
+		assetManager.load("models/mask.ghost.red.g3dj", Model.class);
 
 		// particle
 		particleSystem = new ParticleSystem();
@@ -106,28 +95,6 @@ public class CombatScreen extends FpsScreen {
 		turnLabel = new Label(" ", new Label.LabelStyle(font, Color.WHITE));
 		table.row();
 		table.add(turnLabel).expandY().bottom();
-
-		defaultRendererButton = new TextButton("Default Renderer", buttonStyle);
-		celRendererButton = new TextButton("Cel Renderer", buttonStyle);
-
-		defaultRendererButton.addListener(new ClickListener() {
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				modelBatchRenderer.setProcessing(true);
-				celRenderer.setProcessing(false);
-			}
-		});
-
-		celRendererButton.addListener(new ClickListener() {
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				modelBatchRenderer.setProcessing(false);
-				celRenderer.setProcessing(true);
-			}
-		});
-
-		table.add(defaultRendererButton).expandY().bottom();
-		table.add(celRendererButton).expandY().bottom();
 	}
 	@Override
 	public void render(float delta) {
@@ -184,10 +151,8 @@ public class CombatScreen extends FpsScreen {
 		setupActors();
 		engine.addSystem(new TurnSystem());
 		modelBatchRenderer = new ModelBatchRenderer(modelBatch, camera, environment);
-		celRenderer = new CelRenderer(camera, environment);
 		engine.addSystem(modelBatchRenderer);
-		modelBatchRenderer.setProcessing(false);
-		engine.addSystem(celRenderer);
+		modelBatchRenderer.setProcessing(true);
 
 		// particle
 		ParticleEffect originalEffect = assetManager.get("effects/blast.blue.pfx", ParticleEffect.class);
@@ -203,7 +168,7 @@ public class CombatScreen extends FpsScreen {
 	public void setupActors() {
 		Entity player = new Entity()
 			.add(new PositionComponent(new Vector3(0, 2, 0)))
-			.add(new ModelInstanceComponent(new ModelInstance(assetManager.get("models/mask.ghost.g3dj", Model.class))))
+			.add(new ModelInstanceComponent(new ModelInstance(assetManager.get("models/mask.ghost.red.g3dj", Model.class))))
 			.add(new InitiativeComponent(MathUtils.random(10)))
 			.add(new PlayerComponent());
 
@@ -248,6 +213,5 @@ public class CombatScreen extends FpsScreen {
 		assetManager.dispose();
 		tex.dispose();
 		modelBatchRenderer.dispose();
-		celRenderer.dispose();
 	}
 }
