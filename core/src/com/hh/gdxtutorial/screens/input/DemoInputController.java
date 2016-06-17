@@ -1,5 +1,6 @@
 package com.hh.gdxtutorial.screens.input;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.graphics.Camera;
@@ -16,9 +17,12 @@ import com.hh.gdxtutorial.ai.Messages;
 public class DemoInputController extends CameraInputController {
 	// buttons and keys. see full list and whatthe constructor
 	// overrides in CameraInputController
-	public int interactButton = Input.Buttons.LEFT;
-	public int modifyKey = Input.Keys.CONTROL_LEFT;
-	protected boolean modifyPressed;
+	public int interactButton = Input.Buttons.RIGHT;
+	public int viewButton = Input.Buttons.LEFT;
+	public int altLeft = Input.Keys.ALT_LEFT;
+	protected boolean altLeftPressed;
+	public int shiftLeft = Input.Keys.SHIFT_LEFT;
+	protected boolean shiftLeftPressed;
 	public int leftKey = Input.Keys.A;
 	protected boolean leftPressed;
 	public int rightKey = Input.Keys.D;
@@ -40,13 +44,15 @@ public class DemoInputController extends CameraInputController {
 		rotateButton = Input.Buttons.RIGHT;
 		translateButton = Input.Buttons.MIDDLE;
 		forwardButton = 0;
+		rotateRightKey = Input.Keys.E;
+		rotateLeftKey = Input.Keys.Q;
 	}
 
 	@Override
 	public boolean touchDown (int screenX, int screenY, int pointer, int button) {
 		boolean ret = super.touchDown(screenX, screenY, pointer, button);
 		// only send the INTERACT_TOUCH message if the interactButton is pressed
-		if (button == interactButton && !modifyPressed) {
+		if (button == interactButton && !altLeftPressed) {
 			Ray pickRay = camera.getPickRay(screenX, screenY);
 			Intersector.intersectRayPlane(pickRay, xzPlane, intersection);
 			MessageManager.getInstance().dispatchMessage(0, Messages.INTERACT_TOUCH, new Vector3(intersection.x, 0, intersection.z));
@@ -56,11 +62,17 @@ public class DemoInputController extends CameraInputController {
 
 	@Override
 	protected boolean process (float deltaX, float deltaY, int button) {
-		if (button == rotateButton && !modifyPressed) {
-			tmpV1.set(camera.direction).crs(camera.up).y = 0f;
-			camera.rotateAround(target, tmpV1.nor(), deltaY * rotateAngle);
-			camera.rotateAround(target, Vector3.Y, deltaX * -rotateAngle);
-		} else if (button == translateButton || (button == rotateButton && modifyPressed)) {
+		if (button == viewButton && altLeftPressed) {
+			if (!shiftLeftPressed) {
+				tmpV1.set(camera.direction).crs(camera.up).y = 0f;
+				camera.rotateAround(target, tmpV1.nor(), deltaY * rotateAngle);
+				camera.rotateAround(target, Vector3.Y, deltaX * -rotateAngle);
+			} else {
+				camera.translate(tmpV1.set(camera.direction).crs(camera.up).nor().scl(-deltaX * translateUnits));
+				camera.translate(tmpV2.set(camera.up).scl(-deltaY * translateUnits));
+				if (translateTarget) target.add(tmpV1).add(tmpV2);
+			}
+		} else if (button == translateButton) {
 			camera.translate(tmpV1.set(camera.direction).crs(camera.up).nor().scl(-deltaX * translateUnits));
 			camera.translate(tmpV2.set(camera.up).scl(-deltaY * translateUnits));
 			if (translateTarget) target.add(tmpV1).add(tmpV2);
@@ -79,7 +91,8 @@ public class DemoInputController extends CameraInputController {
 		else if (keycode == rotateLeftKey)   rotateLeftPressed = true;
 		else if (keycode == zoomInKey)           zoomInPressed = true;
 		else if (keycode == zoomOutKey)         zoomOutPressed = true;
-		else if (keycode == modifyKey)           modifyPressed = true;
+		else if (keycode == altLeft)            altLeftPressed = true;
+		else if (keycode == shiftLeft)        shiftLeftPressed = true;
 
 		return false;
 	}
@@ -94,11 +107,50 @@ public class DemoInputController extends CameraInputController {
 		else if (keycode == rotateLeftKey)   rotateLeftPressed = false;
 		else if (keycode == zoomInKey)           zoomInPressed = false;
 		else if (keycode == zoomOutKey)         zoomOutPressed = false;
-		else if (keycode == modifyKey)           modifyPressed = false;
+		else if (keycode == shiftLeft)        shiftLeftPressed = false;
+		else if (keycode == altLeft)            altLeftPressed = false;
 
 		return false;
 	}
 
+	@Override
+	public void update (){
+		if (rotateRightPressed || rotateLeftPressed || forwardPressed || backwardPressed || leftPressed || rightPressed || zoomInPressed || zoomOutPressed) {
+			final float delta = Gdx.graphics.getDeltaTime();
+			if (rotateRightPressed) camera.rotate(camera.up, -delta * rotateAngle);
+			if (rotateLeftPressed) camera.rotate(camera.up, delta * rotateAngle);
+			if (forwardPressed) {
+				// check to correct for lock when looking straight down.
+				if (camera.direction.equals(new Vector3(0,-1,0))) camera.rotate(new Vector3(-1, 0, 0), -1);
+
+				camera.translate(tmpV1.set(camera.direction.x, 0, camera.direction.z).nor().scl(delta * translateUnits));
+
+				if (forwardTarget) target.add(tmpV1);
+			}
+			if (backwardPressed) {
+				// check to correct for lock when looking straight down.
+				if (camera.direction.equals(new Vector3(0,-1,0))) camera.rotate(new Vector3(-1, 0, 0), 1);
+
+				camera.translate(tmpV1.set(camera.direction.x, 0, camera.direction.z).nor().scl(-delta * translateUnits));
+				if (forwardTarget) target.add(tmpV1);
+			}
+			if (leftPressed) {
+				Vector3 left = new Vector3().set(camera.direction).crs(camera.up).nor();
+				camera.translate(tmpV1.set(left).scl(-delta * translateUnits));
+			}
+			if (rightPressed) {
+				Vector3 right = new Vector3().set(camera.direction).crs(camera.up).nor().scl(-1f);
+				camera.translate(tmpV1.set(right).scl(-delta * translateUnits));
+			}
+			if (zoomInPressed) {
+				zoom(delta * translateUnits);
+			}
+			if (zoomOutPressed) {
+				zoom(-delta * translateUnits);
+			}
+			if (autoUpdate) camera.update();
+		}
+	}
 	protected static class GestureListener extends CameraGestureListener {
 
 	}

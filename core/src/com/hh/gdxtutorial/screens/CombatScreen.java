@@ -2,6 +2,8 @@ package com.hh.gdxtutorial.screens;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.Family;
+import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.assets.AssetManager;
@@ -15,14 +17,13 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem;
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.hh.gdxtutorial.ai.Messages;
 import com.hh.gdxtutorial.entity.components.*;
@@ -84,6 +85,7 @@ public class CombatScreen extends FpsScreen {
 		particleSystem.add(billboardParticleBatch);
 		ParticleEffectLoader.ParticleEffectLoadParameter loadParam = new ParticleEffectLoader.ParticleEffectLoadParameter(particleSystem.getBatches());
 		assetManager.load("effects/blast.blue.pfx", ParticleEffect.class, loadParam);
+		assetManager.load("effects/blast.red.pfx", ParticleEffect.class, loadParam);
 		// \particle
 	}
 	/**
@@ -115,6 +117,12 @@ public class CombatScreen extends FpsScreen {
 
 		engine.update(delta);
 
+		if (!loading) {
+			Entity p = engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).get(0);
+			ModelInstance i = Mappers.MODEL_INSTANCE.get(p).instance();
+			System.out.println(Mappers.POSITION.get(p).position().cpy().add(i.getNode("emit.root").translation));
+			effect.setTransform(new Matrix4(Mappers.POSITION.get(p).position().cpy().add(i.getNode("emit.root").translation), new Quaternion(), new Vector3(1.0f, 1.0f, 1.0f)));
+		}
 		// particle
 		modelBatch.begin(camera);
 		particleSystem.update(); // technically not necessary for rendering
@@ -153,12 +161,13 @@ public class CombatScreen extends FpsScreen {
 		modelBatchRenderer = new ModelBatchRenderer(modelBatch, camera, environment);
 		engine.addSystem(modelBatchRenderer);
 		modelBatchRenderer.setProcessing(true);
-
+		Entity p = engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).get(0);
+		ModelInstance i = Mappers.MODEL_INSTANCE.get(p).instance();
 		// particle
 		ParticleEffect originalEffect = assetManager.get("effects/blast.blue.pfx", ParticleEffect.class);
 		// we cannot use the originalEffect, we must make a copy each time we create new particle effect
 		effect = originalEffect.copy();
-		effect.translate(new Vector3(4, 4, 4));
+		effect.translate(i.getNode("emit.root").translation);
 		effect.init();
 //		effect.start();  // optional: particle will begin playing immediately
 		particleSystem.add(effect);
@@ -166,9 +175,11 @@ public class CombatScreen extends FpsScreen {
 	}
 
 	public void setupActors() {
+		ModelInstance instance = new ModelInstance(assetManager.get("models/mask.ghost.white.g3dj", Model.class));
+//		Node e = instance.getNode("emit.root");
 		Entity player = new Entity()
 			.add(new PositionComponent(new Vector3(0, 0, 0)))
-			.add(new ModelInstanceComponent(new ModelInstance(assetManager.get("models/mask.ghost.white.g3dj", Model.class))))
+			.add(new ModelInstanceComponent(instance))
 			.add(new InitiativeComponent(MathUtils.random(10)))
 			.add(new PlayerComponent());
 
