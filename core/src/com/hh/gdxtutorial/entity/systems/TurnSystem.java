@@ -131,7 +131,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 			// MOB
 			if (Mappers.AI.get(sortedActors.get(activeIndex)) != null) {
 				Vector3 position = Mappers.POSITION.get(sortedActors.get(activeIndex)).position();
-				Vector3 destination = new Vector3(MathUtils.random(-20, 20), 2, MathUtils.random(-20, 20));
+				Vector3 destination = new Vector3(MathUtils.random(-20, 20), 0, MathUtils.random(-20, 20));
 
 				moveTo(position, destination, position.dst(destination) / 8);
 			// player
@@ -155,7 +155,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 				Vector3 destination = (Vector3) msg.extraInfo;
 				Vector3 position = Mappers.POSITION.get(sortedActors.get(activeIndex)).position();
 
-				destination.y = 2;
+				destination.y = 0;
 
 				MessageManager.getInstance().removeListener(this, Messages.INTERACT_TOUCH);
 				moveTo(position, destination, position.dst(destination) / 8);
