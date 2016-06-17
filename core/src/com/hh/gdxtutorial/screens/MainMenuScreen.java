@@ -47,21 +47,18 @@ public class MainMenuScreen extends AbstractScreen {
 		turnSystemScreenButton = new TextButton("TurnSystemScreen", buttonStyle);
 		combatScreenButton = new TextButton("CombatScreen", buttonStyle);
 
-		celShaderScreenButton.pad(10.0f);
 		celShaderScreenButton.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
 				MessageManager.getInstance().dispatchMessage(0, Messages.CHANGE_SCREEN, new CelShaderScreen());
 			}
 		});
-		gaussianBlurShaderScreenButton.pad(10.0f);
 		gaussianBlurShaderScreenButton.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
 				MessageManager.getInstance().dispatchMessage(0, Messages.CHANGE_SCREEN, new GaussianBlurShaderScreen());
 			}
 		});
-		tiltShiftShaderScreenButton.pad(10.0f);
 		tiltShiftShaderScreenButton.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
