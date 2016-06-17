@@ -2,43 +2,60 @@ package com.hh.gdxtutorial.entity.components;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 
 /**
  * Created by nils on 6/5/16.
  */
 public class ModelInstanceComponent implements Component {
-	private ModelInstance modelInstance;
+	private ModelInstance instance;
+	private AnimationController controller;
 
 	/**
 	 * Instantiate and return an empty ModelInstanceComponent.
 	 */
 	public ModelInstanceComponent() {}
-
 	/**
-	 * Instantiate a new ModelInstanceComponent and assign its modelInstance.
+	 * Instantiate a new ModelInstanceComponent and assign its instance.
 	 * Return the ModelInstanceComponent.
-	 * @param modelInstance
+	 * @param instance
 	 */
-	public ModelInstanceComponent(ModelInstance modelInstance) {
-		this.modelInstance = modelInstance;
+	public ModelInstanceComponent(ModelInstance instance) {
+		this.instance = instance;
+		this.controller = new AnimationController(this.instance);
 	}
-
 	/**
-	 * Set the modelInstance
+	 * Set the instance
 	 * Return the ModelInstanceComponent.
 	 * @param modelInstance
 	 * @return
 	 */
 	public ModelInstanceComponent instance(ModelInstance modelInstance) {
-		this.modelInstance = modelInstance;
+		this.instance = modelInstance;
 		return this;
 	}
-
 	/**
 	 * Get the ModelInstance
 	 * @return
 	 */
 	public ModelInstance instance() {
-		return modelInstance;
+		return instance;
+	}
+	/**
+	 * Set
+	 * @param controller
+	 * @return
+	 */
+	public ModelInstanceComponent controller(AnimationController controller) {
+		this.controller = controller;
+		return this;
+	}
+
+	/**
+	 * Getter for the controller.
+	 * @return
+	 */
+	public AnimationController controller() {
+		return controller;
 	}
 }
