@@ -6,8 +6,11 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.ModelLoader;
+import com.badlogic.gdx.assets.loaders.TextureLoader;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
@@ -64,10 +67,16 @@ public class CombatScreen extends FpsScreen {
 		environment.add(new DirectionalLight().set(1.0f, 1.0f, 1.0f, -0.5f, -0.6f, -0.7f));
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, 0.4f, 1.0f, -0.3f));
 
+		// gets rid of the moire effect
+		ModelLoader.ModelParameters param = new ModelLoader.ModelParameters();
+		param.textureParameter.minFilter = Texture.TextureFilter.MipMapLinearNearest;
+		param.textureParameter.genMipMaps = true;
+
+
 		assetManager = new AssetManager();
-		assetManager.load("models/plane.g3dj", Model.class);
-		assetManager.load("models/mask.ghost.white.g3dj", Model.class);
-		assetManager.load("models/mask.ghost.red.g3dj", Model.class);
+		assetManager.load("models/plane.g3dj", Model.class, param);
+		assetManager.load("models/mask.ghost.white.g3dj", Model.class, param);
+		assetManager.load("models/mask.ghost.red.g3dj", Model.class, param);
 
 		// particle
 		particleSystem = new ParticleSystem();
@@ -78,6 +87,7 @@ public class CombatScreen extends FpsScreen {
 		assetManager.load("effects/blast.blue.pfx", ParticleEffect.class, loadParam);
 		assetManager.load("effects/blast.red.pfx", ParticleEffect.class, loadParam);
 		// \particle
+
 	}
 	/**
 	 * Adds extra turn data to the 2d stage, super gets the fps info.
@@ -153,7 +163,7 @@ public class CombatScreen extends FpsScreen {
 		Entity p = engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).get(0);
 		ModelInstance i = Mappers.MODEL_INSTANCE.get(p).instance();
 		// particle
-		ParticleEffect originalEffect = assetManager.get("effects/blast.blue.pfx", ParticleEffect.class);
+		ParticleEffect originalEffect = assetManager.get("effects/blast.red.pfx", ParticleEffect.class);
 		// we cannot use the originalEffect, we must make a copy each time we create new particle effect
 		effect = originalEffect.copy();
 		effect.translate(i.getNode("emit.root").translation);
