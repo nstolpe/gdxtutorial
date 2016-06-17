@@ -11,4 +11,5 @@
 	<entry-point class='com.hh.gdxtutorial.client.HtmlLauncher' />
 
 	<set-configuration-property name="gdx.assetpath" value="../android/assets" />
+	<extend-configuration-property name="gdx.reflect.include" value="com.badlogic.gdx.graphics.g3d.particles" />
 </module>
