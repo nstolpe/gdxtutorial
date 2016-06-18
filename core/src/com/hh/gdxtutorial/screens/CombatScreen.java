@@ -87,7 +87,6 @@ public class CombatScreen extends FpsScreen {
 		assetManager.load("effects/blast.blue.pfx", ParticleEffect.class, loadParam);
 		assetManager.load("effects/blast.red.pfx", ParticleEffect.class, loadParam);
 		// \particle
-
 	}
 	/**
 	 * Adds extra turn data to the 2d stage, super gets the fps info.
