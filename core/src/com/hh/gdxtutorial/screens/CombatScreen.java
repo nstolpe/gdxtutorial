@@ -49,6 +49,8 @@ public class CombatScreen extends FpsScreen {
 	private ParticleSystem particleSystem;
 	private ParticleEffect effect;
 	// particle
+	private float rotperc = 0;
+	private Quaternion rotquat = new Quaternion(0,1,0,0);
 
 	/**
 	 * Setup input, 3d environment, the modelBatch and the assetManager.
@@ -120,6 +122,15 @@ public class CombatScreen extends FpsScreen {
 			Entity p = engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).get(0);
 			ModelInstance i = Mappers.MODEL_INSTANCE.get(p).instance();
 			effect.setTransform(new Matrix4(Mappers.POSITION.get(p).position().cpy().add(i.getNode("emit.root").translation), new Quaternion(), new Vector3(1.0f, 1.0f, 1.0f)));
+			rotperc += delta;
+			if (rotperc >= 1) {
+				rotperc = 0;
+				if (rotquat.y == 1)
+					rotquat.set(0,0,0,1);
+				else
+					rotquat.set(0,1,0,0);
+			}
+			Mappers.ROTATION.get(p).rotation.slerp(rotquat, rotperc / 16);
 		}
 		// particle
 		modelBatch.begin(camera);
