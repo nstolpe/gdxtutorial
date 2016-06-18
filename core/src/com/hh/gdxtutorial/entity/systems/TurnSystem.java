@@ -132,6 +132,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 				Quaternion sr = Mappers.ROTATION.get(sortedActors.get(activeIndex)).rotation();
 				Vector3 et = new Vector3(MathUtils.random(-20, 20), 0, MathUtils.random(-20, 20));
 				Quaternion er = getRotationTo(st, et);
+				sr.set(er.nor());
 				moveTo(st, et, sr, er, st.dst(et) / 16);
 			// player
 			} else if (Mappers.PLAYER.get(sortedActors.get(activeIndex)) != null) {
@@ -211,6 +212,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 				Vector3 et = (Vector3) msg.extraInfo;
 				et.y = 0;
 				Quaternion er = getRotationTo(st, et);
+				sr.set(er.nor());
 
 				MessageManager.getInstance().removeListener(this, Messages.INTERACT_TOUCH);
 				moveTo(st, et, sr, er, st.dst(et) / 16);
