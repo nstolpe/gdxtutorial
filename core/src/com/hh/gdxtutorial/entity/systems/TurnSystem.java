@@ -14,10 +14,12 @@ import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.hh.gdxtutorial.ai.Messages;
 import com.hh.gdxtutorial.entity.components.*;
+import com.hh.gdxtutorial.tween.accessors.QuaternionAccessor;
 import com.hh.gdxtutorial.tween.accessors.Vector3Accessor;
 
 import java.util.Comparator;
@@ -47,7 +49,10 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	 * @param duration     Duration of tween.
 	 * @TODO Move this to a Tween Library. Tweens.Vector3.Position(start, end, duration)
 	 */
-	private void moveTo(Vector3 start, Vector3 end, float duration) {
+	private void moveTo(Vector3 start, Vector3 end, Quaternion rotation, float duration) {
+		//http://stackoverflow.com/questions/1171849/finding-quaternion-representing-the-rotation-from-one-vector-to-another
+		Vector3 v = start.crs(end);
+		System.out.println(rotation.getAxisAngle(Vector3.Y));
 		Tween.to(start, Vector3Accessor.XYZ, duration)
 			.target(end.x, end.y, end.z)
 			.setCallback(new TweenCallback() {
@@ -112,6 +117,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 
 		MessageManager.getInstance().addListener(this, Messages.ADVANCE_TURN_CONTROL);
 		Tween.registerAccessor(Vector3.class, new Vector3Accessor());
+		Tween.registerAccessor(Quaternion.class, new QuaternionAccessor());
 
 		activeIndex = 0;
 	}
@@ -131,9 +137,10 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 			// MOB
 			if (Mappers.AI.get(sortedActors.get(activeIndex)) != null) {
 				Vector3 position = Mappers.POSITION.get(sortedActors.get(activeIndex)).position();
+				Quaternion rotation= Mappers.ROTATION.get(sortedActors.get(activeIndex)).rotation();
 				Vector3 destination = new Vector3(MathUtils.random(-20, 20), 0, MathUtils.random(-20, 20));
 
-				moveTo(position, destination, position.dst(destination) / 8);
+				moveTo(position, destination, rotation, position.dst(destination) / 8);
 			// player
 			} else if (Mappers.PLAYER.get(sortedActors.get(activeIndex)) != null) {
 				MessageManager.getInstance().addListener(this, Messages.INTERACT_TOUCH);
@@ -154,11 +161,12 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 			case Messages.INTERACT_TOUCH:
 				Vector3 destination = (Vector3) msg.extraInfo;
 				Vector3 position = Mappers.POSITION.get(sortedActors.get(activeIndex)).position();
+				Quaternion rotation= Mappers.ROTATION.get(sortedActors.get(activeIndex)).rotation();
 
 				destination.y = 0;
 
 				MessageManager.getInstance().removeListener(this, Messages.INTERACT_TOUCH);
-				moveTo(position, destination, position.dst(destination) / 8);
+				moveTo(position, destination, rotation, position.dst(destination) / 8);
 				break;
 			default:
 				return false;
