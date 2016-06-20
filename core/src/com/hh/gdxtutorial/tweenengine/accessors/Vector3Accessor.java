@@ -1,4 +1,4 @@
-package com.hh.gdxtutorial.tween.accessors;
+package com.hh.gdxtutorial.tweenengine.accessors;
 
 import aurelienribon.tweenengine.TweenAccessor;
 import com.badlogic.gdx.math.Vector3;
@@ -15,6 +15,9 @@ public class Vector3Accessor implements TweenAccessor<Vector3> {
 	public static final int ZX = 5;
 	public static final int XYZ = 6;
 
+	public Vector3Accessor() {
+		System.out.print("here");
+	}
 	@Override
 	public int getValues(Vector3 vec, int tweenType, float[] returnValues) {
 		switch (tweenType) {

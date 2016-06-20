@@ -192,12 +192,14 @@ public class CombatScreen extends FpsScreen {
 	public void setupActors() {
 		ModelInstance instance = new ModelInstance(assetManager.get("models/mask.ghost.red.g3dj", Model.class));
 		Entity player = new Entity()
-			.add(new PositionComponent(new Vector3(0, 0, 0)))
-			.add(new RotationComponent(new Quaternion()))
+			.add(new PositionComponent(new Vector3(1, 0, 1)))
+			.add(new DirectionComponent(new Vector3(0, -1, 0)))
+			.add(new RotationComponent(new Quaternion(new Vector3(0, -1, 0), 180).nor()))
 			.add(new ModelInstanceComponent(instance))
 			.add(new InitiativeComponent(MathUtils.random(10)))
 			.add(new PlayerComponent());
-
+//			lookAt(Mappers.POSITION.get(player).position(), new Vector3(1, 0, 3).nor(), Mappers.ROTATION.get(player).rotation());
+//		Mappers.MODEL_INSTANCE.get(player).instance().transform.setToLookAt(new Vector3(20, 0, 20), new Vector3(0,1,0));
 		// @TODO move this to an entity system.
 		if (Mappers.MODEL_INSTANCE.get(player).instance().getAnimation("skeleton|rest") != null)
 			Mappers.MODEL_INSTANCE.get(player).controller().setAnimation("skeleton|rest", -1);
@@ -211,7 +213,8 @@ public class CombatScreen extends FpsScreen {
 				ModelInstance mi = new ModelInstance(assetManager.get("models/mask.ghost.white.g3dj", Model.class));
 				Entity mob = new Entity()
 						.add(new PositionComponent(new Vector3(i * 20, 0, j * 20)))
-						.add(new RotationComponent(new Quaternion()))
+						.add(new RotationComponent(new Quaternion(new Vector3(0, -1, 0), 0)))
+						.add(new DirectionComponent(new Vector3(0, -1, 0)))
 						.add(new ModelInstanceComponent(mi))
 						.add(new InitiativeComponent(MathUtils.random(10)))
 						.add(new AiComponent());
@@ -222,7 +225,46 @@ public class CombatScreen extends FpsScreen {
 			}
 		}
 	}
+	public void lookAt(Vector3 origin, Vector3 target, Quaternion rotation) {
+		Vector3 up = new Vector3(0, 1, 0);
+		origin = origin.cpy().nor();
+		target = target.cpy().nor();
+		float dot = origin.dot(target);
+		if (Math.abs(dot + 1) < 0.000000001f) {
+			rotation.set(up.scl(-1), 180);
+			return;
+		}
+		if (Math.abs(dot - 1) < 0.000000001f) {
+			rotation.set(up, 180);
+			return;
+		}
 
+		float rotAngle = (float) Math.acos(dot);
+		Vector3 rotAxis = new Vector3(origin).crs(target).nor();
+
+		rotation.setFromAxisRad(rotAxis, rotAngle);
+	}
+	public void face(Vector3 origin, Vector3 target, Vector3 direction, Quaternion rotation) {
+		Vector3 tmpVec = new Vector3();
+		Vector3 up = new Vector3(0, 1, 0);
+		origin = origin.cpy().nor();
+		target = target.cpy().nor();
+//		float dot = origin.dot(target);
+
+		tmpVec.set(target).sub(origin).nor();
+		if (!tmpVec.isZero()) {
+			float dot = tmpVec.dot(up); // up and direction must ALWAYS be orthonormal vectors
+			if (Math.abs(dot - 1) < 0.000000001f) {
+				// Collinear
+				up.set(direction).scl(-1);
+			} else if (Math.abs(dot + 1) < 0.000000001f) {
+				// Collinear opposite
+				up.set(direction);
+			}
+			direction.set(tmpVec);
+//			normalizeUp();
+		}
+	}
 	public void setupScene() {
 		Entity p = new Entity()
 				.add(new ModelInstanceComponent( new ModelInstance(assetManager.get("models/plane.g3dj", Model.class))))

@@ -1,4 +1,4 @@
-package com.hh.gdxtutorial.tween.accessors;
+package com.hh.gdxtutorial.tweenengine.accessors;
 
 import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenAccessor;

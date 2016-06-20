@@ -16,8 +16,8 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.hh.gdxtutorial.ai.Messages;
 import com.hh.gdxtutorial.entity.components.*;
-import com.hh.gdxtutorial.tween.accessors.QuaternionAccessor;
-import com.hh.gdxtutorial.tween.accessors.Vector3Accessor;
+import com.hh.gdxtutorial.tweenengine.accessors.QuaternionAccessor;
+import com.hh.gdxtutorial.tweenengine.accessors.Vector3Accessor;
 
 import java.util.Comparator;
 
@@ -47,9 +47,15 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	 * @TODO Move this to a Tween Library. Tweens.Vector3.Position(start, end, duration)
 	 */
 	private void moveTo(Vector3 sp, Vector3 ep, Quaternion sr, Quaternion er, float duration) {
-		Tween rotation = Tween.to(sr, QuaternionAccessor.ROTATION, duration / 4).target(er.x, er.y, er.z, er.w).ease(Linear.INOUT);
+//		lookAt(ep.cpy().sub(sp).nor(), ep, sr);
+		Quaternion g = sr.cpy();
+		foo(sp, ep, g);
+//		sr.set(er);
+		Tween f = new Tween();
+		Tween rotation = Tween.to(sr, QuaternionAccessor.ROTATION, duration / 2).target(g.x, g.y, g.z, g.w).ease(Linear.INOUT);
+//		Tween rotation = Tween.to(sr, QuaternionAccessor.ROTATION, duration / 4).target(er.x, er.y, er.z, er.w).ease(Linear.INOUT);
 		Tween translation = Tween.to(sp, Vector3Accessor.XYZ, duration).target(ep.x, ep.y, ep.z).ease(Linear.INOUT);
-		Timeline.createSequence().push(translation).setCallback(new TweenCallback() {
+		Timeline.createSequence().push(rotation).push(translation).setCallback(new TweenCallback() {
 			@Override
 			public void onEvent(int type, BaseTween<?> source) {
 				switch (type) {
@@ -62,6 +68,26 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 				}
 			}
 		}).start(tweenManager);
+	}
+
+	public void lookAt(Vector3 origin, Vector3 target, Quaternion rotation) {
+		Vector3 up = new Vector3(0, 1, 0);
+		origin = origin.cpy().nor();
+		target = target.cpy().nor();
+		float dot = origin.dot(target);
+		if (Math.abs(dot + 1) < 0.000000001f) {
+			rotation.set(up.scl(-1), 180);
+			return;
+		}
+		if (Math.abs(dot - 1) < 0.000000001f) {
+			rotation.set(up, 180);
+			return;
+		}
+
+		float rotAngle = (float) Math.acos(dot);
+		Vector3 rotAxis = new Vector3(origin).crs(target).nor();
+
+		rotation.setFromAxisRad(rotAxis, rotAngle);
 	}
 	/**
 	 * Passes control of the turn to the next actor in sortedActors
@@ -140,7 +166,18 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 			}
 		}
 	}
-
+	// this gets the right end quat, most of the time. sometimes it's reversed.
+	public void foo(Vector3 origin, Vector3 target, Quaternion rotation) {
+		Vector3 diff = target.cpy().sub(origin);
+		diff.nor();
+		// why is it z?
+		Vector3 zaxis = new Vector3(0,0,1);
+		float dot = zaxis.dot(diff);
+		float angle = (float) Math.acos(dot);
+		Vector3 axis = zaxis.cpy().crs(diff).nor();
+//		rotation.setFromCross(Vector3.Z, diff);
+		rotation.setFromAxisRad(axis, angle);
+	}
 	private Quaternion getRotationTo(Vector3 origin, Vector3 target) {
 		Quaternion q = new Quaternion();
 		origin = origin.cpy().nor();

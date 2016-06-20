@@ -2,7 +2,9 @@ buildscript {
     repositories {
         mavenLocal()
         mavenCentral()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven {
+			url "https://oss.sonatype.org/content/repositories/snapshots/"
+		}
         jcenter()
     }
     dependencies {
@@ -30,6 +32,7 @@ allprojects {
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+        maven { url "https://jitpack.io" }
     }
 }
 
@@ -48,7 +51,9 @@ project(":desktop") {
 project(":android") {
     apply plugin: "android"
 
-    configurations { natives }
+    configurations {
+		natives
+	}
 
     dependencies {
         compile project(":core")
@@ -95,8 +100,9 @@ project(":core") {
         compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-ai:$aiVersion"
         compile "com.badlogicgames.ashley:ashley:$ashleyVersion"
-        compile "aurelienribon:tweenengine:6.3.3"
-        compile "aurelienribon:tweenengine:6.3.3:sources"
+        //compile "aurelienribon:tweenengine:6.3.3"
+        //compile "aurelienribon:tweenengine:6.3.3:sources"
+		compile "com.github.nstolpe:universal-tween-engine:v6.3.3.002"
     }
 }
 

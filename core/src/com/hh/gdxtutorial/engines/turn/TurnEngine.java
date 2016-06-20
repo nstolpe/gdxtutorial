@@ -7,7 +7,7 @@ import com.badlogic.gdx.ai.msg.Telegraph;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.hh.gdxtutorial.ai.Messages;
-import com.hh.gdxtutorial.tween.accessors.Vector3Accessor;
+import com.hh.gdxtutorial.tweenengine.accessors.Vector3Accessor;
 
 /**
  * TurnEngine handles the running of turn actions for each Actor involved in a turn.
