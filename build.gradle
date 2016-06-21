@@ -12,10 +12,13 @@ buildscript {
         classpath 'com.android.tools.build:gradle:1.5.0'
     }
 }
-
 allprojects {
     apply plugin: "eclipse"
     apply plugin: "idea"
+
+	configurations.all {
+		resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+	}
 
     version = '1.0'
     ext {
@@ -94,7 +97,6 @@ project(":html") {
 project(":core") {
     apply plugin: "java"
 
-
     dependencies {
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
@@ -102,10 +104,10 @@ project(":core") {
         compile "com.badlogicgames.ashley:ashley:$ashleyVersion"
         //compile "aurelienribon:tweenengine:6.3.3"
         //compile "aurelienribon:tweenengine:6.3.3:sources"
-		compile "com.github.nstolpe:universal-tween-engine:v6.3.3.002"
+		//compile "com.github.nstolpe:universal-tween-engine:v6.3.3.002"
+		compile "com.github.nstolpe:universal-tween-engine:master-SNAPSHOT"
     }
 }
-
 tasks.eclipse.doLast {
     delete ".project"
 }
