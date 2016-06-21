@@ -1,18 +1,23 @@
 package com.hh.gdxtutorial.tweenengine.accessors;
 
+import aurelienribon.tweenengine.Pool;
 import aurelienribon.tweenengine.Tween;
 
 /**
  * Created by nils on 6/20/16.
  */
 public class SlerpTween extends Tween {
-	private SlerpTween() {
+	private int percentComplete = 0;
+	public SlerpTween() {
 		super();
 	}
 
+	protected static final Pool<Tween> pool = new Pool<Tween>(20, poolCallback) {
+		@Override
+		public Tween create() {return new Tween();}
+	};
 	@Override
 	protected void setup(Object target, int tweenType, float duration) {
-		// target is the origin. cache here? then cache destination (actual target) in update?
 		super.setup(target, tweenType, duration);
 	}
 

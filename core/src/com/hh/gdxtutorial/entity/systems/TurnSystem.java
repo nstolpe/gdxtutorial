@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.Array;
 import com.hh.gdxtutorial.ai.Messages;
 import com.hh.gdxtutorial.entity.components.*;
 import com.hh.gdxtutorial.tweenengine.accessors.QuaternionAccessor;
+import com.hh.gdxtutorial.tweenengine.accessors.SlerpTween;
 import com.hh.gdxtutorial.tweenengine.accessors.Vector3Accessor;
 
 import java.util.Comparator;
@@ -52,7 +53,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 		foo(sp, ep, g);
 //		sr.set(er);
 		Tween f = new Tween();
-		Tween rotation = Tween.to(sr, QuaternionAccessor.ROTATION, duration / 2).target(g.x, g.y, g.z, g.w).ease(Linear.INOUT);
+		Tween rotation = SlerpTween.to(sr, QuaternionAccessor.ROTATION, duration / 2).target(g.x, g.y, g.z, g.w).ease(Linear.INOUT);
 //		Tween rotation = Tween.to(sr, QuaternionAccessor.ROTATION, duration / 4).target(er.x, er.y, er.z, er.w).ease(Linear.INOUT);
 		Tween translation = Tween.to(sp, Vector3Accessor.XYZ, duration).target(ep.x, ep.y, ep.z).ease(Linear.INOUT);
 		Timeline.createSequence().push(rotation).push(translation).setCallback(new TweenCallback() {
