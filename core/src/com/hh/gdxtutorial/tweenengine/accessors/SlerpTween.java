@@ -11,15 +11,17 @@ import com.badlogic.gdx.math.Quaternion;
  * Created by nils on 6/20/16.
  */
 public class SlerpTween extends Tween {
-	private int percentComplete = 0;
-
 	public SlerpTween() {
 		super();
 		isRelative = true;
 	}
 	protected static final Pool.Callback<SlerpTween> slerpPoolCallback = new Pool.Callback<SlerpTween>() {
-		@Override public void onPool(SlerpTween obj) {obj.reset();}
-		@Override public void onUnPool(SlerpTween obj) {obj.reset();}
+		@Override public void onPool(SlerpTween obj) {
+			obj.reset();
+		}
+		@Override public void onUnPool(SlerpTween obj) {
+			obj.reset();
+		}
 	};
 	protected static final Pool<SlerpTween> slerpPool = new Pool<SlerpTween>(20, slerpPoolCallback) {
 		@Override

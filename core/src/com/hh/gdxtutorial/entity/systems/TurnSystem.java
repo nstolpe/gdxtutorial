@@ -41,16 +41,26 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 		return activeIndex;
 	}
 	// this gets the right end quat, most of the time. sometimes it's reversed.
-	public Quaternion setTargetRotation(Vector3 origin, Vector3 target) {
-		Vector3 diff = target.cpy().sub(origin);
-		diff.nor();
-		// why is it z?
-		Vector3 zaxis = new Vector3(0,0,1);
-		float dot = zaxis.dot(diff);
+	public Quaternion getTargetRotation(Vector3 origin, Vector3 target) {
+		// Get the difference between the two points.
+		Vector3 difference = target.cpy().sub(origin);
+//		if (difference.len() < 0.000000001f)
+//			return null;
+		Vector3 direction = difference.cpy().nor();
+
+		// z is forward
+		Vector3 zAxis = new Vector3(0,0,1);
+
+		float dot = zAxis.dot(direction);
 		float angle = (float) Math.acos(dot);
-		Vector3 axis = zaxis.cpy().crs(diff).nor();
+//		if (angle < 0.000000001f)
+//			return null;
+		Vector3 axis = zAxis.cpy().crs(direction).nor();
+//		return new Quaternion().setFromAxisRad(axis, angle);
+		return new Quaternion().setFromCross(zAxis, direction);
+
 //		rotation.setFromCross(Vector3.Z, diff);
-		return new Quaternion().setFromAxisRad(axis, angle);
+
 	}
 	/**
 	 * Sets up and starts a tween from Vector3 position to Vector3 destination for float duration.
@@ -60,10 +70,9 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	 * @TODO Move this to a Tween Library. Tweens.Vector3.Position(start, end, duration)
 	 */
 	private void moveTo(Vector3 sp, Vector3 ep, Quaternion sr, Quaternion er, float duration) {
-//		lookAt(ep.cpy().sub(sp).nor(), ep, sr);
-		// sets g to hold the rotation to the target.
-//		Quaternion g = sr.cpy();
-		Quaternion targetRotation = setTargetRotation(sp, ep);
+		Quaternion targetRotation = getTargetRotation(sp, ep);
+		if (targetRotation == null) targetRotation = new Quaternion(sr);
+//		targetRotation.set(sr.cpy().add(er));
 		Tween rotation = SlerpTween.to(sr, QuaternionAccessor.ROTATION, duration).target(targetRotation.x, targetRotation.y, targetRotation.z, targetRotation.w).ease(Linear.INOUT);
 //		Tween rotation = Tween.to(sr, QuaternionAccessor.ROTATION, duration / 4).target(er.x, er.y, er.z, er.w).ease(Linear.INOUT);
 		Tween translation = Tween.to(sp, Vector3Accessor.XYZ, duration).target(ep.x, ep.y, ep.z).ease(Linear.INOUT);
@@ -169,8 +178,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 				Vector3 st = Mappers.POSITION.get(sortedActors.get(activeIndex)).position();
 				Quaternion sr = Mappers.ROTATION.get(sortedActors.get(activeIndex)).rotation();
 				Vector3 et = new Vector3(MathUtils.random(-20, 20), 0, MathUtils.random(-20, 20));
-				Quaternion er = getRotationTo(st, et);
-				sr.set(er.nor());
+				Quaternion er = getRotationTo(st.cpy(), et.cpy());
 				moveTo(st, et, sr, er, st.dst(et) / 16);
 			// player
 			} else if (Mappers.PLAYER.get(sortedActors.get(activeIndex)) != null) {
@@ -181,12 +189,12 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 
 	private Quaternion getRotationTo(Vector3 origin, Vector3 target) {
 		Quaternion q = new Quaternion();
-		origin = origin.cpy().nor();
-		target = target.cpy().nor();
+		origin = origin.cpy();
+		target = target.cpy();
 
 		float dot = origin.dot(target);
 
-		Vector3 tmpvec3 = new Vector3();
+		Vector3 tmpvec3;
 		Vector3 xUnitVec3 = new Vector3(1,0,0);
 		Vector3 yUnitVec3 = new Vector3(0,1,0);
 		if (dot < -0.999999) {
@@ -250,7 +258,6 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 				Vector3 et = (Vector3) msg.extraInfo;
 				et.y = 0;
 				Quaternion er = getRotationTo(st, et);
-				sr.set(er.nor());
 
 				MessageManager.getInstance().removeListener(this, Messages.INTERACT_TOUCH);
 				moveTo(st, et, sr, er, st.dst(et) / 16);
