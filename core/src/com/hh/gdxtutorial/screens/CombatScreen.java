@@ -193,43 +193,30 @@ public class CombatScreen extends FpsScreen {
 
 	public void setupActors() {
 		blastRed = assetManager.get("effects/blast.red.pfx", ParticleEffect.class);
-		ParticleEffect effectInstance = blastRed.copy();
-		EffectsComponent.Effect e = new EffectsComponent.Effect("emit.root", effectInstance, (RegularEmitter) effectInstance.getControllers().first().emitter);
-		ModelInstance instance = new ModelInstance(assetManager.get("models/mask.ghost.red.g3dj", Model.class));
-		Entity player = new Entity()
-			.add(new PositionComponent(new Vector3(1, 0, 1)))
-			.add(new DirectionComponent(new Vector3(0, -1, 0)))
-			.add(new RotationComponent(new Quaternion()))
-			.add(new ModelInstanceComponent(instance))
-			.add(new InitiativeComponent(MathUtils.random(10)))
-			.add(new EffectsComponent().addEffect("blast", e))
-			.add(new PlayerComponent());
-
-		engine.addEntity(player);
+		createActor("models/mask.ghost.red.g3dj", blastRed, 0, 0, true);
 
 		blastBlue = assetManager.get("effects/blast.red.pfx", ParticleEffect.class);
-		// create and position the mobs spheres/Actors
-		for (int i = -1; i <= 1; i += 2) {
-			for (int j = -1; j <= 1; j += 2) {
-				effectInstance = blastBlue.copy();
-				e = new EffectsComponent.Effect("emit.root", effectInstance, (RegularEmitter) effectInstance.getControllers().first().emitter);
-				ModelInstance mi = new ModelInstance(assetManager.get("models/mask.ghost.white.g3dj", Model.class));
-				Entity mob = new Entity()
-						.add(new PositionComponent(new Vector3(i * 20, 0, j * 20)))
-						.add(new RotationComponent(new Quaternion()))
-						.add(new DirectionComponent(new Vector3(0, -1, 0)))
-						.add(new ModelInstanceComponent(mi))
-						.add(new InitiativeComponent(MathUtils.random(10)))
-						.add(new EffectsComponent().addEffect("blast", e))
-						.add(new AiComponent());
-				engine.addEntity(mob);
-			}
-		}
+
+		for (int i = -1; i <= 1; i += 2)
+			for (int j = -1; j <= 1; j += 2)
+				createActor("models/mask.ghost.white.g3dj", blastBlue, i * 20, j * 20, false);
 	}
 
-	public void createActor(int x, int y) {
-
+	public void createActor(String modelString, ParticleEffect effectSource, int x, int z, boolean player) {
+		ParticleEffect effectInstance = effectSource.copy();
+		ModelInstance instance = new ModelInstance(assetManager.get(modelString, Model.class));
+		EffectsComponent.Effect effect = new EffectsComponent.Effect("emit.root", effectInstance, (RegularEmitter) effectInstance.getControllers().first().emitter);
+		Entity entity = new Entity()
+				.add(new PositionComponent(new Vector3(x, 0, z)))
+				.add(new DirectionComponent(new Vector3(0, -1, 0)))
+				.add(new RotationComponent(new Quaternion()))
+				.add(new ModelInstanceComponent(instance))
+				.add(new InitiativeComponent(MathUtils.random(10)))
+				.add(new EffectsComponent().addEffect("blast", effect))
+				.add(player ? new PlayerComponent() : new AiComponent());
+		engine.addEntity(entity);
 	}
+
 	public void setupScene() {
 		Entity p = new Entity()
 				.add(new ModelInstanceComponent( new ModelInstance(assetManager.get("models/plane.g3dj", Model.class))))
