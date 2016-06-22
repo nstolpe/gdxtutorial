@@ -121,7 +121,12 @@ public class CombatScreen extends FpsScreen {
 		if (!loading) {
 			Entity p = engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).get(0);
 			ModelInstance i = Mappers.MODEL_INSTANCE.get(p).instance();
-			effect.setTransform(new Matrix4(Mappers.POSITION.get(p).position().cpy().add(i.getNode("emit.root").translation), new Quaternion(), new Vector3(1.0f, 1.0f, 1.0f)));
+//			effect.setTransform(new Matrix4(Mappers.POSITION.get(p).position().cpy().add(i.getNode("emit.root").translation).rotate(Mappers.ROTATION.get(p).rotation())));
+			Matrix4 m = new Matrix4();
+			m.setTranslation(Mappers.POSITION.get(p).position().cpy().add(i.getNode("emit.root").translation));
+//			m.setToRotation(Mappers.ROTATION.get(p).rotation().);
+			effect.setTransform(m);
+
 		}
 		// particle
 		modelBatch.begin(camera);
@@ -168,7 +173,15 @@ public class CombatScreen extends FpsScreen {
 		// we cannot use the originalEffect, we must make a copy each time we create new particle effect
 		effect = originalEffect.copy();
 		effect.translate(i.getNode("emit.root").translation);
+
+//		Matrix4 tmpMatrix = new Matrix4();
+//		Quaternion tmpQ = new Quaternion();
+//		Matrix4 tmpMatrix4 = new Matrix4();
+//		tmpMatrix4.mul(tmpMatrix);
+//		tmpQ.set(new Vector3(0,1,0), 63).toMatrix(tmpMatrix4.val);
+//		effect.getControllers().get(0).setTransform(tmpMatrix4);
 		effect.init();
+
 //		effect.start();  // optional: particle will begin playing immediately
 		particleSystem.add(effect);
 		// particle

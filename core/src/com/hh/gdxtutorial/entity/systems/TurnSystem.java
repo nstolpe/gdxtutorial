@@ -40,27 +40,30 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	public int activeIndex() {
 		return activeIndex;
 	}
-	// this gets the right end quat, most of the time. sometimes it's reversed.
+
+	/**
+	 * Gets the rotation from one Vector3 to another.
+	 * @param origin
+	 * @param target
+	 * @return
+	 * @TODO Make sure those epsilon values are working.
+	 */
 	public Quaternion getTargetRotation(Vector3 origin, Vector3 target) {
 		// Get the difference between the two points.
 		Vector3 difference = target.cpy().sub(origin);
-//		if (difference.len() < 0.000000001f)
-//			return null;
 		Vector3 direction = difference.cpy().nor();
+
+		if (difference.len() < 0.000000001f) return null;
 
 		// z is forward
 		Vector3 zAxis = new Vector3(0,0,1);
 
 		float dot = zAxis.dot(direction);
 		float angle = (float) Math.acos(dot);
-//		if (angle < 0.000000001f)
-//			return null;
-		Vector3 axis = zAxis.cpy().crs(direction).nor();
-//		return new Quaternion().setFromAxisRad(axis, angle);
+
+		if (angle < 0.000000001f) return null;
+
 		return new Quaternion().setFromCross(zAxis, direction);
-
-//		rotation.setFromCross(Vector3.Z, diff);
-
 	}
 	/**
 	 * Sets up and starts a tween from Vector3 position to Vector3 destination for float duration.
@@ -72,8 +75,13 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	private void startMovement(Vector3 position, Quaternion rotation, Vector3 destination) {
 		Quaternion targetRotation = getTargetRotation(position, destination);
 		if (targetRotation == null) targetRotation = new Quaternion(rotation);
-		Tween rotate = SlerpTween.to(rotation, QuaternionAccessor.ROTATION, position.dst(destination) / 16).target(targetRotation.x, targetRotation.y, targetRotation.z, targetRotation.w).ease(Linear.INOUT);
+		Quaternion qd = rotation.cpy().conjugate().mul(targetRotation);
+		float angle = 2 * (float) Math.atan2(new Vector3(qd.x, qd.y, qd.z).len(), qd.w);
+		System.out.println(angle);
+		Tween rotate = SlerpTween.to(rotation, QuaternionAccessor.ROTATION, angle / 4).target(targetRotation.x, targetRotation.y, targetRotation.z, targetRotation.w).ease(Linear.INOUT);
+
 		Tween translate = Tween.to(position, Vector3Accessor.XYZ, position.dst(destination) / 16).target(destination.x, destination.y, destination.z).ease(Linear.INOUT);
+
 		Timeline.createSequence().push(rotate).push(translate).setCallback(new TweenCallback() {
 			@Override
 			public void onEvent(int type, BaseTween<?> source) {
