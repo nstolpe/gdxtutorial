@@ -10,9 +10,9 @@ import com.badlogic.gdx.math.Quaternion;
 public class QuaternionAccessor implements TweenAccessor<Quaternion> {
 	public static final int ROTATION = 0;
 
-	public QuaternionAccessor() {
-		Tween.setCombinedAttributesLimit(4);
-	}
+//	public QuaternionAccessor() {
+//		Tween.setCombinedAttributesLimit(4);
+//	}
 	@Override
 	public int getValues(Quaternion quat, int tweenType, float[] returnValues) {
 		switch (tweenType) {
@@ -23,7 +23,6 @@ public class QuaternionAccessor implements TweenAccessor<Quaternion> {
 				returnValues[3] = quat.w;
 				return 4;
 			default:
-				assert false;
 				return -1;
 		}
 	}
@@ -32,10 +31,11 @@ public class QuaternionAccessor implements TweenAccessor<Quaternion> {
 	public void setValues(Quaternion quat, int tweenType, float[] newValues) {
 		switch (tweenType) {
 			case ROTATION:
-//				quat.set(newValues[0], newValues[1], newValues[2], newValues[3]).nor();
-				quat.slerp(new Quaternion(newValues[0], newValues[1], newValues[2], newValues[3]), 1);
+				quat.set(newValues[0], newValues[1], newValues[2], newValues[3]).nor();
+//				quat.slerp(new Quaternion(newValues[0], newValues[1], newValues[2], newValues[3]), 1);
+				break;
 			default:
-				assert false;
+				break;
 		}
 	}
 }

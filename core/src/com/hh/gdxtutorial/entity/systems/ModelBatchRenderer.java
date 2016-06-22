@@ -82,9 +82,10 @@ public class ModelBatchRenderer extends EntitySystem implements Disposable, Tele
 		for (Entity e : entities) {
 			ModelInstance instance = Mappers.MODEL_INSTANCE.get(e).instance();
 			Mappers.MODEL_INSTANCE.get(e).controller().update(deltaTime);
-			instance.transform.set(Mappers.ROTATION.get(e).rotation);
 
+			instance.transform.set(Mappers.ROTATION.get(e).rotation);
 			instance.transform.setTranslation(Mappers.POSITION.get(e).position());
+
 			modelBatch.render(instance, env);
 		}
 		modelBatch.end();

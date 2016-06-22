@@ -40,6 +40,18 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	public int activeIndex() {
 		return activeIndex;
 	}
+	// this gets the right end quat, most of the time. sometimes it's reversed.
+	public Quaternion setTargetRotation(Vector3 origin, Vector3 target) {
+		Vector3 diff = target.cpy().sub(origin);
+		diff.nor();
+		// why is it z?
+		Vector3 zaxis = new Vector3(0,0,1);
+		float dot = zaxis.dot(diff);
+		float angle = (float) Math.acos(dot);
+		Vector3 axis = zaxis.cpy().crs(diff).nor();
+//		rotation.setFromCross(Vector3.Z, diff);
+		return new Quaternion().setFromAxisRad(axis, angle);
+	}
 	/**
 	 * Sets up and starts a tween from Vector3 position to Vector3 destination for float duration.
 	 * @param sp     Starting Vector3 for tween
@@ -49,14 +61,13 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	 */
 	private void moveTo(Vector3 sp, Vector3 ep, Quaternion sr, Quaternion er, float duration) {
 //		lookAt(ep.cpy().sub(sp).nor(), ep, sr);
-		Quaternion g = sr.cpy();
-		foo(sp, ep, g);
-//		sr.set(er);
-		Tween f = new Tween();
-		Tween rotation = SlerpTween.to(sr, QuaternionAccessor.ROTATION, duration / 2).target(g.x, g.y, g.z, g.w).ease(Linear.INOUT);
+		// sets g to hold the rotation to the target.
+//		Quaternion g = sr.cpy();
+		Quaternion targetRotation = setTargetRotation(sp, ep);
+		Tween rotation = SlerpTween.to(sr, QuaternionAccessor.ROTATION, duration).target(targetRotation.x, targetRotation.y, targetRotation.z, targetRotation.w).ease(Linear.INOUT);
 //		Tween rotation = Tween.to(sr, QuaternionAccessor.ROTATION, duration / 4).target(er.x, er.y, er.z, er.w).ease(Linear.INOUT);
 		Tween translation = Tween.to(sp, Vector3Accessor.XYZ, duration).target(ep.x, ep.y, ep.z).ease(Linear.INOUT);
-		Timeline.createSequence().push(rotation).push(translation).setCallback(new TweenCallback() {
+		Timeline.createSequence().push(rotation)/*.push(translation)*/.setCallback(new TweenCallback() {
 			@Override
 			public void onEvent(int type, BaseTween<?> source) {
 				switch (type) {
@@ -167,18 +178,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 			}
 		}
 	}
-	// this gets the right end quat, most of the time. sometimes it's reversed.
-	public void foo(Vector3 origin, Vector3 target, Quaternion rotation) {
-		Vector3 diff = target.cpy().sub(origin);
-		diff.nor();
-		// why is it z?
-		Vector3 zaxis = new Vector3(0,0,1);
-		float dot = zaxis.dot(diff);
-		float angle = (float) Math.acos(dot);
-		Vector3 axis = zaxis.cpy().crs(diff).nor();
-//		rotation.setFromCross(Vector3.Z, diff);
-		rotation.setFromAxisRad(axis, angle);
-	}
+
 	private Quaternion getRotationTo(Vector3 origin, Vector3 target) {
 		Quaternion q = new Quaternion();
 		origin = origin.cpy().nor();

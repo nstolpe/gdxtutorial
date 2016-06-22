@@ -133,11 +133,6 @@ public class CombatScreen extends FpsScreen {
 //			}
 //			Mappers.ROTATION.get(p).rotation.slerp(rotquat, rotperc / 16);
 		}
-		Quaternion ooop = new Quaternion(delta, 0, 0, 1);
-		System.out.println("original");
-		System.out.println(ooop);
-		System.out.println("normalized");
-		System.out.println(ooop.nor());
 		// particle
 		modelBatch.begin(camera);
 		particleSystem.update(); // technically not necessary for rendering
@@ -194,7 +189,7 @@ public class CombatScreen extends FpsScreen {
 		Entity player = new Entity()
 			.add(new PositionComponent(new Vector3(1, 0, 1)))
 			.add(new DirectionComponent(new Vector3(0, -1, 0)))
-			.add(new RotationComponent(new Quaternion(new Vector3(0, -1, 0), 180).nor()))
+			.add(new RotationComponent(new Quaternion()))
 			.add(new ModelInstanceComponent(instance))
 			.add(new InitiativeComponent(MathUtils.random(10)))
 			.add(new PlayerComponent());
@@ -213,7 +208,7 @@ public class CombatScreen extends FpsScreen {
 				ModelInstance mi = new ModelInstance(assetManager.get("models/mask.ghost.white.g3dj", Model.class));
 				Entity mob = new Entity()
 						.add(new PositionComponent(new Vector3(i * 20, 0, j * 20)))
-						.add(new RotationComponent(new Quaternion(new Vector3(0, -1, 0), 0)))
+						.add(new RotationComponent(new Quaternion()))
 						.add(new DirectionComponent(new Vector3(0, -1, 0)))
 						.add(new ModelInstanceComponent(mi))
 						.add(new InitiativeComponent(MathUtils.random(10)))
