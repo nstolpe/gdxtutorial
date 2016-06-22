@@ -64,19 +64,17 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	}
 	/**
 	 * Sets up and starts a tween from Vector3 position to Vector3 destination for float duration.
-	 * @param sp     Starting Vector3 for tween
-	 * @param ep  Ending Vector3 for tween
-	 * @param duration     Duration of tween.
+	 * @param position     Starting Vector3 for tween
+	 * @param rotation     Starting Quaternion for tween
+	 * @param destination  Ending Vector3 for tween
 	 * @TODO Move this to a Tween Library. Tweens.Vector3.Position(start, end, duration)
 	 */
-	private void moveTo(Vector3 sp, Vector3 ep, Quaternion sr, Quaternion er, float duration) {
-		Quaternion targetRotation = getTargetRotation(sp, ep);
-		if (targetRotation == null) targetRotation = new Quaternion(sr);
-//		targetRotation.set(sr.cpy().add(er));
-		Tween rotation = SlerpTween.to(sr, QuaternionAccessor.ROTATION, duration).target(targetRotation.x, targetRotation.y, targetRotation.z, targetRotation.w).ease(Linear.INOUT);
-//		Tween rotation = Tween.to(sr, QuaternionAccessor.ROTATION, duration / 4).target(er.x, er.y, er.z, er.w).ease(Linear.INOUT);
-		Tween translation = Tween.to(sp, Vector3Accessor.XYZ, duration).target(ep.x, ep.y, ep.z).ease(Linear.INOUT);
-		Timeline.createSequence().push(rotation)/*.push(translation)*/.setCallback(new TweenCallback() {
+	private void startMovement(Vector3 position, Quaternion rotation, Vector3 destination) {
+		Quaternion targetRotation = getTargetRotation(position, destination);
+		if (targetRotation == null) targetRotation = new Quaternion(rotation);
+		Tween rotate = SlerpTween.to(rotation, QuaternionAccessor.ROTATION, position.dst(destination) / 16).target(targetRotation.x, targetRotation.y, targetRotation.z, targetRotation.w).ease(Linear.INOUT);
+		Tween translate = Tween.to(position, Vector3Accessor.XYZ, position.dst(destination) / 16).target(destination.x, destination.y, destination.z).ease(Linear.INOUT);
+		Timeline.createSequence().push(rotate).push(translate).setCallback(new TweenCallback() {
 			@Override
 			public void onEvent(int type, BaseTween<?> source) {
 				switch (type) {
@@ -91,25 +89,6 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 		}).start(tweenManager);
 	}
 
-	public void lookAt(Vector3 origin, Vector3 target, Quaternion rotation) {
-		Vector3 up = new Vector3(0, 1, 0);
-		origin = origin.cpy().nor();
-		target = target.cpy().nor();
-		float dot = origin.dot(target);
-		if (Math.abs(dot + 1) < 0.000000001f) {
-			rotation.set(up.scl(-1), 180);
-			return;
-		}
-		if (Math.abs(dot - 1) < 0.000000001f) {
-			rotation.set(up, 180);
-			return;
-		}
-
-		float rotAngle = (float) Math.acos(dot);
-		Vector3 rotAxis = new Vector3(origin).crs(target).nor();
-
-		rotation.setFromAxisRad(rotAxis, rotAngle);
-	}
 	/**
 	 * Passes control of the turn to the next actor in sortedActors
 	 * If the activeIndex is the last entity, generate random values
@@ -175,72 +154,16 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 			processingActive = true;
 			// MOB
 			if (Mappers.AI.get(sortedActors.get(activeIndex)) != null) {
-				Vector3 st = Mappers.POSITION.get(sortedActors.get(activeIndex)).position();
-				Quaternion sr = Mappers.ROTATION.get(sortedActors.get(activeIndex)).rotation();
-				Vector3 et = new Vector3(MathUtils.random(-20, 20), 0, MathUtils.random(-20, 20));
-				Quaternion er = getRotationTo(st.cpy(), et.cpy());
-				moveTo(st, et, sr, er, st.dst(et) / 16);
+				Vector3 actorPosition = Mappers.POSITION.get(sortedActors.get(activeIndex)).position();
+				Quaternion actorRotation = Mappers.ROTATION.get(sortedActors.get(activeIndex)).rotation();
+				Vector3 targetPosition = new Vector3(MathUtils.random(-20, 20), 0, MathUtils.random(-20, 20));
+				startMovement(actorPosition, actorRotation, targetPosition);
 			// player
 			} else if (Mappers.PLAYER.get(sortedActors.get(activeIndex)) != null) {
 				MessageManager.getInstance().addListener(this, Messages.INTERACT_TOUCH);
 			}
 		}
 	}
-
-	private Quaternion getRotationTo(Vector3 origin, Vector3 target) {
-		Quaternion q = new Quaternion();
-		origin = origin.cpy();
-		target = target.cpy();
-
-		float dot = origin.dot(target);
-
-		Vector3 tmpvec3;
-		Vector3 xUnitVec3 = new Vector3(1,0,0);
-		Vector3 yUnitVec3 = new Vector3(0,1,0);
-		if (dot < -0.999999) {
-			tmpvec3 = xUnitVec3.cpy().crs(origin);
-
-			if (tmpvec3.len() < 0.000001)
-				tmpvec3 = yUnitVec3.cpy().crs(origin);
-
-			tmpvec3.nor();
-			q.setFromAxisRad(tmpvec3, MathUtils.PI);
-		} else if (dot > 0.999999) {
-			q.x = 0;
-			q.y = 0;
-			q.z = 0;
-			q.w = 1;
-		} else {
-			tmpvec3 = origin.cpy().crs(target);
-			q.x = tmpvec3.x;
-			q.y = tmpvec3.y;
-			q.z = tmpvec3.z;
-			q.w = 1 + dot;
-			q.nor();
-		}
-		return q;
-//		if (d >= 1.0f) return q;
-//
-//		if (d < (1e-6f - 1.0f)) {
-//			Vector3 axis = new Vector3(1,0,0).crs(origin);
-//			if (axis.isCollinear(target)) // pick another if colinear
-//				axis = new Vector3(0,1,0).crs(origin);
-//			axis.nor();
-//			q.setFromAxisRad(axis, MathUtils.PI);
-//		} else {
-//			float s = (float) Math.sqrt((1 + d) * 2);
-//			float invs = 1 / s;
-//			Vector3 c = origin.cpy().crs(target);
-//
-//			q.x = c.x * invs;
-//			q.y = c.y * invs;
-//			q.z = c.z * invs;
-//			q.w = s * 0.5f;
-//			q.nor();
-//		}
-//		return q;
-	}
-
 	/**
 	 * From Telegraph. Will listen to advance a turn and receive touch input for a user controlled character.
 	 * @param msg   extraInfo is used with INTERACT_TOUCH. It expects a Vector3 and casts to it.
@@ -253,14 +176,15 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 				advanceTurnControl();
 				break;
 			case Messages.INTERACT_TOUCH:
-				Vector3 st = Mappers.POSITION.get(sortedActors.get(activeIndex)).position();
-				Quaternion sr = Mappers.ROTATION.get(sortedActors.get(activeIndex)).rotation();
-				Vector3 et = (Vector3) msg.extraInfo;
-				et.y = 0;
-				Quaternion er = getRotationTo(st, et);
-
+				Vector3 actorPosition = Mappers.POSITION.get(sortedActors.get(activeIndex)).position();
+				Quaternion actorRotation = Mappers.ROTATION.get(sortedActors.get(activeIndex)).rotation();
+				// msg.extraInfo holds the x and z coords.
+				// y is set to 0 since there's no height yet.
+				Vector3 targetPosition = (Vector3) msg.extraInfo;
+				targetPosition.y = 0;
+				// remove the listener for INTERACT_TOUCH
 				MessageManager.getInstance().removeListener(this, Messages.INTERACT_TOUCH);
-				moveTo(st, et, sr, er, st.dst(et) / 16);
+				startMovement(actorPosition, actorRotation, targetPosition);
 				break;
 			default:
 				return false;

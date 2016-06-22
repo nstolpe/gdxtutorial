@@ -98,7 +98,7 @@ public class SlerpTween extends Tween {
 //			}
 			accessorBuffer = slerp(startValues, targetValues, t);
 		} else {
-			//@TODO fix this
+			//@TODO fix this or drop it, maybe a quaternion doesn't need waypoints?
 //			for (int i=0; i<combinedAttrsCnt; i++) {
 //				pathBuffer[0] = startValues[i];
 //				pathBuffer[1+waypointsCnt] = targetValues[i];

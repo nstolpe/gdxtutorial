@@ -32,7 +32,6 @@ public class QuaternionAccessor implements TweenAccessor<Quaternion> {
 		switch (tweenType) {
 			case ROTATION:
 				quat.set(newValues[0], newValues[1], newValues[2], newValues[3]).nor();
-//				quat.slerp(new Quaternion(newValues[0], newValues[1], newValues[2], newValues[3]), 1);
 				break;
 			default:
 				break;
