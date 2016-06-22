@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.Quaternion;
  * Created by nils on 6/17/16.
  */
 public class RotationComponent implements Component {
-	public Quaternion rotation;
+	private Quaternion rotation;
 
 	public RotationComponent() {}
 

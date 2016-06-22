@@ -20,8 +20,11 @@ import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem;
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch;
+import com.badlogic.gdx.graphics.g3d.particles.emitters.Emitter;
+import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.utils.ArrayMap;
 import com.hh.gdxtutorial.ai.Messages;
 import com.hh.gdxtutorial.entity.components.*;
 import com.hh.gdxtutorial.entity.systems.ModelBatchRenderer;
@@ -51,6 +54,8 @@ public class CombatScreen extends FpsScreen {
 	// particle
 	private float rotperc = 0;
 	private Quaternion rotquat = new Quaternion(0,1,0,0);
+	private ParticleEffect blastRed;
+	private ParticleEffect blastBlue;
 
 	/**
 	 * Setup input, 3d environment, the modelBatch and the assetManager.
@@ -104,7 +109,6 @@ public class CombatScreen extends FpsScreen {
 	public void render(float delta) {
 		Gdx.gl.glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-
 		camController.update();
 		MessageManager.getInstance().update();
 
@@ -114,21 +118,27 @@ public class CombatScreen extends FpsScreen {
 		stringBuilder.append(" Turn: ").append(engine.getSystem(TurnSystem.class) == null ? "" : engine.getSystem(TurnSystem.class).turnCount + ": " + engine.getSystem(TurnSystem.class).activeIndex());
 		turnLabel.setText(stringBuilder);
 
+		RegularEmitter emitter;
+		if (engine.getSystem(TurnSystem.class) != null && engine.getSystem(TurnSystem.class).turnCount == 2 && !effect.isComplete()) {
+			emitter = (RegularEmitter) effect.getControllers().first().emitter;
+			emitter.setEmissionMode(RegularEmitter.EmissionMode.EnabledUntilCycleEnd);
+		}
+		if (engine.getSystem(TurnSystem.class) != null && engine.getSystem(TurnSystem.class).turnCount == 3) {
+			emitter = (RegularEmitter) effect.getControllers().first().emitter;
+			emitter.setEmissionMode(RegularEmitter.EmissionMode.Enabled);
+		}
+
 		engine.update(delta);
 
 		// @TODO get this test stuff out of here
-		// testing attaching the emitter to the ghost.
+		// entity follows emitter.root
 		if (!loading) {
 			Entity p = engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).get(0);
 			ModelInstance i = Mappers.MODEL_INSTANCE.get(p).instance();
-//			effect.setTransform(new Matrix4(Mappers.POSITION.get(p).position().cpy().add(i.getNode("emit.root").translation).rotate(Mappers.ROTATION.get(p).rotation())));
-			Matrix4 m = new Matrix4();
-			m.setTranslation(Mappers.POSITION.get(p).position().cpy().add(i.getNode("emit.root").translation));
-//			m.setToRotation(Mappers.ROTATION.get(p).rotation().);
-			effect.setTransform(m);
-
+			effect.setTransform(i.transform.mul(i.getNode("emit.root").globalTransform));
 		}
 		// particle
+		// @TODO render particleSystem inside the main render loop ({@link ModelBatchRenderer})
 		modelBatch.begin(camera);
 		particleSystem.update(); // technically not necessary for rendering
 		particleSystem.begin();
@@ -174,12 +184,6 @@ public class CombatScreen extends FpsScreen {
 		effect = originalEffect.copy();
 		effect.translate(i.getNode("emit.root").translation);
 
-//		Matrix4 tmpMatrix = new Matrix4();
-//		Quaternion tmpQ = new Quaternion();
-//		Matrix4 tmpMatrix4 = new Matrix4();
-//		tmpMatrix4.mul(tmpMatrix);
-//		tmpQ.set(new Vector3(0,1,0), 63).toMatrix(tmpMatrix4.val);
-//		effect.getControllers().get(0).setTransform(tmpMatrix4);
 		effect.init();
 
 //		effect.start();  // optional: particle will begin playing immediately
@@ -188,6 +192,9 @@ public class CombatScreen extends FpsScreen {
 	}
 
 	public void setupActors() {
+		blastRed = assetManager.get("effects/blast.red.pfx", ParticleEffect.class);
+		ParticleEffect effectInstance = blastRed.copy();
+		EffectsComponent.Effect e = new EffectsComponent.Effect("emit.root", effectInstance, (RegularEmitter) effectInstance.getControllers().first().emitter);
 		ModelInstance instance = new ModelInstance(assetManager.get("models/mask.ghost.red.g3dj", Model.class));
 		Entity player = new Entity()
 			.add(new PositionComponent(new Vector3(1, 0, 1)))
@@ -195,17 +202,17 @@ public class CombatScreen extends FpsScreen {
 			.add(new RotationComponent(new Quaternion()))
 			.add(new ModelInstanceComponent(instance))
 			.add(new InitiativeComponent(MathUtils.random(10)))
+			.add(new EffectsComponent().addEffect("blast", e))
 			.add(new PlayerComponent());
-		// @TODO move this to an entity system.
-		if (Mappers.MODEL_INSTANCE.get(player).instance().getAnimation("skeleton|rest") != null)
-			Mappers.MODEL_INSTANCE.get(player).controller().setAnimation("skeleton|rest", -1);
 
 		engine.addEntity(player);
 
-
+		blastBlue = assetManager.get("effects/blast.red.pfx", ParticleEffect.class);
 		// create and position the mobs spheres/Actors
 		for (int i = -1; i <= 1; i += 2) {
 			for (int j = -1; j <= 1; j += 2) {
+				effectInstance = blastBlue.copy();
+				e = new EffectsComponent.Effect("emit.root", effectInstance, (RegularEmitter) effectInstance.getControllers().first().emitter);
 				ModelInstance mi = new ModelInstance(assetManager.get("models/mask.ghost.white.g3dj", Model.class));
 				Entity mob = new Entity()
 						.add(new PositionComponent(new Vector3(i * 20, 0, j * 20)))
@@ -213,13 +220,15 @@ public class CombatScreen extends FpsScreen {
 						.add(new DirectionComponent(new Vector3(0, -1, 0)))
 						.add(new ModelInstanceComponent(mi))
 						.add(new InitiativeComponent(MathUtils.random(10)))
+						.add(new EffectsComponent().addEffect("blast", e))
 						.add(new AiComponent());
 				engine.addEntity(mob);
-			// @TODO move this to an entity system.
-			if (Mappers.MODEL_INSTANCE.get(mob).instance().getAnimation("skeleton|rest") != null)
-				Mappers.MODEL_INSTANCE.get(mob).controller().setAnimation("skeleton|rest", -1);
 			}
 		}
+	}
+
+	public void createActor(int x, int y) {
+
 	}
 	public void setupScene() {
 		Entity p = new Entity()

@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Matrix4;
@@ -30,12 +31,14 @@ import com.hh.gdxtutorial.entity.components.PositionComponent;
  * An entity system that renders all entities with a PositionComponent and ModelInstanceComponent.
  */
 public class ModelBatchRenderer extends EntitySystem implements Disposable, Telegraph {
+	protected ParticleSystem particleSystem;
 	protected ImmutableArray<Entity> entities;
 	protected ModelBatch modelBatch;
 	protected Family family = Family.all(PositionComponent.class, ModelInstanceComponent.class).get();
 	public Color clearColor = new Color(0.0f, 0.0f, 0.0f, 1.0f);
 	public Camera camera;
 	public Environment env;
+
 
 	public ModelBatchRenderer(ModelBatch modelBatch, Camera camera, Environment env) {
 		this.modelBatch = modelBatch;
@@ -83,7 +86,7 @@ public class ModelBatchRenderer extends EntitySystem implements Disposable, Tele
 			ModelInstance instance = Mappers.MODEL_INSTANCE.get(e).instance();
 			Mappers.MODEL_INSTANCE.get(e).controller().update(deltaTime);
 
-			instance.transform.set(Mappers.ROTATION.get(e).rotation);
+			instance.transform.set(Mappers.ROTATION.get(e).rotation());
 			instance.transform.setTranslation(Mappers.POSITION.get(e).position());
 
 			modelBatch.render(instance, env);
@@ -93,6 +96,11 @@ public class ModelBatchRenderer extends EntitySystem implements Disposable, Tele
 	@Override
 	public void addedToEngine(Engine engine) {
 		entities = engine.getEntitiesFor(family);
+
+		for (Entity e : entities) {
+			if (Mappers.MODEL_INSTANCE.get(e).instance().getAnimation("skeleton|rest") != null)
+				Mappers.MODEL_INSTANCE.get(e).controller().setAnimation("skeleton|rest", -1);
+		}
 	}
 
 	@Override

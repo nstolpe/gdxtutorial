@@ -2,7 +2,9 @@ package com.hh.gdxtutorial.entity.components;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
+import com.badlogic.gdx.utils.ArrayMap;
 
 /**
  * Created by nils on 6/5/16.
@@ -10,6 +12,9 @@ import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 public class ModelInstanceComponent implements Component {
 	private ModelInstance instance;
 	private AnimationController controller;
+	// nodes keyed to strings where things can be attached.
+	//
+	private ArrayMap<String, Node> attachmentPoints = new ArrayMap<String, Node>();
 
 	/**
 	 * Instantiate and return an empty ModelInstanceComponent.
