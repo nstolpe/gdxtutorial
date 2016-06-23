@@ -13,15 +13,12 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem;
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch;
 import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter;
-import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
-import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
@@ -107,6 +104,7 @@ public class ModelBatchRenderer extends EntitySystem implements Disposable, Tele
 				ModelInstance i = Mappers.MODEL_INSTANCE.get(e).instance();
 				EffectsComponent.Effect blast = Mappers.EFFECTS.get(e).getEffect("blast");
 //				Matrix4 m4 = i.transform.mul(i.getNode("emit.root").globalTransform);
+				//@TODO make the quat and v3 members to reuse.
 				Matrix4 m4 = new Matrix4(blast.position, new Quaternion(), new Vector3(1,1,1));
 				blast.effect.setTransform(m4);
 //				blast.effect.setTransform(new Matrix4(Mappers.EFFECTS.get(e).getEffect("blast").position, new Quaternion(), new Vector3(1, 1, 1)));
@@ -138,7 +136,7 @@ public class ModelBatchRenderer extends EntitySystem implements Disposable, Tele
 				blast = Mappers.EFFECTS.get(e).getEffect("blast");
 				blast.effect.translate(m.instance.getNode("emit.root").translation);
 				blast.effect.init();
-//				blast.emitter.setEmissionMode(RegularEmitter.EmissionMode.Disabled);
+				blast.emitter.setEmissionMode(RegularEmitter.EmissionMode.Disabled);
 				particleSystem.add(blast.effect);
 			}
 		}
