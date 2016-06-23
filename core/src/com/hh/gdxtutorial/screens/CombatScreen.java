@@ -2,12 +2,9 @@ package com.hh.gdxtutorial.screens;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.msg.MessageManager;
-import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.ModelLoader;
-import com.badlogic.gdx.assets.loaders.TextureLoader;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -18,13 +15,12 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader;
-import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem;
-import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch;
-import com.badlogic.gdx.graphics.g3d.particles.emitters.Emitter;
 import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter;
-import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Quaternion;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.utils.ArrayMap;
 import com.hh.gdxtutorial.ai.Messages;
 import com.hh.gdxtutorial.entity.components.*;
 import com.hh.gdxtutorial.entity.systems.ModelBatchRenderer;
@@ -46,12 +42,7 @@ public class CombatScreen extends FpsScreen {
 	private Label turnLabel;
 
 	private ModelBatchRenderer modelBatchRenderer;
-	// particle
-	private ParticleSystem particleSystem;
-	private ParticleEffect effect;
-	// particle
-	private float rotperc = 0;
-	private Quaternion rotquat = new Quaternion(0,1,0,0);
+	// particle @TODO should come from config.
 	private ParticleEffect blastRed;
 	private ParticleEffect blastBlue;
 
@@ -83,16 +74,10 @@ public class CombatScreen extends FpsScreen {
 		modelBatchRenderer.assetManager.load("models/mask.ghost.white.g3dj", Model.class, texParam);
 		modelBatchRenderer.assetManager.load("models/mask.ghost.red.g3dj", Model.class, texParam);
 
-
-		// particle
-		particleSystem = new ParticleSystem();
-		BillboardParticleBatch billboardParticleBatch = new BillboardParticleBatch();
-		billboardParticleBatch.setCamera(camera);
-//		particleSystem.add(billboardParticleBatch);
+		// @TODO move this to renderer.
 		ParticleEffectLoader.ParticleEffectLoadParameter particleParam = new ParticleEffectLoader.ParticleEffectLoadParameter(modelBatchRenderer.particleSystem.getBatches());
 		modelBatchRenderer.assetManager.load("effects/blast.blue.pfx", ParticleEffect.class, particleParam);
 		modelBatchRenderer.assetManager.load("effects/blast.red.pfx", ParticleEffect.class, particleParam);
-		// \particle
 	}
 	/**
 	 * Adds extra turn data to the 2d stage, super gets the fps info.
@@ -118,33 +103,6 @@ public class CombatScreen extends FpsScreen {
 		stringBuilder.append(" Turn: ").append(engine.getSystem(TurnSystem.class) == null ? "" : engine.getSystem(TurnSystem.class).turnCount + ": " + engine.getSystem(TurnSystem.class).activeIndex());
 		turnLabel.setText(stringBuilder);
 
-//		RegularEmitter emitter;
-//		if (engine.getSystem(TurnSystem.class) != null && engine.getSystem(TurnSystem.class).turnCount == 2 && !effect.isComplete()) {
-//			emitter = (RegularEmitter) effect.getControllers().first().emitter;
-//			emitter.setEmissionMode(RegularEmitter.EmissionMode.EnabledUntilCycleEnd);
-//		}
-//		if (engine.getSystem(TurnSystem.class) != null && engine.getSystem(TurnSystem.class).turnCount == 3) {
-//			emitter = (RegularEmitter) effect.getControllers().first().emitter;
-//			emitter.setEmissionMode(RegularEmitter.EmissionMode.Enabled);
-//		}
-
-		// @TODO get this test stuff out of here
-		// entity follows emitter.root
-//		if (!loading) {
-//			Entity p = engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).get(0);
-//			ModelInstance i = Mappers.MODEL_INSTANCE.get(p).instance();
-//			effect.setTransform(i.transform.mul(i.getNode("emit.root").globalTransform));
-//		}
-		// particle
-		// @TODO render particleSystem inside the main render loop ({@link ModelBatchRenderer})
-//		modelBatch.begin(camera);
-//		particleSystem.update(); // technically not necessary for rendering
-//		particleSystem.begin();
-//		particleSystem.draw();
-//		particleSystem.end();
-//		modelBatch.render(particleSystem);
-//		modelBatch.end();
-		// \particle
 		super.render(delta);
 	}
 
@@ -174,20 +132,6 @@ public class CombatScreen extends FpsScreen {
 		engine.addSystem(new TurnSystem());
 		engine.addSystem(modelBatchRenderer);
 		modelBatchRenderer.setProcessing(true);
-
-		// particle
-		Entity p = engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).get(0);
-		ModelInstance i = Mappers.MODEL_INSTANCE.get(p).instance();
-		ParticleEffect originalEffect = modelBatchRenderer.assetManager.get("effects/blast.red.pfx", ParticleEffect.class);
-		// we cannot use the originalEffect, we must make a copy each time we create new particle effect
-		effect = originalEffect.copy();
-		effect.translate(i.getNode("emit.root").translation);
-
-		effect.init();
-
-//		effect.start();  // optional: particle will begin playing immediately
-		particleSystem.add(effect);
-		// particle
 	}
 
 	public void setupActors() {
