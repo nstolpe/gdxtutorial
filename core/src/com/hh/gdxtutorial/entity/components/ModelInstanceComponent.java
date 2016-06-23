@@ -10,8 +10,8 @@ import com.badlogic.gdx.utils.ArrayMap;
  * Created by nils on 6/5/16.
  */
 public class ModelInstanceComponent implements Component {
-	private ModelInstance instance;
-	private AnimationController controller;
+	public ModelInstance instance;
+	public AnimationController controller;
 	// nodes keyed to strings where things can be attached.
 	//
 	private ArrayMap<String, Node> attachmentPoints = new ArrayMap<String, Node>();

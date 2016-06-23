@@ -39,8 +39,6 @@ public class CombatScreen extends FpsScreen {
 	public Engine engine = new Engine();
 	public DemoInputController camController;
 
-	public AssetManager assetManager;
-
 	public ModelBatch modelBatch;
 
 	public Environment environment;
@@ -58,12 +56,11 @@ public class CombatScreen extends FpsScreen {
 	private ParticleEffect blastBlue;
 
 	/**
-	 * Setup input, 3d environment, the modelBatch and the assetManager.
+	 * Setup input, 3d environment, the modelBatch and the modelBatchRenderer.assetManager.
 	 */
 	@Override
 	public void show() {
 		super.show();
-		Quaternion f = new Quaternion(1,1,1,1);
 		// declare camController and set it as the input processor.
 		camController = new DemoInputController(camera);
 		multiplexer.addProcessor(camController);
@@ -74,25 +71,27 @@ public class CombatScreen extends FpsScreen {
 		environment.add(new DirectionalLight().set(1.0f, 1.0f, 1.0f, -0.5f, -0.6f, -0.7f));
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, 0.4f, 1.0f, -0.3f));
 
+		modelBatchRenderer = new ModelBatchRenderer(modelBatch, camera, environment);
+		modelBatchRenderer.setProcessing(false);
+
 		// gets rid of the moire effect
-		ModelLoader.ModelParameters param = new ModelLoader.ModelParameters();
-		param.textureParameter.minFilter = Texture.TextureFilter.MipMapLinearNearest;
-		param.textureParameter.genMipMaps = true;
+		ModelLoader.ModelParameters texParam = new ModelLoader.ModelParameters();
+		texParam.textureParameter.minFilter = Texture.TextureFilter.MipMapLinearNearest;
+		texParam.textureParameter.genMipMaps = true;
 
+		modelBatchRenderer.assetManager.load("models/plane.g3dj", Model.class, texParam);
+		modelBatchRenderer.assetManager.load("models/mask.ghost.white.g3dj", Model.class, texParam);
+		modelBatchRenderer.assetManager.load("models/mask.ghost.red.g3dj", Model.class, texParam);
 
-		assetManager = new AssetManager();
-		assetManager.load("models/plane.g3dj", Model.class, param);
-		assetManager.load("models/mask.ghost.white.g3dj", Model.class, param);
-		assetManager.load("models/mask.ghost.red.g3dj", Model.class, param);
 
 		// particle
 		particleSystem = new ParticleSystem();
 		BillboardParticleBatch billboardParticleBatch = new BillboardParticleBatch();
 		billboardParticleBatch.setCamera(camera);
-		particleSystem.add(billboardParticleBatch);
-		ParticleEffectLoader.ParticleEffectLoadParameter loadParam = new ParticleEffectLoader.ParticleEffectLoadParameter(particleSystem.getBatches());
-		assetManager.load("effects/blast.blue.pfx", ParticleEffect.class, loadParam);
-		assetManager.load("effects/blast.red.pfx", ParticleEffect.class, loadParam);
+//		particleSystem.add(billboardParticleBatch);
+		ParticleEffectLoader.ParticleEffectLoadParameter particleParam = new ParticleEffectLoader.ParticleEffectLoadParameter(modelBatchRenderer.particleSystem.getBatches());
+		modelBatchRenderer.assetManager.load("effects/blast.blue.pfx", ParticleEffect.class, particleParam);
+		modelBatchRenderer.assetManager.load("effects/blast.red.pfx", ParticleEffect.class, particleParam);
 		// \particle
 	}
 	/**
@@ -111,41 +110,40 @@ public class CombatScreen extends FpsScreen {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		camController.update();
 		MessageManager.getInstance().update();
+		engine.update(delta);
 
-		if (loading && assetManager.update()) doneLoading();
+		if (loading && modelBatchRenderer.assetManager.update()) doneLoading();
 
 		stringBuilder.setLength(0);
 		stringBuilder.append(" Turn: ").append(engine.getSystem(TurnSystem.class) == null ? "" : engine.getSystem(TurnSystem.class).turnCount + ": " + engine.getSystem(TurnSystem.class).activeIndex());
 		turnLabel.setText(stringBuilder);
 
-		RegularEmitter emitter;
-		if (engine.getSystem(TurnSystem.class) != null && engine.getSystem(TurnSystem.class).turnCount == 2 && !effect.isComplete()) {
-			emitter = (RegularEmitter) effect.getControllers().first().emitter;
-			emitter.setEmissionMode(RegularEmitter.EmissionMode.EnabledUntilCycleEnd);
-		}
-		if (engine.getSystem(TurnSystem.class) != null && engine.getSystem(TurnSystem.class).turnCount == 3) {
-			emitter = (RegularEmitter) effect.getControllers().first().emitter;
-			emitter.setEmissionMode(RegularEmitter.EmissionMode.Enabled);
-		}
-
-		engine.update(delta);
+//		RegularEmitter emitter;
+//		if (engine.getSystem(TurnSystem.class) != null && engine.getSystem(TurnSystem.class).turnCount == 2 && !effect.isComplete()) {
+//			emitter = (RegularEmitter) effect.getControllers().first().emitter;
+//			emitter.setEmissionMode(RegularEmitter.EmissionMode.EnabledUntilCycleEnd);
+//		}
+//		if (engine.getSystem(TurnSystem.class) != null && engine.getSystem(TurnSystem.class).turnCount == 3) {
+//			emitter = (RegularEmitter) effect.getControllers().first().emitter;
+//			emitter.setEmissionMode(RegularEmitter.EmissionMode.Enabled);
+//		}
 
 		// @TODO get this test stuff out of here
 		// entity follows emitter.root
-		if (!loading) {
-			Entity p = engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).get(0);
-			ModelInstance i = Mappers.MODEL_INSTANCE.get(p).instance();
-			effect.setTransform(i.transform.mul(i.getNode("emit.root").globalTransform));
-		}
+//		if (!loading) {
+//			Entity p = engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).get(0);
+//			ModelInstance i = Mappers.MODEL_INSTANCE.get(p).instance();
+//			effect.setTransform(i.transform.mul(i.getNode("emit.root").globalTransform));
+//		}
 		// particle
 		// @TODO render particleSystem inside the main render loop ({@link ModelBatchRenderer})
-		modelBatch.begin(camera);
-		particleSystem.update(); // technically not necessary for rendering
-		particleSystem.begin();
-		particleSystem.draw();
-		particleSystem.end();
-		modelBatch.render(particleSystem);
-		modelBatch.end();
+//		modelBatch.begin(camera);
+//		particleSystem.update(); // technically not necessary for rendering
+//		particleSystem.begin();
+//		particleSystem.draw();
+//		particleSystem.end();
+//		modelBatch.render(particleSystem);
+//		modelBatch.end();
 		// \particle
 		super.render(delta);
 	}
@@ -172,14 +170,15 @@ public class CombatScreen extends FpsScreen {
 		super.doneLoading();
 		setupScene();
 		setupActors();
+
 		engine.addSystem(new TurnSystem());
-		modelBatchRenderer = new ModelBatchRenderer(modelBatch, camera, environment);
 		engine.addSystem(modelBatchRenderer);
 		modelBatchRenderer.setProcessing(true);
+
+		// particle
 		Entity p = engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).get(0);
 		ModelInstance i = Mappers.MODEL_INSTANCE.get(p).instance();
-		// particle
-		ParticleEffect originalEffect = assetManager.get("effects/blast.red.pfx", ParticleEffect.class);
+		ParticleEffect originalEffect = modelBatchRenderer.assetManager.get("effects/blast.red.pfx", ParticleEffect.class);
 		// we cannot use the originalEffect, we must make a copy each time we create new particle effect
 		effect = originalEffect.copy();
 		effect.translate(i.getNode("emit.root").translation);
@@ -192,19 +191,27 @@ public class CombatScreen extends FpsScreen {
 	}
 
 	public void setupActors() {
-		blastRed = assetManager.get("effects/blast.red.pfx", ParticleEffect.class);
+		blastRed = modelBatchRenderer.assetManager.get("effects/blast.red.pfx", ParticleEffect.class);
 		createActor("models/mask.ghost.red.g3dj", blastRed, 0, 0, true);
 
-		blastBlue = assetManager.get("effects/blast.red.pfx", ParticleEffect.class);
+		blastBlue = modelBatchRenderer.assetManager.get("effects/blast.blue.pfx", ParticleEffect.class);
 
 		for (int i = -1; i <= 1; i += 2)
 			for (int j = -1; j <= 1; j += 2)
 				createActor("models/mask.ghost.white.g3dj", blastBlue, i * 20, j * 20, false);
 	}
 
+	/**
+	 * Creates an actor
+	 * @param modelString  String path to the actors model, relative to android/assets.
+	 * @param effectSource ParticleEffect source for the particle effect. Will be copied.
+	 * @param x            x position of the actor.
+	 * @param z            z position of the actor.
+	 * @param player       Boolean, true if the actor is a player.
+	 */
 	public void createActor(String modelString, ParticleEffect effectSource, int x, int z, boolean player) {
 		ParticleEffect effectInstance = effectSource.copy();
-		ModelInstance instance = new ModelInstance(assetManager.get(modelString, Model.class));
+		ModelInstance instance = new ModelInstance(modelBatchRenderer.assetManager.get(modelString, Model.class));
 		EffectsComponent.Effect effect = new EffectsComponent.Effect("emit.root", effectInstance, (RegularEmitter) effectInstance.getControllers().first().emitter);
 		Entity entity = new Entity()
 				.add(new PositionComponent(new Vector3(x, 0, z)))
@@ -219,7 +226,7 @@ public class CombatScreen extends FpsScreen {
 
 	public void setupScene() {
 		Entity p = new Entity()
-				.add(new ModelInstanceComponent( new ModelInstance(assetManager.get("models/plane.g3dj", Model.class))))
+				.add(new ModelInstanceComponent( new ModelInstance(modelBatchRenderer.assetManager.get("models/plane.g3dj", Model.class))))
 				.add(new RotationComponent(new Quaternion()))
 				.add(new PositionComponent(new Vector3(0.0f, 0.0f, 0.0f)));
 
@@ -229,7 +236,7 @@ public class CombatScreen extends FpsScreen {
 	@Override
 	public void dispose() {
 		super.dispose();
-		assetManager.dispose();
+		modelBatchRenderer.assetManager.dispose();
 		modelBatchRenderer.dispose();
 	}
 }
