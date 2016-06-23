@@ -3,6 +3,7 @@ package com.hh.gdxtutorial.entity.components;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
 import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ArrayMap;
 
 /**
@@ -46,6 +47,7 @@ public class EffectsComponent implements Component {
 		public ParticleEffect effect;
 		public RegularEmitter emitter;
 		public RegularEmitter.EmissionMode mode;
+		public Vector3 position = new Vector3();
 
 		public Effect() {}
 		public Effect(String nodeKey, ParticleEffect effect, RegularEmitter emitter) {
