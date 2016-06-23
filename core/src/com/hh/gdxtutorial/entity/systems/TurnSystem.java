@@ -10,6 +10,7 @@ import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
+import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
@@ -103,6 +104,11 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	 * for the InitiativeComponent and resort sorted actors.
 	 */
 	public void advanceTurnControl() {
+		// startTurn() ?
+		EffectsComponent.Effect emitter = Mappers.EFFECTS.get(sortedActors.get(activeIndex)).getEffect("blast");
+		emitter.emitter.setEmissionMode(RegularEmitter.EmissionMode.EnabledUntilCycleEnd);
+		// \startTurn() ?
+
 		// if last actor is taking its turn action
 		// reset sortedActors
 		if (activeIndex + 1 == sortedActors.size) {
@@ -119,6 +125,11 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 		} else {
 			activeIndex++;
 		}
+		// endTurn() ?
+		emitter = Mappers.EFFECTS.get(sortedActors.get(activeIndex)).getEffect("blast");
+		emitter.emitter.setEmissionMode(RegularEmitter.EmissionMode.Enabled);
+		// \endTurn() ?
+		
 		processingActive = false;
 	}
 
@@ -137,7 +148,6 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 
 		if (actors.size() > 0) {
 			for (int i = 0; i < actors.size(); i++) sortedActors.add(actors.get(i));
-
 			sortedActors.sort(new InitiativeComparator());
 		}
 

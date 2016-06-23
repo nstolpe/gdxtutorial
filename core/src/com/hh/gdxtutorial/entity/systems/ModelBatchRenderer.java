@@ -19,6 +19,7 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem;
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch;
+import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Matrix4;
@@ -131,6 +132,7 @@ public class ModelBatchRenderer extends EntitySystem implements Disposable, Tele
 				blast = Mappers.EFFECTS.get(e).getEffect("blast");
 				blast.effect.translate(m.instance.getNode("emit.root").translation);
 				blast.effect.init();
+				blast.emitter.setEmissionMode(RegularEmitter.EmissionMode.Disabled);
 				particleSystem.add(blast.effect);
 			}
 		}
