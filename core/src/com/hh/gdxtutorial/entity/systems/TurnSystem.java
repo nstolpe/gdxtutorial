@@ -156,7 +156,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 		Vector3 actorPosition = Mappers.POSITION.get(actor).position();
 		Quaternion actorRotation = Mappers.ROTATION.get(actor).rotation();
 		Vector3 targetPosition = new Vector3(MathUtils.random(-20, 20), 0, MathUtils.random(-20, 20));
-		startAction(actorPosition, actorRotation, targetPosition, scanForTargetsCallback);
+		startTurnAction(actorPosition, actorRotation, targetPosition, scanForTargetsCallback);
 	}
 	/**
 	 * Gets the rotation from one Vector3 to another.
@@ -189,11 +189,15 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	 * @param destination  Ending Vector3 for tween
 	 * @TODO Move this to a Tween Library. Tweens.Vector3.Position(start, end, duration)
 	 */
-	private void startAction(Vector3 position, Quaternion rotation, Vector3 destination, TweenCallback callback) {
+	private void startTurnAction(Vector3 position, Quaternion rotation, Vector3 destination, TweenCallback callback) {
 		Quaternion targetRotation = getTargetRotation(position, destination, rotation);
 		Quaternion qd = rotation.cpy().conjugate().mul(targetRotation);
+
 		float angle = 2 * (float) Math.atan2(new Vector3(qd.x, qd.y, qd.z).len(), qd.w);
-		Tween rotate = SlerpTween.to(rotation, QuaternionAccessor.ROTATION, angle / 4).target(targetRotation.x, targetRotation.y, targetRotation.z, targetRotation.w).ease(Linear.INOUT);
+
+		Tween rotate = SlerpTween.to(rotation, QuaternionAccessor.ROTATION, angle / 4)
+			.target(targetRotation.x, targetRotation.y, targetRotation.z, targetRotation.w)
+			.ease(Linear.INOUT);
 
 		Tween translate = Tween.to(position, Vector3Accessor.XYZ, position.dst(destination) / 16)
 			.target(destination.x, destination.y, destination.z)
@@ -293,7 +297,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 				targetPosition.y = 0;
 				// remove the listener for INTERACT_TOUCH
 				MessageManager.getInstance().removeListener(this, Messages.INTERACT_TOUCH);
-				startAction(actorPosition, actorRotation, targetPosition, advanceTurnCallback);
+				startTurnAction(actorPosition, actorRotation, targetPosition, advanceTurnCallback);
 				break;
 			default:
 				return false;
