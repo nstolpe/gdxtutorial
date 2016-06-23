@@ -38,7 +38,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	private TweenManager tweenManager = new TweenManager();
 	private boolean inTurn = false;
 	public int turnCount = 0;
-	public float attentionRadius = 13.0f;
+	public float attentionRadius = 20.0f;
 
 	private TweenCallback advanceTurnCallback = new TweenCallback() {
 		@Override
@@ -118,6 +118,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 				.setCallback(new TweenCallback() {
 					@Override
 					public void onEvent(int i, BaseTween<?> baseTween) {
+						// use these instead of the nested callbacks
 						MessageManager.getInstance().dispatchMessage(0, Messages.TARGET_FACING_REACHED);
 
 						final ModelInstanceComponent mic = Mappers.MODEL_INSTANCE.get(actor);
