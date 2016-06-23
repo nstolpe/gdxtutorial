@@ -23,6 +23,7 @@ import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
@@ -98,14 +99,19 @@ public class ModelBatchRenderer extends EntitySystem implements Disposable, Tele
 			ModelInstance instance = Mappers.MODEL_INSTANCE.get(e).instance();
 			Mappers.MODEL_INSTANCE.get(e).controller().update(deltaTime);
 
-			instance.transform.set(Mappers.ROTATION.get(e).rotation());
-			instance.transform.setTranslation(Mappers.POSITION.get(e).position());
+			instance.transform.set(Mappers.POSITION.get(e).position(), Mappers.ROTATION.get(e).rotation());
 
 			modelBatch.render(instance, env);
 
 			if (Mappers.EFFECTS.has(e)) {
 				ModelInstance i = Mappers.MODEL_INSTANCE.get(e).instance();
-				Mappers.EFFECTS.get(e).getEffect("blast").effect.setTransform(i.transform.mul(i.getNode("emit.root").globalTransform));
+				EffectsComponent.Effect blast = Mappers.EFFECTS.get(e).getEffect("blast");
+//				Matrix4 m4 = i.transform.mul(i.getNode("emit.root").globalTransform);
+				Matrix4 m4 = new Matrix4(blast.position, new Quaternion(), new Vector3(1,1,1));
+				blast.effect.setTransform(m4);
+//				blast.effect.setTransform(new Matrix4(Mappers.EFFECTS.get(e).getEffect("blast").position, new Quaternion(), new Vector3(1, 1, 1)));
+//				blast.effect.setTransform();
+//				blast.effect.translate(Mappers.EFFECTS.get(e).getEffect("blast").position);
 			}
 		}
 
@@ -132,7 +138,7 @@ public class ModelBatchRenderer extends EntitySystem implements Disposable, Tele
 				blast = Mappers.EFFECTS.get(e).getEffect("blast");
 				blast.effect.translate(m.instance.getNode("emit.root").translation);
 				blast.effect.init();
-				blast.emitter.setEmissionMode(RegularEmitter.EmissionMode.Disabled);
+//				blast.emitter.setEmissionMode(RegularEmitter.EmissionMode.Disabled);
 				particleSystem.add(blast.effect);
 			}
 		}

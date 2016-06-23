@@ -159,10 +159,10 @@ public class CombatScreen extends FpsScreen {
 		EffectsComponent.Effect effect = new EffectsComponent.Effect("emit.root", effectInstance, (RegularEmitter) effectInstance.getControllers().first().emitter);
 		Entity entity = new Entity()
 				.add(new PositionComponent(new Vector3(x, 0, z)))
-				.add(new DirectionComponent(new Vector3(0, -1, 0)))
 				.add(new RotationComponent(new Quaternion()))
 				.add(new ModelInstanceComponent(instance))
 				.add(new InitiativeComponent(MathUtils.random(10)))
+				.add(new HealthComponent(MathUtils.random(6, 10)))
 				.add(new EffectsComponent().addEffect("blast", effect))
 				.add(player ? new PlayerComponent() : new AiComponent());
 		engine.addEntity(entity);

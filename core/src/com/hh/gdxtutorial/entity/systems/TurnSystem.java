@@ -10,8 +10,10 @@ import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
@@ -32,8 +34,37 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	private Array<Entity> sortedActors = new Array<Entity>();
 	private int activeIndex;
 	private TweenManager tweenManager = new TweenManager();
-	private boolean processingActive = false;
+	private boolean inTurn = false;
 	public int turnCount = 0;
+	public float attentionRadius = 13.0f;
+
+	private TweenCallback advanceTurnCallback = new TweenCallback() {
+		@Override
+		public void onEvent(int type, BaseTween<?> source) {
+			switch (type) {
+				case COMPLETE:
+					MessageManager.getInstance().dispatchMessage(0, Messages.ADVANCE_TURN_CONTROL);
+					break;
+				default:
+					assert false;
+					break;
+			}
+		}
+	};
+	private TweenCallback scanForTargetsCallback = new TweenCallback() {
+		@Override
+		public void onEvent(int type, BaseTween<?> source) {
+			switch (type) {
+				case COMPLETE:
+					getValidTargets(sortedActors.get(activeIndex));
+					break;
+				default:
+					assert false;
+					break;
+			}
+		}
+	};
+
 	/**
 	 * Getter for activeIndex.
 	 * @return
@@ -42,6 +73,45 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 		return activeIndex;
 	}
 
+	public void getValidTargets(Entity actor) {
+		Vector3 position = Mappers.POSITION.get(actor).position;
+		Vector3 other = new Vector3();
+		Entity target = null;
+		for (Entity a : sortedActors) {
+			if (a != actor) {
+				other = Mappers.POSITION.get(a).position;
+				if (position.dst(other) <= attentionRadius) {
+					target = a;
+				}
+			}
+		}
+
+		if (target == null) {
+			advanceTurnControl();
+		} else {
+			ModelInstance i = Mappers.MODEL_INSTANCE.get(actor).instance();
+			EffectsComponent.Effect blast = Mappers.EFFECTS.get(actor).getEffect("blast");
+			Matrix4 transform = i.transform.cpy().mul(i.getNode("emit.root").globalTransform);
+			blast.position = transform.getTranslation(blast.position);
+//			blast.position.mul(transform);
+			blast.emitter.setEmissionMode(RegularEmitter.EmissionMode.Enabled);
+
+			Tween.to(blast.position, Vector3Accessor.XYZ, position.dst(other.x, blast.position.y, other.z) / 16)
+				.target(other.x, blast.position.y, other.z)
+				.ease(Linear.INOUT)
+				.setCallback(advanceTurnCallback)
+				.start(tweenManager);
+		}
+	}
+	public void startPlayerTurn(Entity actor) {
+		MessageManager.getInstance().addListener(this, Messages.INTERACT_TOUCH);
+	}
+	public void startMobTurn(Entity actor) {
+		Vector3 actorPosition = Mappers.POSITION.get(actor).position();
+		Quaternion actorRotation = Mappers.ROTATION.get(actor).rotation();
+		Vector3 targetPosition = new Vector3(MathUtils.random(-20, 20), 0, MathUtils.random(-20, 20));
+		startMovement(actorPosition, actorRotation, targetPosition, scanForTargetsCallback);
+	}
 	/**
 	 * Gets the rotation from one Vector3 to another.
 	 * @param origin
@@ -73,29 +143,16 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	 * @param destination  Ending Vector3 for tween
 	 * @TODO Move this to a Tween Library. Tweens.Vector3.Position(start, end, duration)
 	 */
-	private void startMovement(Vector3 position, Quaternion rotation, Vector3 destination) {
+	private void startMovement(Vector3 position, Quaternion rotation, Vector3 destination, TweenCallback callback) {
 		Quaternion targetRotation = getTargetRotation(position, destination);
 		if (targetRotation == null) targetRotation = new Quaternion(rotation);
 		Quaternion qd = rotation.cpy().conjugate().mul(targetRotation);
 		float angle = 2 * (float) Math.atan2(new Vector3(qd.x, qd.y, qd.z).len(), qd.w);
-		System.out.println(angle);
 		Tween rotate = SlerpTween.to(rotation, QuaternionAccessor.ROTATION, angle / 4).target(targetRotation.x, targetRotation.y, targetRotation.z, targetRotation.w).ease(Linear.INOUT);
 
 		Tween translate = Tween.to(position, Vector3Accessor.XYZ, position.dst(destination) / 16).target(destination.x, destination.y, destination.z).ease(Linear.INOUT);
 
-		Timeline.createSequence().push(rotate).push(translate).setCallback(new TweenCallback() {
-			@Override
-			public void onEvent(int type, BaseTween<?> source) {
-				switch (type) {
-					case COMPLETE:
-						MessageManager.getInstance().dispatchMessage(0, Messages.ADVANCE_TURN_CONTROL);
-						break;
-					default:
-						assert false;
-						break;
-				}
-			}
-		}).start(tweenManager);
+		Timeline.createSequence().push(rotate).push(translate).setCallback(callback).start(tweenManager);
 	}
 
 	/**
@@ -105,8 +162,8 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	 */
 	public void advanceTurnControl() {
 		// startTurn() ?
-		EffectsComponent.Effect emitter = Mappers.EFFECTS.get(sortedActors.get(activeIndex)).getEffect("blast");
-		emitter.emitter.setEmissionMode(RegularEmitter.EmissionMode.EnabledUntilCycleEnd);
+//		EffectsComponent.Effect emitter = Mappers.EFFECTS.get(sortedActors.get(activeIndex)).getEffect("blast");
+//		emitter.emitter.setEmissionMode(RegularEmitter.EmissionMode.EnabledUntilCycleEnd);
 		// \startTurn() ?
 
 		// if last actor is taking its turn action
@@ -126,11 +183,11 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 			activeIndex++;
 		}
 		// endTurn() ?
-		emitter = Mappers.EFFECTS.get(sortedActors.get(activeIndex)).getEffect("blast");
-		emitter.emitter.setEmissionMode(RegularEmitter.EmissionMode.Enabled);
+//		emitter = Mappers.EFFECTS.get(sortedActors.get(activeIndex)).getEffect("blast");
+//		emitter.emitter.setEmissionMode(RegularEmitter.EmissionMode.Enabled);
 		// \endTurn() ?
-		
-		processingActive = false;
+
+		inTurn = false;
 	}
 
 	/**
@@ -158,7 +215,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 		activeIndex = 0;
 	}
 	/**
-	 * Checks if a entity is taking its turn (processingActive) and, if not, starts the turn
+	 * Checks if a entity is taking its turn (inTurn) and, if not, starts the turn
 	 * of the next entity.
 	 * @TODO Move MOB and player specific stuff out of here. Have a component handle it. AI should be pulled in
 	 * from somewhere.
@@ -168,18 +225,15 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	public void update (float deltaTime) {
 		tweenManager.update(deltaTime);
 
-		if (!processingActive) {
-			processingActive = true;
-			// MOB
-			if (Mappers.AI.get(sortedActors.get(activeIndex)) != null) {
-				Vector3 actorPosition = Mappers.POSITION.get(sortedActors.get(activeIndex)).position();
-				Quaternion actorRotation = Mappers.ROTATION.get(sortedActors.get(activeIndex)).rotation();
-				Vector3 targetPosition = new Vector3(MathUtils.random(-20, 20), 0, MathUtils.random(-20, 20));
-				startMovement(actorPosition, actorRotation, targetPosition);
-			// player
-			} else if (Mappers.PLAYER.get(sortedActors.get(activeIndex)) != null) {
-				MessageManager.getInstance().addListener(this, Messages.INTERACT_TOUCH);
-			}
+		if (!inTurn) {
+			inTurn = true;
+			Entity active = sortedActors.get(activeIndex);
+
+			if (Mappers.PLAYER.get(active) != null)
+				startPlayerTurn(active);
+			else if (Mappers.AI.get(active) != null)
+				startMobTurn(active);
+
 		}
 	}
 	/**
@@ -202,7 +256,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 				targetPosition.y = 0;
 				// remove the listener for INTERACT_TOUCH
 				MessageManager.getInstance().removeListener(this, Messages.INTERACT_TOUCH);
-				startMovement(actorPosition, actorRotation, targetPosition);
+				startMovement(actorPosition, actorRotation, targetPosition, advanceTurnCallback);
 				break;
 			default:
 				return false;
