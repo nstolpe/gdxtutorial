@@ -103,7 +103,7 @@ public class ModelBatchRenderer extends EntitySystem implements Disposable, Tele
 			if (Mappers.EFFECTS.has(e)) {
 				ModelInstance i = Mappers.MODEL_INSTANCE.get(e).instance();
 				EffectsComponent.Effect blast = Mappers.EFFECTS.get(e).getEffect("blast");
-//				Matrix4 m4 = i.transform.mul(i.getNode("emit.root").globalTransform);
+//				Matrix4 m4 = i.transform.mul(i.getNode("attach.projectile").globalTransform);
 				//@TODO make the quat and v3 members to reuse.
 				Matrix4 m4 = new Matrix4(blast.position, new Quaternion(), new Vector3(1,1,1));
 				blast.effect.setTransform(m4);
@@ -134,7 +134,7 @@ public class ModelBatchRenderer extends EntitySystem implements Disposable, Tele
 			if (m.instance.getAnimation("skeleton|rest") != null) {
 				m.controller().setAnimation("skeleton|rest", -1);
 				blast = Mappers.EFFECTS.get(e).getEffect("blast");
-				blast.effect.translate(m.instance.getNode("emit.root").translation);
+				blast.effect.translate(m.instance.getNode("attach.projectile").translation);
 				blast.effect.init();
 				blast.emitter.setEmissionMode(RegularEmitter.EmissionMode.Disabled);
 				particleSystem.add(blast.effect);

@@ -123,28 +123,43 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 
 						final ModelInstanceComponent mic = Mappers.MODEL_INSTANCE.get(actor);
 
-						mic.controller.animate("skeleton|attack", new AnimationController.AnimationListener() {
+						mic.controller.animate("skeleton|windup", new AnimationController.AnimationListener() {
 							@Override
 							public void onEnd(AnimationController.AnimationDesc animation) {
-								mic.controller.animate("skeleton|rest", -1, null, 1f);
+								System.out.println("windup");
 								ModelInstance inst = Mappers.MODEL_INSTANCE.get(actor).instance();
 								EffectsComponent.Effect blast = Mappers.EFFECTS.get(actor).getEffect("blast");
-								Matrix4 transform = inst.transform.cpy().mul(inst.getNode("emit.root").globalTransform);
+								Matrix4 transform = inst.transform.cpy().mul(inst.getNode("attach.projectile").globalTransform);
+								final Vector3 p = blast.position;
 								blast.position = transform.getTranslation(blast.position);
 								blast.emitter.setEmissionMode(RegularEmitter.EmissionMode.Enabled);
 
-								Tween.to(blast.position, Vector3Accessor.XYZ, position.dst(targetPosition.x, blast.position.y, targetPosition.z) / 16)
-									.target(targetPosition.x, blast.position.y, targetPosition.z)
-									.ease(Linear.INOUT)
-									.setCallback(advanceTurnCallback)
-									.start(tweenManager);
+								Tween.to(p, Vector3Accessor.XYZ, position.dst(targetPosition.x, p.y, targetPosition.z) / 16)
+										.target(targetPosition.x, p.y, targetPosition.z)
+										.ease(Linear.INOUT)
+										.setCallback(advanceTurnCallback)
+										.start(tweenManager);
+
+								mic.controller.animate("skeleton|attack", 1, 1.0f, new AnimationController.AnimationListener() {
+									@Override
+									public void onEnd(AnimationController.AnimationDesc animation) {
+										mic.controller.animate("skeleton|rest", -1, null, 1f);
+
+									}
+
+									@Override
+									public void onLoop(AnimationController.AnimationDesc animation) {
+
+									}
+								}, 1.0f);
 							}
 
 							@Override
 							public void onLoop(AnimationController.AnimationDesc animation) {
 
 							}
-						}, 1f);
+						}, 1.0f);
+
 					}
 				}).start(tweenManager);
 		}
