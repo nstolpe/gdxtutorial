@@ -107,7 +107,9 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 			advanceTurnControl();
 		} else {
 			Mappers.MOB.get(actor);
-//			MessageManager.getInstance().dispatchMessage(this, Mappers.MOB.get(actor).stateMachine, Messages.TARGET_ACQUIRED, new MobComponent.TargetMessageData(actor, validTargets.firstValue()));
+
+			Mappers.MOB.get(actor).stateMachine.changeState(MobComponent.MobState.TARGETING);
+			MessageManager.getInstance().dispatchMessage(this, Mappers.MOB.get(actor).stateMachine, Messages.TARGET_ACQUIRED, new Messages.TargetMessageData(actor, validTargets.firstValue()));
 			// Attacks closest, first in map sorted by distance
 			final Vector3 targetPosition = Mappers.POSITION.get(validTargets.firstValue()).position;
 
@@ -140,7 +142,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 										.target(targetPosition.x, p.y, targetPosition.z)
 										.ease(Linear.INOUT)
 										.setCallback(advanceTurnCallback)
-										.start(Manager.getInstance().tweenManager);
+										.start(Manager.getInstance().tweenManager());
 
 								mic.controller.animate("skeleton|attack", 1, 1.0f, new AnimationController.AnimationListener() {
 									@Override
@@ -163,7 +165,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 						}, 1.0f);
 
 					}
-				}).start(Manager.getInstance().tweenManager);
+				});//.start(Manager.getInstance().tweenManager());
 		}
 	}
 	public void startPlayerTurn(Entity actor) {
@@ -282,6 +284,8 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	@Override
 	public void update (float deltaTime) {
 		tweenManager.update(deltaTime);
+		// @TODO move Manager update to screen, maybe abstract.
+		Manager.getInstance().update(deltaTime);
 
 		if (!inTurn) {
 			inTurn = true;
