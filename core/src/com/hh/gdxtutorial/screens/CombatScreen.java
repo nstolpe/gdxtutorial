@@ -12,7 +12,6 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader;
@@ -167,7 +166,7 @@ public class CombatScreen extends FpsScreen {
 				.add(new InitiativeComponent(MathUtils.random(10)))
 				.add(new HealthComponent(MathUtils.random(6, 10)))
 				.add(new EffectsComponent().addEffect("blast", effect))
-				.add(player ? new PlayerComponent() : new AiComponent());
+				.add(player ? new PlayerComponent() : new MobComponent());
 		engine.addEntity(entity);
 	}
 

@@ -7,6 +7,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
+import com.badlogic.gdx.ai.msg.MessageDispatcher;
 import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
@@ -21,6 +22,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.hh.gdxtutorial.ai.Messages;
 import com.hh.gdxtutorial.entity.components.*;
+import com.hh.gdxtutorial.singletons.Manager;
 import com.hh.gdxtutorial.tweenengine.accessors.QuaternionAccessor;
 import com.hh.gdxtutorial.tweenengine.accessors.SlerpTween;
 import com.hh.gdxtutorial.tweenengine.accessors.Vector3Accessor;
@@ -104,6 +106,8 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 		if (validTargets.size == 0) {
 			advanceTurnControl();
 		} else {
+			Mappers.MOB.get(actor);
+//			MessageManager.getInstance().dispatchMessage(this, Mappers.MOB.get(actor).stateMachine, Messages.TARGET_ACQUIRED, new MobComponent.TargetMessageData(actor, validTargets.firstValue()));
 			// Attacks closest, first in map sorted by distance
 			final Vector3 targetPosition = Mappers.POSITION.get(validTargets.firstValue()).position;
 
@@ -118,15 +122,13 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 				.setCallback(new TweenCallback() {
 					@Override
 					public void onEvent(int i, BaseTween<?> baseTween) {
-						// use these instead of the nested callbacks
-						MessageManager.getInstance().dispatchMessage(0, Messages.TARGET_FACING_REACHED);
 
 						final ModelInstanceComponent mic = Mappers.MODEL_INSTANCE.get(actor);
 
-						mic.controller.animate("skeleton|windup", new AnimationController.AnimationListener() {
+						mic.controller.animate("skeleton|attack.pre", new AnimationController.AnimationListener() {
 							@Override
 							public void onEnd(AnimationController.AnimationDesc animation) {
-								System.out.println("windup");
+								System.out.println("attack.pre");
 								ModelInstance inst = Mappers.MODEL_INSTANCE.get(actor).instance();
 								EffectsComponent.Effect blast = Mappers.EFFECTS.get(actor).getEffect("blast");
 								Matrix4 transform = inst.transform.cpy().mul(inst.getNode("attach.projectile").globalTransform);
@@ -138,7 +140,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 										.target(targetPosition.x, p.y, targetPosition.z)
 										.ease(Linear.INOUT)
 										.setCallback(advanceTurnCallback)
-										.start(tweenManager);
+										.start(Manager.getInstance().tweenManager);
 
 								mic.controller.animate("skeleton|attack", 1, 1.0f, new AnimationController.AnimationListener() {
 									@Override
@@ -161,7 +163,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 						}, 1.0f);
 
 					}
-				}).start(tweenManager);
+				}).start(Manager.getInstance().tweenManager);
 		}
 	}
 	public void startPlayerTurn(Entity actor) {
@@ -256,7 +258,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	public void addedToEngine(Engine engine) {
 		actors = engine.getEntitiesFor(Family
 				.all(InitiativeComponent.class)
-				.one(AiComponent.class, PlayerComponent.class)
+				.one(MobComponent.class, PlayerComponent.class)
 				.get());
 
 		if (actors.size() > 0) {
@@ -273,7 +275,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	/**
 	 * Checks if a entity is taking its turn (inTurn) and, if not, starts the turn
 	 * of the next entity.
-	 * @TODO Move MOB and player specific stuff out of here. Have a component handle it. AI should be pulled in
+	 * @TODO Move MOB and player specific stuff out of here. Have a component handle it. MOB should be pulled in
 	 * from somewhere.
 	 * @param deltaTime
 	 */
@@ -287,7 +289,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 
 			if (Mappers.PLAYER.get(active) != null)
 				startPlayerTurn(active);
-			else if (Mappers.AI.get(active) != null)
+			else if (Mappers.MOB.get(active) != null)
 				startMobTurn(active);
 
 		}

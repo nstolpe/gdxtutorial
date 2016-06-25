@@ -13,6 +13,6 @@ public class Mappers {
 	public static final ComponentMapper<RotationComponent>      ROTATION       = ComponentMapper.getFor(RotationComponent.class);
 	public static final ComponentMapper<InitiativeComponent>    INITIATIVE     = ComponentMapper.getFor(InitiativeComponent.class);
 	public static final ComponentMapper<PlayerComponent>        PLAYER         = ComponentMapper.getFor(PlayerComponent.class);
-	public static final ComponentMapper<AiComponent>            AI             = ComponentMapper.getFor(AiComponent.class);
+	public static final ComponentMapper<MobComponent>           MOB            = ComponentMapper.getFor(MobComponent.class);
 	public static final ComponentMapper<EffectsComponent>       EFFECTS        = ComponentMapper.getFor(EffectsComponent.class);
 }
