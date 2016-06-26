@@ -19,6 +19,7 @@ import com.hh.gdxtutorial.ai.Messages;
 import com.hh.gdxtutorial.entity.components.EffectsComponent;
 import com.hh.gdxtutorial.entity.components.Mappers;
 import com.hh.gdxtutorial.entity.components.ModelInstanceComponent;
+import com.hh.gdxtutorial.entity.components.TargetComponent;
 import com.hh.gdxtutorial.helpers.Utility;
 import com.hh.gdxtutorial.singletons.Manager;
 import com.hh.gdxtutorial.tweenengine.accessors.QuaternionAccessor;
@@ -82,94 +83,80 @@ public enum MobState implements State<Entity> {
 			final ModelInstanceComponent modelInstanceComponent = Mappers.MODEL_INSTANCE.get(mob);
 			final EffectsComponent.Effect blast = Mappers.EFFECTS.get(mob).getEffect("blast");
 
+			// set the 'blast' effect's position to the model's attach.projectile node
 			Matrix4 attachmentMatrix = modelInstanceComponent.instance.transform.cpy().mul(modelInstanceComponent.instance.getNode("attach.projectile").globalTransform);
 			blast.position = attachmentMatrix.getTranslation(blast.position);
+			// turn on the blast emmitter
 			blast.emitter.setEmissionMode(RegularEmitter.EmissionMode.Enabled);
 
-			final Vector3 position = Mappers.POSITION.get(mob).position;
-			final Vector3 targetPosition = Mappers.POSITION.get(Mappers.TARGET.get(mob).target).position;
+			modelInstanceComponent.controller.setAnimation(
+				"skeleton|attack",
+				new AnimationController.AnimationListener() {
+					@Override
+					public void onEnd(AnimationController.AnimationDesc animation) {
+						stateMachine.changeState(ATTACK_POST);
+					}
+					@Override
+					public void onLoop(AnimationController.AnimationDesc animation) {}
+				});
+		}
 
-			modelInstanceComponent.controller.setAnimation("skeleton|attack", new AnimationController.AnimationListener() {
-				@Override
-				public void onEnd(AnimationController.AnimationDesc animation) {
-					stateMachine.changeState(ATTACK_POST);
-					// @TODO move Tween out.
-					Tween.to(
-						blast.position,
-						Vector3Accessor.XYZ,
-						position.dst(targetPosition.x, blast.position.y, targetPosition.z) / 16
-					)
-						.target(targetPosition.x, blast.position.y, targetPosition.z)
-						.ease(Linear.INOUT)
-						.setCallback(new TweenCallback() {
-							@Override
-							public void onEvent(int i, BaseTween<?> baseTween) {
-								stateMachine.changeState(REST);
-								MessageManager.getInstance().dispatchMessage(0, Messages.ADVANCE_TURN_CONTROL);
-								blast.emitter.setEmissionMode(RegularEmitter.EmissionMode.EnabledUntilCycleEnd);
-							}
-						})
-						.start(Manager.getInstance().tweenManager());
-				}
+		@Override
+		public void update(Entity mob) {
+			final ModelInstanceComponent modelInstanceComponent = Mappers.MODEL_INSTANCE.get(mob);
+			final EffectsComponent.Effect blast = Mappers.EFFECTS.get(mob).getEffect("blast");
 
-				@Override
-				public void onLoop(AnimationController.AnimationDesc animation) {
-				}
-			});
+			Matrix4 attachmentMatrix = modelInstanceComponent.instance.transform.cpy().mul(modelInstanceComponent.instance.getNode("attach.projectile").globalTransform);
+			blast.position = attachmentMatrix.getTranslation(blast.position);
 		}
 	},
 	ATTACK_POST() {
 		@Override
 		public void enter(final Entity mob) {
 			final StateMachine<Entity, MobState> stateMachine = Mappers.MOB.get(mob).stateMachine;
+			final Vector3 position = Mappers.POSITION.get(mob).position;
+			final Vector3 targetPosition = Mappers.POSITION.get(Mappers.TARGET.get(mob).target).position;
+			final EffectsComponent.Effect blast = Mappers.EFFECTS.get(mob).getEffect("blast");
 
-			Mappers.MODEL_INSTANCE.get(mob).controller.setAnimation("skeleton|attack.post", new AnimationController.AnimationListener() {
-				@Override
-				public void onEnd(AnimationController.AnimationDesc animation) {
-					stateMachine.changeState(REST);
-				}
+			Mappers.MODEL_INSTANCE.get(mob).controller.setAnimation(
+				"skeleton|attack.post",
+				new AnimationController.AnimationListener() {
+					@Override
+					public void onEnd(AnimationController.AnimationDesc animation) {
+						// @TODO move Tween out.
+						Tween.to(blast.position,
+							Vector3Accessor.XYZ,
+							position.dst(targetPosition.x, blast.position.y, targetPosition.z) / 16)
+							.target(targetPosition.x, blast.position.y, targetPosition.z)
+							.ease(Linear.INOUT)
+							.setCallback(new TweenCallback() {
+								@Override
+								public void onEvent(int i, BaseTween<?> baseTween) {
+									stateMachine.changeState(REST);
+									MessageManager.getInstance().dispatchMessage(0, Messages.ADVANCE_TURN_CONTROL);
+									blast.emitter.setEmissionMode(RegularEmitter.EmissionMode.EnabledUntilCycleEnd);
+								}
+							})
+							.start(Manager.getInstance().tweenManager());
+						stateMachine.changeState(REST);
+						mob.remove(TargetComponent.class);
+					}
 
-				@Override
-				public void onLoop(AnimationController.AnimationDesc animation) {
-				}
+					@Override
+					public void onLoop(AnimationController.AnimationDesc animation) {
+					}
 			});
+		}
+		@Override
+		public void update(Entity mob) {
+			final ModelInstanceComponent modelInstanceComponent = Mappers.MODEL_INSTANCE.get(mob);
+			final EffectsComponent.Effect blast = Mappers.EFFECTS.get(mob).getEffect("blast");
+
+			Matrix4 attachmentMatrix = modelInstanceComponent.instance.transform.cpy().mul(modelInstanceComponent.instance.getNode("attach.projectile").globalTransform);
+			blast.position = attachmentMatrix.getTranslation(blast.position);
 		}
 	},
 	GLOBAL() {
-		/**
-		 * Global message handler. Activates states when their message type is received
-		 * and passes the telegram to their handlers.
-		 * @param mob
-		 * @param telegram
-		 * @return
-		 */
-		@Override
-		public boolean onMessage(Entity mob, Telegram telegram) {
-			switch (telegram.message) {
-				case Messages.TARGET_ACQUIRED:
-					Mappers.MOB.get(mob).stateMachine.changeState(TARGETING);
-					TARGETING.onMessage(mob, telegram);
-					break;
-				case Messages.ATTACK_PRE:
-					Mappers.MOB.get(mob).stateMachine.changeState(ATTACK_PRE);
-					ATTACK_PRE.onMessage(mob, telegram);
-					break;
-				case Messages.ATTACK:
-					Mappers.MOB.get(mob).stateMachine.changeState(ATTACK);
-					ATTACK.onMessage(mob, telegram);
-					break;
-				case Messages.ATTACK_POST:
-					Mappers.MOB.get(mob).stateMachine.changeState(ATTACK_POST);
-					ATTACK_POST.onMessage(mob, telegram);
-					break;
-				case Messages.REST:
-					Mappers.MOB.get(mob).stateMachine.changeState(REST);
-					break;
-				default:
-					break;
-			}
-			return false;
-		}
 	};
 
 	@Override

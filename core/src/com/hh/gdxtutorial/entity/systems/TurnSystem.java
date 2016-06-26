@@ -103,10 +103,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 			advanceTurnControl();
 		} else {
 			actor.add(new TargetComponent(validTargets.firstValue()));
-//			MessageManager.getInstance().dispatchMessage(this, Mappers.MOB.get(actor).stateMachine, Messages.TARGET_ACQUIRED);
-
 			Mappers.MOB.get(actor).stateMachine.changeState(MobState.TARGETING);
-			MessageManager.getInstance().dispatchMessage(this, Mappers.MOB.get(actor).stateMachine, Messages.TARGET_ACQUIRED, new Messages.TargetMessageData(actor, validTargets.firstValue()));
 		}
 	}
 	public void startPlayerTurn(Entity actor) {
