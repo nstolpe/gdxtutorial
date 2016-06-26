@@ -15,7 +15,9 @@ import com.badlogic.gdx.utils.Array;
 import com.hh.gdxtutorial.screens.input.DemoInputController;
 
 /**
- * Created by nils on 5/27/16.
+ * This screen demos the best way I've found so far to chain
+ * animations together, AnimationController.setAnimation in
+ * the onEnd of each setAnimation but the last.
  */
 public class AnimationChainScreen extends FpsScreen {
 	public DemoInputController camController;
@@ -80,6 +82,9 @@ public class AnimationChainScreen extends FpsScreen {
 		initAnimationSequence();
 	}
 
+	/**
+	 * Sequences the animations and loops them.
+	 */
 	public void initAnimationSequence() {
 		animationController.setAnimation("skeleton|attack.pre", new AnimationController.AnimationListener() {
 			@Override

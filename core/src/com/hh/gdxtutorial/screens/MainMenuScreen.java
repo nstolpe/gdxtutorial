@@ -27,6 +27,7 @@ public class MainMenuScreen extends AbstractScreen {
 	private TextButton tiltShiftShaderScreenButton;
 	private TextButton turnSystemScreenButton;
 	private TextButton combatScreenButton;
+	private TextButton characterScreenButton;
 
 
 	@Override
@@ -46,6 +47,7 @@ public class MainMenuScreen extends AbstractScreen {
 		turnEngineScreenButton = new TextButton("TurnEngineScreen", buttonStyle);
 		turnSystemScreenButton = new TextButton("TurnSystemScreen", buttonStyle);
 		combatScreenButton = new TextButton("CombatScreen", buttonStyle);
+		characterScreenButton = new TextButton("AnimationChainScreen", buttonStyle);
 
 		celShaderScreenButton.addListener(new ClickListener() {
 			@Override
@@ -83,6 +85,12 @@ public class MainMenuScreen extends AbstractScreen {
 				MessageManager.getInstance().dispatchMessage(0, Messages.CHANGE_SCREEN, new CombatScreen());
 			}
 		});
+		characterScreenButton.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				MessageManager.getInstance().dispatchMessage(0, Messages.CHANGE_SCREEN, new AnimationChainScreen());
+			}
+		});
 
 		buttonColumn = new Table();
 		buttonColumn.setFillParent(true);
@@ -97,6 +105,8 @@ public class MainMenuScreen extends AbstractScreen {
 		buttonColumn.add(turnSystemScreenButton);
 		buttonColumn.row();
 		buttonColumn.add(combatScreenButton);
+		buttonColumn.row();
+		buttonColumn.add(characterScreenButton);
 
 		stage.addActor(buttonColumn);
 	}

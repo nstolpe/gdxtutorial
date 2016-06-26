@@ -7,21 +7,18 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
-import com.badlogic.gdx.ai.msg.MessageDispatcher;
 import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter;
-import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.hh.gdxtutorial.ai.Messages;
 import com.hh.gdxtutorial.entity.components.*;
+import com.hh.gdxtutorial.helpers.Utility;
 import com.hh.gdxtutorial.singletons.Manager;
 import com.hh.gdxtutorial.tweenengine.accessors.QuaternionAccessor;
 import com.hh.gdxtutorial.tweenengine.accessors.SlerpTween;
@@ -47,7 +44,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 		public void onEvent(int type, BaseTween<?> source) {
 			switch (type) {
 				case COMPLETE:
-					Mappers.EFFECTS.get(sortedActors.get(activeIndex)).getEffect("blast").emitter.setEmissionMode(RegularEmitter.EmissionMode.EnabledUntilCycleEnd);
+//					Mappers.EFFECTS.get(sortedActors.get(activeIndex)).getEffect("blast").emitter.setEmissionMode(RegularEmitter.EmissionMode.EnabledUntilCycleEnd);
 					MessageManager.getInstance().dispatchMessage(0, Messages.ADVANCE_TURN_CONTROL);
 					break;
 				default:
@@ -110,62 +107,6 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 
 			Mappers.MOB.get(actor).stateMachine.changeState(MobComponent.MobState.TARGETING);
 			MessageManager.getInstance().dispatchMessage(this, Mappers.MOB.get(actor).stateMachine, Messages.TARGET_ACQUIRED, new Messages.TargetMessageData(actor, validTargets.firstValue()));
-			// Attacks closest, first in map sorted by distance
-			final Vector3 targetPosition = Mappers.POSITION.get(validTargets.firstValue()).position;
-
-			Quaternion targetRotation = getTargetRotation(position, targetPosition, rotation);
-			Quaternion qd = rotation.cpy().conjugate().mul(targetRotation);
-			float angle = 2 * (float) Math.atan2(new Vector3(qd.x, qd.y, qd.z).len(), qd.w);
-
-			// rotate to face the target.
-			SlerpTween.to(rotation, QuaternionAccessor.ROTATION, angle / 4)
-				.target(targetRotation.x, targetRotation.y, targetRotation.z, targetRotation.w)
-				.ease(Linear.INOUT)
-				.setCallback(new TweenCallback() {
-					@Override
-					public void onEvent(int i, BaseTween<?> baseTween) {
-
-						final ModelInstanceComponent mic = Mappers.MODEL_INSTANCE.get(actor);
-
-						mic.controller.animate("skeleton|attack.pre", new AnimationController.AnimationListener() {
-							@Override
-							public void onEnd(AnimationController.AnimationDesc animation) {
-								System.out.println("attack.pre");
-								ModelInstance inst = Mappers.MODEL_INSTANCE.get(actor).instance();
-								EffectsComponent.Effect blast = Mappers.EFFECTS.get(actor).getEffect("blast");
-								Matrix4 transform = inst.transform.cpy().mul(inst.getNode("attach.projectile").globalTransform);
-								final Vector3 p = blast.position;
-								blast.position = transform.getTranslation(blast.position);
-								blast.emitter.setEmissionMode(RegularEmitter.EmissionMode.Enabled);
-
-								Tween.to(p, Vector3Accessor.XYZ, position.dst(targetPosition.x, p.y, targetPosition.z) / 16)
-										.target(targetPosition.x, p.y, targetPosition.z)
-										.ease(Linear.INOUT)
-										.setCallback(advanceTurnCallback)
-										.start(Manager.getInstance().tweenManager());
-
-								mic.controller.animate("skeleton|attack", 1, 1.0f, new AnimationController.AnimationListener() {
-									@Override
-									public void onEnd(AnimationController.AnimationDesc animation) {
-										mic.controller.animate("skeleton|rest", -1, null, 1f);
-
-									}
-
-									@Override
-									public void onLoop(AnimationController.AnimationDesc animation) {
-
-									}
-								}, 1.0f);
-							}
-
-							@Override
-							public void onLoop(AnimationController.AnimationDesc animation) {
-
-							}
-						}, 1.0f);
-
-					}
-				});//.start(Manager.getInstance().tweenManager());
 		}
 	}
 	public void startPlayerTurn(Entity actor) {
@@ -178,30 +119,6 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 		startTurnAction(actorPosition, actorRotation, targetPosition, scanForTargetsCallback);
 	}
 	/**
-	 * Gets the rotation from one Vector3 to another.
-	 * @param origin
-	 * @param target
-	 * @return
-	 * @TODO Make sure those epsilon values are working.
-	 */
-	public Quaternion getTargetRotation(Vector3 origin, Vector3 target, Quaternion fallback) {
-		// Get the difference between the two points.
-		Vector3 difference = target.cpy().sub(origin);
-		Vector3 direction = difference.cpy().nor();
-
-		if (difference.len() < 0.000000001f) return new Quaternion(fallback);
-
-		// z is forward
-		Vector3 zAxis = new Vector3(0,0,1);
-
-		float dot = zAxis.dot(direction);
-		float angle = (float) Math.acos(dot);
-
-		if (angle < 0.000000001f) return new Quaternion(fallback);
-
-		return new Quaternion().setFromCross(zAxis, direction);
-	}
-	/**
 	 * Sets up and starts a tween from Vector3 position to Vector3 destination for float duration.
 	 * @param position     Starting Vector3 for tween
 	 * @param rotation     Starting Quaternion for tween
@@ -209,7 +126,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	 * @TODO Move this to a Tween Library. Tweens.Vector3.Position(start, end, duration)
 	 */
 	private void startTurnAction(Vector3 position, Quaternion rotation, Vector3 destination, TweenCallback callback) {
-		Quaternion targetRotation = getTargetRotation(position, destination, rotation);
+		Quaternion targetRotation = Utility.getRotationTo(position, destination, rotation);
 		Quaternion qd = rotation.cpy().conjugate().mul(targetRotation);
 
 		float angle = 2 * (float) Math.atan2(new Vector3(qd.x, qd.y, qd.z).len(), qd.w);
@@ -240,7 +157,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 				Mappers.INITIATIVE.get(e).initiative(MathUtils.random(10));
 				sortedActors.add(e);
 			}
-			sortedActors.sort(new InitiativeComparator());
+			sortedActors.sort(new InitiativeComponentComparator());
 			activeIndex = 0;
 			turnCount++;
 		} else {
@@ -265,7 +182,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 
 		if (actors.size() > 0) {
 			for (int i = 0; i < actors.size(); i++) sortedActors.add(actors.get(i));
-			sortedActors.sort(new InitiativeComparator());
+			sortedActors.sort(new InitiativeComponentComparator());
 		}
 
 		MessageManager.getInstance().addListener(this, Messages.ADVANCE_TURN_CONTROL);
@@ -295,7 +212,6 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 				startPlayerTurn(active);
 			else if (Mappers.MOB.get(active) != null)
 				startMobTurn(active);
-
 		}
 	}
 	/**
@@ -330,7 +246,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	 * Comparator for =, >, <
 	 * Used to determine sequence of turn actions.
 	 */
-	private static class InitiativeComparator implements Comparator<Entity> {
+	private static class InitiativeComponentComparator implements Comparator<Entity> {
 		@Override
 		public int compare(Entity a, Entity b) {
 			return Mappers.INITIATIVE.get(a).initiative() > Mappers.INITIATIVE.get(b).initiative() ? 1 : Mappers.INITIATIVE.get(a).initiative() == Mappers.INITIATIVE.get(b).initiative()  ? 0 : -1;

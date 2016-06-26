@@ -29,24 +29,25 @@ import com.hh.gdxtutorial.tweenengine.accessors.Vector3Accessor;
  * Created by nils on 6/5/16.
  */
 public class MobComponent implements Component {
-	public StateMachine<MobComponent, MobState> stateMachine;
+	public StateMachine<Entity, MobState> stateMachine;
 
 	public MobComponent() {
-		stateMachine = new DefaultStateMachine<MobComponent, MobState>(this, MobState.REST, MobState.GLOBAL);
 	}
-
-	public enum MobState implements State<MobComponent> {
+	public void initStatMachine(Entity mob) {
+		stateMachine = new DefaultStateMachine<Entity, MobState>(mob, MobState.REST, MobState.GLOBAL);
+	}
+	public enum MobState implements State<Entity> {
 		REST() {
 			@Override
-			public boolean onMessage(MobComponent ai, Telegram telegram) {
+			public boolean onMessage(Entity mob, Telegram telegram) {
 				Gdx.app.log("onMessage", "REST");
 
 				if (telegram.message == Messages.REST) {
 					validateMessageDataOrExit(telegram.extraInfo, Messages.TargetMessageData.class);
 					final Messages.TargetMessageData messageData = (Messages.TargetMessageData) telegram.extraInfo;
-					final StateMachine<MobComponent, MobState> stateMachine = ai.stateMachine;
+//					final StateMachine<Entity, MobState> stateMachine = Mappers.MOB.get(mob).stateMachine;
 					final ModelInstanceComponent mic = Mappers.MODEL_INSTANCE.get(messageData.actor);
-					mic.controller.animate("skeleton|rest", 1, 1.0f, new AnimationController.AnimationListener() {
+					mic.controller.animate("skeleton|rest", -1, 1.0f, new AnimationController.AnimationListener() {
 						@Override
 						public void onEnd(AnimationController.AnimationDesc animation) {
 						}
@@ -64,18 +65,18 @@ public class MobComponent implements Component {
 			/**
 			 * Initiate the rotate to target SlerpTween.
 			 * ATTACK_PRE is initiated in by the callback.
-			 * @param ai
+			 * @param mob
 			 * @param telegram
 			 * @return
 			 */
 			@Override
-			public boolean onMessage(MobComponent ai, Telegram telegram) {
+			public boolean onMessage(Entity mob, Telegram telegram) {
 				if (telegram.message == Messages.TARGET_ACQUIRED) {
 					Gdx.app.log("onMessage", "TARGETING");
 					validateMessageDataOrExit(telegram.extraInfo, Messages.TargetMessageData.class);
 					final Messages.TargetMessageData messageData = (Messages.TargetMessageData) telegram.extraInfo;
 
-					final StateMachine<MobComponent, MobState> stateMachine = ai.stateMachine;
+					final StateMachine<Entity, MobState> stateMachine = Mappers.MOB.get(mob).stateMachine;
 					TweenCallback callback = new TweenCallback() {
 						@Override
 						public void onEvent(int i, BaseTween<?> baseTween) {
@@ -92,21 +93,21 @@ public class MobComponent implements Component {
 		ATTACK_PRE() {
 			/**
 			 * Initiates the attack.pre animation and ATTACK_PRE state.
-			 * @param ai
+			 * @param mob
 			 * @param telegram
 			 * @return
 			 */
 			@Override
-			public boolean onMessage(MobComponent ai, Telegram telegram) {
+			public boolean onMessage(Entity mob, Telegram telegram) {
 				if (telegram.message == Messages.ATTACK_PRE) {
 					Gdx.app.log("onMessage", "ATTACK_PRE");
 
 					validateMessageDataOrExit(telegram.extraInfo, Messages.TargetMessageData.class);
 					final Messages.TargetMessageData messageData = (Messages.TargetMessageData) telegram.extraInfo;
-					final StateMachine<MobComponent, MobState> stateMachine = ai.stateMachine;
+					final StateMachine<Entity, MobState> stateMachine = Mappers.MOB.get(mob).stateMachine;
 					final ModelInstanceComponent mic = Mappers.MODEL_INSTANCE.get(messageData.actor);
 
-					mic.controller.animate("skeleton|attack.pre", 1, 1.0f, new AnimationController.AnimationListener() {
+					mic.controller.setAnimation("skeleton|attack.pre", new AnimationController.AnimationListener() {
 						@Override
 						public void onEnd(AnimationController.AnimationDesc animation) {
 							stateMachine.changeState(ATTACK);
@@ -117,7 +118,7 @@ public class MobComponent implements Component {
 						public void onLoop(AnimationController.AnimationDesc animation) {
 
 						}
-					}, 1.0f);
+					});
 
 					return true;
 				}
@@ -127,19 +128,19 @@ public class MobComponent implements Component {
 		ATTACK() {
 			/**
 			 * Initiates the attack animation and enters the ATTACK state.
-			 * @param ai
+			 * @param mob
 			 * @param telegram
 			 * @return
 			 * @TODO this is still too unwieldy, refactor it and abstact some of it.
 			 */
 			@Override
-			public boolean onMessage(MobComponent ai, Telegram telegram) {
+			public boolean onMessage(Entity mob, Telegram telegram) {
 				if (telegram.message == Messages.ATTACK) {
 					Gdx.app.log("onMessage", "ATTACK");
 
 					validateMessageDataOrExit(telegram.extraInfo, Messages.TargetMessageData.class);
 					final Messages.TargetMessageData messageData = (Messages.TargetMessageData) telegram.extraInfo;
-					final StateMachine<MobComponent, MobState> stateMachine = ai.stateMachine;
+					final StateMachine<Entity, MobState> stateMachine = Mappers.MOB.get(mob).stateMachine;
 					final ModelInstanceComponent mic = Mappers.MODEL_INSTANCE.get(messageData.actor);
 
 					ModelInstance inst = Mappers.MODEL_INSTANCE.get(messageData.actor).instance();
@@ -149,18 +150,20 @@ public class MobComponent implements Component {
 
 					blast.position = transform.getTranslation(blast.position);
 					blast.emitter.setEmissionMode(RegularEmitter.EmissionMode.Enabled);
-					final Vector3 p = blast.position;
+					final Vector3 blastPosition = blast.position;
 
 					final Vector3 position = Mappers.POSITION.get(messageData.actor).position;
 					final Vector3 targetPosition = Mappers.POSITION.get(messageData.target).position;
 
-					mic.controller.animate("skeleton|attack", 1, 1.0f, new AnimationController.AnimationListener() {
+					mic.controller.setAnimation("skeleton|attack", new AnimationController.AnimationListener() {
 						@Override
 						public void onEnd(AnimationController.AnimationDesc animation) {
 							stateMachine.changeState(ATTACK_POST);
 							MessageManager.getInstance().dispatchMessage(stateMachine, stateMachine, Messages.ATTACK_POST, messageData);
-							Tween.to(p, Vector3Accessor.XYZ, position.dst(targetPosition.x, p.y, targetPosition.z) / 16)
-								.target(targetPosition.x, p.y, targetPosition.z)
+
+							// @TODO move Tween out.
+							Tween.to(blastPosition, Vector3Accessor.XYZ, position.dst(targetPosition.x, blastPosition.y, targetPosition.z) / 16)
+								.target(targetPosition.x, blastPosition.y, targetPosition.z)
 								.ease(Linear.INOUT)
 								.setCallback(new TweenCallback() {
 									@Override
@@ -175,8 +178,9 @@ public class MobComponent implements Component {
 						}
 
 						@Override
-						public void onLoop(AnimationController.AnimationDesc animation) {}
-					}, 1.0f);
+						public void onLoop(AnimationController.AnimationDesc animation) {
+						}
+					});
 
 					return true;
 				}
@@ -186,29 +190,30 @@ public class MobComponent implements Component {
 		ATTACK_POST() {
 			/**
 			 * Initiates the attack.post animation and ATTACK_POST state.
-			 * @param ai
+			 * @param mob
 			 * @param telegram
 			 * @return
 			 */
 			@Override
-			public boolean onMessage(MobComponent ai, Telegram telegram) {
+			public boolean onMessage(Entity mob, Telegram telegram) {
 				if (telegram.message == Messages.ATTACK_POST) {
 					Gdx.app.log("onMessage", "ATTACK_POST");
 
 					validateMessageDataOrExit(telegram.extraInfo, Messages.TargetMessageData.class);
 					final Messages.TargetMessageData messageData = (Messages.TargetMessageData) telegram.extraInfo;
-					final StateMachine<MobComponent, MobState> stateMachine = ai.stateMachine;
+					final StateMachine<Entity, MobState> stateMachine = Mappers.MOB.get(mob).stateMachine;
 					final ModelInstanceComponent mic = Mappers.MODEL_INSTANCE.get(messageData.actor);
 
-					mic.controller.animate("skeleton|attack.post", 1, 1.0f, new AnimationController.AnimationListener() {
+					mic.controller.setAnimation("skeleton|attack.post", new AnimationController.AnimationListener() {
 						@Override
 						public void onEnd(AnimationController.AnimationDesc animation) {
 							MessageManager.getInstance().dispatchMessage(stateMachine, stateMachine, Messages.REST, messageData);
 						}
 
 						@Override
-						public void onLoop(AnimationController.AnimationDesc animation) {}
-					}, 1.0f);
+						public void onLoop(AnimationController.AnimationDesc animation) {
+						}
+					});
 					return true;
 				}
 				return false;
@@ -218,32 +223,32 @@ public class MobComponent implements Component {
 			/**
 			 * Global message handler. Activates states when their message type is received
 			 * and passes the telegram to their handlers.
-			 * @param ai
+			 * @param mob
 			 * @param telegram
 			 * @return
 			 */
 			@Override
-			public boolean onMessage(MobComponent ai, Telegram telegram) {
+			public boolean onMessage(Entity mob, Telegram telegram) {
 				switch (telegram.message) {
 					case Messages.TARGET_ACQUIRED:
-						ai.stateMachine.changeState(TARGETING);
-						TARGETING.onMessage(ai, telegram);
+						Mappers.MOB.get(mob).stateMachine.changeState(TARGETING);
+						TARGETING.onMessage(mob, telegram);
 						break;
 					case Messages.ATTACK_PRE:
-						ai.stateMachine.changeState(ATTACK_PRE);
-						ATTACK_PRE.onMessage(ai, telegram);
+						Mappers.MOB.get(mob).stateMachine.changeState(ATTACK_PRE);
+						ATTACK_PRE.onMessage(mob, telegram);
 						break;
 					case Messages.ATTACK:
-						ai.stateMachine.changeState(ATTACK);
-						ATTACK.onMessage(ai, telegram);
+						Mappers.MOB.get(mob).stateMachine.changeState(ATTACK);
+						ATTACK.onMessage(mob, telegram);
 						break;
 					case Messages.ATTACK_POST:
-						ai.stateMachine.changeState(ATTACK_POST);
-						ATTACK_POST.onMessage(ai, telegram);
+						Mappers.MOB.get(mob).stateMachine.changeState(ATTACK_POST);
+						ATTACK_POST.onMessage(mob, telegram);
 						break;
 					case Messages.REST:
-						ai.stateMachine.changeState(REST);
-						REST.onMessage(ai, telegram);
+						Mappers.MOB.get(mob).stateMachine.changeState(REST);
+						REST.onMessage(mob, telegram);
 						break;
 					default:
 						break;
@@ -262,16 +267,16 @@ public class MobComponent implements Component {
 		}
 
 		@Override
-		public void enter(MobComponent ai) {}
+		public void enter(Entity mob) {}
 
 		@Override
-		public void update(MobComponent ai) {}
+		public void update(Entity mob) {}
 
 		@Override
-		public void exit(MobComponent ai) {}
+		public void exit(Entity mob) {}
 
 		@Override
-		public boolean onMessage(MobComponent ai, Telegram telegram) { return false; }
+		public boolean onMessage(Entity mob, Telegram telegram) { return false; }
 
 		/**
 		 * Sets up data to face a target and executes a Tween

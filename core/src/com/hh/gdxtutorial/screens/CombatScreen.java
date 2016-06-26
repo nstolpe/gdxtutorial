@@ -67,7 +67,7 @@ public class CombatScreen extends FpsScreen {
 		modelBatchRenderer = new ModelBatchRenderer(modelBatch, camera, environment);
 		modelBatchRenderer.setProcessing(false);
 
-		// gets rid of the moire effect
+		// gets rid of the ane effect
 		ModelLoader.ModelParameters texParam = new ModelLoader.ModelParameters();
 		texParam.textureParameter.minFilter = Texture.TextureFilter.MipMapLinearNearest;
 		texParam.textureParameter.genMipMaps = true;
@@ -165,8 +165,14 @@ public class CombatScreen extends FpsScreen {
 				.add(new ModelInstanceComponent(instance))
 				.add(new InitiativeComponent(MathUtils.random(10)))
 				.add(new HealthComponent(MathUtils.random(6, 10)))
-				.add(new EffectsComponent().addEffect("blast", effect))
-				.add(player ? new PlayerComponent() : new MobComponent());
+				.add(new EffectsComponent().addEffect("blast", effect));
+		if (player) {
+			entity.add(new PlayerComponent());
+		} else {
+			MobComponent mob = new MobComponent();
+			mob.initStatMachine(entity);
+			entity.add(mob);
+		}
 		engine.addEntity(entity);
 	}
 
