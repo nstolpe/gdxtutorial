@@ -39,6 +39,10 @@ public class MobComponent implements Component {
 	public enum MobState implements State<Entity> {
 		REST() {
 			@Override
+			public void update(Entity mob) {
+				System.out.println("blah blah");
+			}
+			@Override
 			public boolean onMessage(Entity mob, Telegram telegram) {
 				Gdx.app.log("onMessage", "REST");
 
@@ -270,7 +274,9 @@ public class MobComponent implements Component {
 		public void enter(Entity mob) {}
 
 		@Override
-		public void update(Entity mob) {}
+		public void update(Entity mob) {
+			System.out.println("bgbg gbgb");
+		}
 
 		@Override
 		public void exit(Entity mob) {}

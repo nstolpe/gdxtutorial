@@ -34,7 +34,6 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	private ImmutableArray<Entity> actors;
 	private Array<Entity> sortedActors = new Array<Entity>();
 	private int activeIndex;
-	private TweenManager tweenManager = new TweenManager();
 	private boolean inTurn = false;
 	public int turnCount = 0;
 	public float attentionRadius = 20.0f;
@@ -139,7 +138,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 			.target(destination.x, destination.y, destination.z)
 			.ease(Linear.INOUT);
 
-		Timeline.createSequence().push(rotate).push(translate).setCallback(callback).start(tweenManager);
+		Timeline.createSequence().push(rotate).push(translate).setCallback(callback).start(Manager.getInstance().tweenManager());
 	}
 	/**
 	 * Passes control of the turn to the next actor in sortedActors
@@ -200,7 +199,6 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	 */
 	@Override
 	public void update (float deltaTime) {
-		tweenManager.update(deltaTime);
 		// @TODO move Manager update to screen, maybe abstract.
 		Manager.getInstance().update(deltaTime);
 
