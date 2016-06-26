@@ -169,8 +169,7 @@ public class CombatScreen extends FpsScreen {
 		if (player) {
 			entity.add(new PlayerComponent());
 		} else {
-			MobComponent mob = new MobComponent();
-			mob.initStatMachine(entity);
+			MobComponent mob = new MobComponent(entity);
 			entity.add(mob);
 		}
 		engine.addEntity(entity);

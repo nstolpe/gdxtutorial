@@ -187,8 +187,8 @@ public class TurnSystemScreen extends FpsScreen {
 				Entity mob = new Entity()
 						.add(new PositionComponent(new Vector3(i * 20, 2, j * 20)))
 						.add(new ModelInstanceComponent(mi))
-						.add(new InitiativeComponent(MathUtils.random(10)))
-						.add(new MobComponent());
+						.add(new InitiativeComponent(MathUtils.random(10)));
+//						.add(new MobComponent());
 				engine.addEntity(mob);
 			}
 		}

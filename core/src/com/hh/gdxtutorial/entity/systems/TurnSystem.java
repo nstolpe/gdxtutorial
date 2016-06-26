@@ -10,13 +10,13 @@ import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
-import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.hh.gdxtutorial.ai.Messages;
+import com.hh.gdxtutorial.ai.states.MobState;
 import com.hh.gdxtutorial.entity.components.*;
 import com.hh.gdxtutorial.helpers.Utility;
 import com.hh.gdxtutorial.singletons.Manager;
@@ -102,9 +102,10 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 		if (validTargets.size == 0) {
 			advanceTurnControl();
 		} else {
-			Mappers.MOB.get(actor);
+			actor.add(new TargetComponent(validTargets.firstValue()));
+//			MessageManager.getInstance().dispatchMessage(this, Mappers.MOB.get(actor).stateMachine, Messages.TARGET_ACQUIRED);
 
-			Mappers.MOB.get(actor).stateMachine.changeState(MobComponent.MobState.TARGETING);
+			Mappers.MOB.get(actor).stateMachine.changeState(MobState.TARGETING);
 			MessageManager.getInstance().dispatchMessage(this, Mappers.MOB.get(actor).stateMachine, Messages.TARGET_ACQUIRED, new Messages.TargetMessageData(actor, validTargets.firstValue()));
 		}
 	}
@@ -201,7 +202,11 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	public void update (float deltaTime) {
 		// @TODO move Manager update to screen, maybe abstract.
 		Manager.getInstance().update(deltaTime);
-
+		for (Entity actor : actors) {
+			if (Mappers.MOB.has(actor)) {
+				Mappers.MOB.get(actor).stateMachine.update();
+			}
+		}
 		if (!inTurn) {
 			inTurn = true;
 			Entity active = sortedActors.get(activeIndex);

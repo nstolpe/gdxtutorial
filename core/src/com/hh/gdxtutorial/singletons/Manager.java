@@ -3,7 +3,7 @@ package com.hh.gdxtutorial.singletons;
 import aurelienribon.tweenengine.TweenManager;
 
 /**
- * Created by nils on 6/24/16.
+ * Singleton that lazy loads various classes that can be used globally.
  */
 public class Manager {
 	private static Manager instance = new Manager();

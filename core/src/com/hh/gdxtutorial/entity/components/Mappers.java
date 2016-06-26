@@ -15,4 +15,5 @@ public class Mappers {
 	public static final ComponentMapper<PlayerComponent>        PLAYER         = ComponentMapper.getFor(PlayerComponent.class);
 	public static final ComponentMapper<MobComponent>           MOB            = ComponentMapper.getFor(MobComponent.class);
 	public static final ComponentMapper<EffectsComponent>       EFFECTS        = ComponentMapper.getFor(EffectsComponent.class);
+	public static final ComponentMapper<TargetComponent>        TARGET         = ComponentMapper.getFor(TargetComponent.class);
 }
