@@ -12,6 +12,7 @@ import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
@@ -41,21 +42,25 @@ public enum MobState implements State<Entity> {
 		public void update(Entity mob) {
 		}
 	},
+	ACTIVE() {
+		@Override
+		public void enter(Entity mob) {
+			Vector3 actorPosition = Mappers.POSITION.get(mob).position();
+			Quaternion actorRotation = Mappers.ROTATION.get(mob).rotation();
+			Vector3 targetPosition = new Vector3(MathUtils.random(-20, 20), 0, MathUtils.random(-20, 20));
+		}
+	},
 	TARGETING() {
 		@Override
 		public void enter(Entity mob) {
-			if (!Mappers.TARGET.has(mob)) {
-				Mappers.MOB.get(mob).stateMachine.changeState(REST);
-			} else {
-				final StateMachine<Entity, MobState> stateMachine = Mappers.MOB.get(mob).stateMachine;
-				TweenCallback callback = new TweenCallback() {
-					@Override
-					public void onEvent(int i, BaseTween<?> baseTween) {
-						stateMachine.changeState(ATTACK_PRE);
-					}
-				};
-				faceTarget(mob, Mappers.TARGET.get(mob).target, callback);
-			}
+			final StateMachine<Entity, MobState> stateMachine = Mappers.MOB.get(mob).stateMachine;
+			TweenCallback callback = new TweenCallback() {
+				@Override
+				public void onEvent(int i, BaseTween<?> baseTween) {
+					stateMachine.changeState(ATTACK_PRE);
+				}
+			};
+			faceTarget(mob, Mappers.TARGET.get(mob).target, callback);
 		}
 	},
 	ATTACK_PRE() {
@@ -123,6 +128,7 @@ public enum MobState implements State<Entity> {
 				new AnimationController.AnimationListener() {
 					@Override
 					public void onEnd(AnimationController.AnimationDesc animation) {
+						mob.remove(TargetComponent.class);
 						// @TODO move Tween out.
 						Tween.to(blast.position,
 							Vector3Accessor.XYZ,
@@ -138,22 +144,25 @@ public enum MobState implements State<Entity> {
 								}
 							})
 							.start(Manager.getInstance().tweenManager());
-						stateMachine.changeState(REST);
-						mob.remove(TargetComponent.class);
+//						stateMachine.changeState(REST);
+//						mob.remove(TargetComponent.class);
 					}
 
 					@Override
 					public void onLoop(AnimationController.AnimationDesc animation) {
 					}
-			});
+				});
 		}
 		@Override
 		public void update(Entity mob) {
-			final ModelInstanceComponent modelInstanceComponent = Mappers.MODEL_INSTANCE.get(mob);
-			final EffectsComponent.Effect blast = Mappers.EFFECTS.get(mob).getEffect("blast");
+			// projectile has been launched if there's no target, so the Tween will take over.
+			if (Mappers.TARGET.has(mob)) {
+				final ModelInstanceComponent modelInstanceComponent = Mappers.MODEL_INSTANCE.get(mob);
+				final EffectsComponent.Effect blast = Mappers.EFFECTS.get(mob).getEffect("blast");
 
-			Matrix4 attachmentMatrix = modelInstanceComponent.instance.transform.cpy().mul(modelInstanceComponent.instance.getNode("attach.projectile").globalTransform);
-			blast.position = attachmentMatrix.getTranslation(blast.position);
+				Matrix4 attachmentMatrix = modelInstanceComponent.instance.transform.cpy().mul(modelInstanceComponent.instance.getNode("attach.projectile").globalTransform);
+				blast.position = attachmentMatrix.getTranslation(blast.position);
+			}
 		}
 	},
 	GLOBAL() {

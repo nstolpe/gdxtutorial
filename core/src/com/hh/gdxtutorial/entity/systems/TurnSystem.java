@@ -20,6 +20,7 @@ import com.hh.gdxtutorial.ai.states.MobState;
 import com.hh.gdxtutorial.entity.components.*;
 import com.hh.gdxtutorial.helpers.Utility;
 import com.hh.gdxtutorial.singletons.Manager;
+import com.hh.gdxtutorial.tweenengine.Callbacks;
 import com.hh.gdxtutorial.tweenengine.accessors.QuaternionAccessor;
 import com.hh.gdxtutorial.tweenengine.accessors.SlerpTween;
 import com.hh.gdxtutorial.tweenengine.accessors.Vector3Accessor;
@@ -38,20 +39,6 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	public int turnCount = 0;
 	public float attentionRadius = 20.0f;
 
-	private TweenCallback advanceTurnCallback = new TweenCallback() {
-		@Override
-		public void onEvent(int type, BaseTween<?> source) {
-			switch (type) {
-				case COMPLETE:
-//					Mappers.EFFECTS.get(sortedActors.get(activeIndex)).getEffect("blast").emitter.setEmissionMode(RegularEmitter.EmissionMode.EnabledUntilCycleEnd);
-					MessageManager.getInstance().dispatchMessage(0, Messages.ADVANCE_TURN_CONTROL);
-					break;
-				default:
-					assert false;
-					break;
-			}
-		}
-	};
 	private TweenCallback scanForTargetsCallback = new TweenCallback() {
 		@Override
 		public void onEvent(int type, BaseTween<?> source) {
@@ -60,7 +47,6 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 					getValidTargets(sortedActors.get(activeIndex));
 					break;
 				default:
-					assert false;
 					break;
 			}
 		}
@@ -98,11 +84,11 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 				return o1 > o2 ? 1 : o1 == o2 ? 0 : -1;
 			}
 		});
-
+System.out.println(keys);
 		if (validTargets.size == 0) {
 			advanceTurnControl();
 		} else {
-			actor.add(new TargetComponent(validTargets.firstValue()));
+			actor.add(new TargetComponent(validTargets.get(keys.first())));
 			Mappers.MOB.get(actor).stateMachine.changeState(MobState.TARGETING);
 		}
 	}
@@ -199,11 +185,15 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	public void update (float deltaTime) {
 		// @TODO move Manager update to screen, maybe abstract.
 		Manager.getInstance().update(deltaTime);
+
+		// update the state machine of each actor
 		for (Entity actor : actors) {
 			if (Mappers.MOB.has(actor)) {
 				Mappers.MOB.get(actor).stateMachine.update();
 			}
 		}
+		// if a turn has just ended,  update the active
+		// actor and start a new one.
 		if (!inTurn) {
 			inTurn = true;
 			Entity active = sortedActors.get(activeIndex);
@@ -234,7 +224,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 				targetPosition.y = 0;
 				// remove the listener for INTERACT_TOUCH
 				MessageManager.getInstance().removeListener(this, Messages.INTERACT_TOUCH);
-				startTurnAction(actorPosition, actorRotation, targetPosition, advanceTurnCallback);
+				startTurnAction(actorPosition, actorRotation, targetPosition, Callbacks.dispatchMessageCallback(Messages.ADVANCE_TURN_CONTROL));
 				break;
 			default:
 				return false;
