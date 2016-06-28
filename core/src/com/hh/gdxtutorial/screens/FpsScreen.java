@@ -63,7 +63,6 @@ public abstract class FpsScreen extends AbstractScreen {
 		label = new Label(" ", new Label.LabelStyle(font, Color.WHITE));
 		buttonStyle = new TextButton.TextButtonStyle();
 		buttonStyle.font = font;
-//		font.getData().setScale(2.0f, 2.0f);
 		buttonStyle.fontColor = new Color(1.0f, 0.0f, 0.0f, 1.0f);
 		mainMenuScreenButton = new TextButton("MainMenuScreen", buttonStyle);
 
