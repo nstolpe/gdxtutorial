@@ -1,5 +1,6 @@
 package com.hh.gdxtutorial.helpers;
 
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 
@@ -42,5 +43,12 @@ public class Utility {
 		if (angle < 0.000000001f) return new Quaternion(rotation);
 
 		return new Quaternion().setFromCross(zAxis, direction);
+	}
+	public static Quaternion getRotTo(Vector3 origin, Vector3 target, Quaternion rotation) {
+		Vector3 nx = new Vector3(), ny = new Vector3(), nz = new Vector3();
+		nz.set(target).sub(origin).nor();
+		nx.set(nz).crs(Vector3.Y.cpy()).nor();
+		ny.set(nz).crs(nx).nor();
+		return new Matrix4().set(nx, ny, nz, Vector3.Zero).getRotation(new Quaternion());
 	}
 }

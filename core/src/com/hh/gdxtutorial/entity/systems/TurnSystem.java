@@ -109,11 +109,12 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	 * @TODO Move this to a Tween Library. Tweens.Vector3.Position(start, end, duration)
 	 */
 	private void startTurnAction(Vector3 position, Quaternion rotation, Vector3 destination, TweenCallback callback) {
-		Quaternion targetRotation = Utility.getRotationTo(position, destination, rotation);
+		Quaternion targetRotation = Utility.getRotTo(position, destination, rotation);
 		Quaternion qd = rotation.cpy().conjugate().mul(targetRotation);
 
 		float angle = 2 * (float) Math.atan2(new Vector3(qd.x, qd.y, qd.z).len(), qd.w);
 
+		rotation.set(targetRotation);
 // angle and acos are the same.
 System.out.println("acos: " + 2 * Math.acos(qd.w));
 System.out.println("angle: " + angle);
@@ -126,7 +127,7 @@ System.out.println("angle: " + angle);
 			.target(destination.x, destination.y, destination.z)
 			.ease(Linear.INOUT);
 
-		Timeline.createSequence().push(rotate).push(translate).setCallback(callback).start(Manager.getInstance().tweenManager());
+//		Timeline.createSequence().push(rotate).push(translate).setCallback(callback).start(Manager.getInstance().tweenManager());
 	}
 	/**
 	 * Passes control of the turn to the next actor in sortedActors
