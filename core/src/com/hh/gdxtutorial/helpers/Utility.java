@@ -46,11 +46,12 @@ public class Utility {
 	}
 	public static Quaternion getRotTo(Vector3 origin, Vector3 target) {
 		Vector3 nx = new Vector3(), ny = new Vector3(), nz = new Vector3();
-		// set nz to direction between origin and target
+		// set nz to direction from origin to target
 		nz.set(target).sub(origin).nor();
 
 		nx.set(nz).crs(Vector3.Y).nor();
 		ny.set(nz).crs(nx).nor();
+
 		return new Matrix4().set(nx, ny, nz, Vector3.Zero).getRotation(new Quaternion());
 //		Vector3 nx = new Vector3(), ny = new Vector3(), nz = new Vector3();
 //		nz.set(target).sub(origin).nor();

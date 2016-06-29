@@ -1,7 +1,7 @@
 package com.hh.gdxtutorial.entity.systems;
 
 import aurelienribon.tweenengine.*;
-import aurelienribon.tweenengine.equations.Linear;
+import aurelienribon.tweenengine.equations.*;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
@@ -109,22 +109,23 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	 * @TODO Move this to a Tween Library. Tweens.Vector3.Position(start, end, duration)
 	 */
 	private void startTurnAction(Vector3 position, Quaternion rotation, Vector3 destination, TweenCallback callback) {
-		Quaternion targetRotation = Utility.getRotTo(position, destination);
+		Quaternion targetRotation = Utility.getRotationTo(position, destination, rotation);
+//		Quaternion targetRotation = Utility.getRotTo(position, destination);
 		Quaternion qd = rotation.cpy().conjugate().mul(targetRotation);
 
 		float angle = 2 * (float) Math.atan2(new Vector3(qd.x, qd.y, qd.z).len(), qd.w);
-
+		if (angle > Math.PI) angle = (float) Math.abs(angle - 2 * Math.PI);
 // angle and acos are the same.
 System.out.println("acos: " + 2 * Math.acos(qd.w));
 System.out.println("angle: " + angle);
 
 		Tween rotate = SlerpTween.to(rotation, QuaternionAccessor.ROTATION, angle / 4)
 			.target(targetRotation.x, targetRotation.y, targetRotation.z, targetRotation.w)
-			.ease(Linear.INOUT);
+			.ease(Quad.INOUT);
 
 		Tween translate = Tween.to(position, Vector3Accessor.XYZ, position.dst(destination) / 16)
 			.target(destination.x, destination.y, destination.z)
-			.ease(Linear.INOUT);
+			.ease(Quad.INOUT);
 
 		Timeline.createSequence().push(rotate).push(translate).setCallback(callback).start(Manager.getInstance().tweenManager());
 	}
