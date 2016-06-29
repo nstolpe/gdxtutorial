@@ -14,6 +14,8 @@ public class Tutorial extends Game implements Telegraph {
 	public void create () {
 		MessageManager.getInstance().addListener(this, Messages.CHANGE_SCREEN);
 		setScreen(new MainMenuScreen());
+		setScreen(new CombatScreen());
+//		setScreen(new SscceScreen());
 	}
 
 	/**
@@ -23,7 +25,6 @@ public class Tutorial extends Game implements Telegraph {
 	 */
 	@Override
 	public boolean handleMessage(Telegram msg) {
-		int a = 5;
 		if (!(msg.extraInfo instanceof Screen)) {
 			// *TODO Throw error. Or at least log warming.
 			return false;

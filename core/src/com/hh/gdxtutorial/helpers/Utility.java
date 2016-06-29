@@ -44,11 +44,20 @@ public class Utility {
 
 		return new Quaternion().setFromCross(zAxis, direction);
 	}
-	public static Quaternion getRotTo(Vector3 origin, Vector3 target, Quaternion rotation) {
+	public static Quaternion getRotTo(Vector3 origin, Vector3 target) {
 		Vector3 nx = new Vector3(), ny = new Vector3(), nz = new Vector3();
+		// set nz to direction between origin and target
 		nz.set(target).sub(origin).nor();
-		nx.set(nz).crs(Vector3.Y.cpy()).nor();
+
+		nx.set(nz).crs(Vector3.Y).nor();
 		ny.set(nz).crs(nx).nor();
 		return new Matrix4().set(nx, ny, nz, Vector3.Zero).getRotation(new Quaternion());
+//		Vector3 nx = new Vector3(), ny = new Vector3(), nz = new Vector3();
+//		nz.set(target).sub(origin).nor();
+
+//		nx.set(Vector3.Y).crs(nz).nor();
+//		ny.set(nx).crs(nz).nor();
+
+//		return new Matrix4().set(nx, ny, nz, Vector3.Zero).getRotation(new Quaternion());
 	}
 }
