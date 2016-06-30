@@ -241,6 +241,7 @@ public class CombatScreen extends FpsScreen {
 		Entity entity = new Entity()
 				.add(new PositionComponent(new Vector3(x, 0, z)))
 				.add(new RotationComponent(new Quaternion()))
+				.add(new DirectionComponent(new Vector3(0, 0, -1)))
 				.add(new ModelInstanceComponent(instance))
 				.add(new InitiativeComponent(MathUtils.random(10)))
 				.add(new HealthComponent(MathUtils.random(6, 10)))

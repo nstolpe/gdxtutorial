@@ -96,25 +96,26 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 		MessageManager.getInstance().addListener(this, Messages.INTERACT_TOUCH);
 	}
 	public void startMobTurn(Entity actor) {
-		Vector3 actorPosition = Mappers.POSITION.get(actor).position();
-		Quaternion actorRotation = Mappers.ROTATION.get(actor).rotation();
 		Vector3 targetPosition = new Vector3(MathUtils.random(-20, 20), 0, MathUtils.random(-20, 20));
-		startTurnAction(actorPosition, actorRotation, targetPosition, scanForTargetsCallback);
+		startTurnAction(actor, targetPosition, scanForTargetsCallback);
 	}
 	/**
 	 * Sets up and starts a tween from Vector3 position to Vector3 destination for float duration.
-	 * @param position     Starting Vector3 for tween
-	 * @param rotation     Starting Quaternion for tween
 	 * @param destination  Ending Vector3 for tween
 	 * @TODO Move this to a Tween Library. Tweens.Vector3.Position(start, end, duration)
 	 */
-	private void startTurnAction(Vector3 position, Quaternion rotation, Vector3 destination, TweenCallback callback) {
-		Quaternion targetRotation = Utility.getRotationTo(position, destination, rotation);
-//		Quaternion targetRotation = Utility.getRotTo(position, destination);
+	private void startTurnAction(Entity actor, Vector3 destination, TweenCallback callback) {
+//		Quaternion targetRotation = Utility.getRotationTo(position, destination, rotation);
+		Vector3 position = Mappers.POSITION.get(actor).position();
+		Vector3 direction = Mappers.DIRECTION.get(actor).direction();
+		Quaternion rotation = Mappers.ROTATION.get(actor).rotation();
+
+		Quaternion targetRotation = Utility.getRotTo(direction, position, destination);
 		Quaternion qd = rotation.cpy().conjugate().mul(targetRotation);
 
 		float angle = 2 * (float) Math.atan2(new Vector3(qd.x, qd.y, qd.z).len(), qd.w);
 		if (angle > Math.PI) angle = (float) Math.abs(angle - 2 * Math.PI);
+
 // angle and acos are the same.
 System.out.println("acos: " + 2 * Math.acos(qd.w));
 System.out.println("angle: " + angle);
@@ -221,15 +222,13 @@ System.out.println("angle: " + angle);
 				advanceTurnControl();
 				break;
 			case Messages.INTERACT_TOUCH:
-				Vector3 actorPosition = Mappers.POSITION.get(sortedActors.get(activeIndex)).position();
-				Quaternion actorRotation = Mappers.ROTATION.get(sortedActors.get(activeIndex)).rotation();
 				// msg.extraInfo holds the x and z coords.
 				// y is set to 0 since there's no height yet.
 				Vector3 targetPosition = (Vector3) msg.extraInfo;
 				targetPosition.y = 0;
 				// remove the listener for INTERACT_TOUCH
 				MessageManager.getInstance().removeListener(this, Messages.INTERACT_TOUCH);
-				startTurnAction(actorPosition, actorRotation, targetPosition, Callbacks.dispatchMessageCallback(Messages.ADVANCE_TURN_CONTROL));
+				startTurnAction(sortedActors.get(activeIndex), targetPosition, Callbacks.dispatchMessageCallback(Messages.ADVANCE_TURN_CONTROL));
 				break;
 			default:
 				return false;

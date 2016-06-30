@@ -82,7 +82,7 @@ public class SscceScreen extends FpsScreen {
 
 		instances.add(character);
 		instances.add(new ModelInstance(assetManager.get("models/plane.g3dj", Model.class)));
-		rotation = Utility.getRotTo(character.transform.getTranslation(new Vector3()), new Vector3(5,0,5));
+		rotation = Utility.getRotTo(new Vector3(0,0,-1), new Vector3(0,0,0), new Vector3(5,0,5));
 	}
 
 	@Override
@@ -92,7 +92,7 @@ public class SscceScreen extends FpsScreen {
 		camController.update();
 		MessageManager.getInstance().update();
 
-		character.transform.set(character.transform.getTranslation(new Vector3()), rotation);
+		character.transform.set(new Vector3(0,0,0), rotation);
 
 		modelBatch.begin(camera);
 		modelBatch.render(instances, environment);
