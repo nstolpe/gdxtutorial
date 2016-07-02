@@ -8,6 +8,7 @@ import com.badlogic.gdx.ai.fsm.State;
 import com.badlogic.gdx.ai.fsm.StateMachine;
 import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegram;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.MathUtils;
@@ -129,7 +130,9 @@ public enum MobState implements State<Entity> {
 		public void enter(final Entity mob) {
 			final StateMachine<Entity, MobState> stateMachine = Mappers.MOB.get(mob).stateMachine;
 			final Vector3 position = Mappers.POSITION.get(mob).position;
-			final Vector3 targetPosition = Mappers.POSITION.get(Mappers.TARGET.get(mob).target).position;
+			final Entity target = Mappers.TARGET.get(mob).target;
+			final ModelInstanceComponent targetInstanceComponent = Mappers.MODEL_INSTANCE.get(target);
+			final Vector3 targetPosition = targetInstanceComponent.instance.transform.cpy().mul(targetInstanceComponent.instance.getNode("impact.main").globalTransform).getTranslation(new Vector3());
 			final EffectsComponent.Effect blast = Mappers.EFFECTS.get(mob).getEffect("blast");
 
 			// set the animation to skeleton|attack.post
