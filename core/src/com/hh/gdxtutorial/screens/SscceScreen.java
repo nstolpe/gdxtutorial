@@ -20,10 +20,7 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader;
 import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Quaternion;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -82,7 +79,7 @@ public class SscceScreen extends FpsScreen {
 
 		instances.add(character);
 		instances.add(new ModelInstance(assetManager.get("models/plane.g3dj", Model.class)));
-		rotation = Utility.getRotTo(new Vector3(0,0,-1), new Vector3(0,0,0), new Vector3(5,0,5));
+		rotation = Utility.getRotTo(new Vector3(0,0,0), new Vector3(5,0,5));
 	}
 
 	@Override

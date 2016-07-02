@@ -110,7 +110,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 		Vector3 direction = Mappers.DIRECTION.get(actor).direction();
 		Quaternion rotation = Mappers.ROTATION.get(actor).rotation();
 
-		Quaternion targetRotation = Utility.getRotTo(direction, position, destination);
+		Quaternion targetRotation = Utility.getRotTo(position, destination);
 		Quaternion qd = rotation.cpy().conjugate().mul(targetRotation);
 
 		float angle = 2 * (float) Math.atan2(new Vector3(qd.x, qd.y, qd.z).len(), qd.w);
@@ -225,7 +225,7 @@ System.out.println("angle: " + angle);
 				// msg.extraInfo holds the x and z coords.
 				// y is set to 0 since there's no height yet.
 				Vector3 targetPosition = (Vector3) msg.extraInfo;
-				targetPosition.y = 0;
+				targetPosition.y = 10;
 				// remove the listener for INTERACT_TOUCH
 				MessageManager.getInstance().removeListener(this, Messages.INTERACT_TOUCH);
 				startTurnAction(sortedActors.get(activeIndex), targetPosition, Callbacks.dispatchMessageCallback(Messages.ADVANCE_TURN_CONTROL));
