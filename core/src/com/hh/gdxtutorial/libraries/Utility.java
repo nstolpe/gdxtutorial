@@ -1,4 +1,4 @@
-package com.hh.gdxtutorial.helpers;
+package com.hh.gdxtutorial.libraries;
 
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
@@ -14,7 +14,7 @@ public class Utility {
 	 * @param target Vector to be faced.
 	 * @return
 	 */
-	public static Quaternion getRotTo(Vector3 origin, Vector3 target) {
+	public static Quaternion facingRotation(Vector3 origin, Vector3 target) {
 		Vector3 x = new Vector3(), y = new Vector3(), z = new Vector3();
 		// set nz to direction from origin to target
 		z.set(target).sub(origin).nor();
@@ -34,6 +34,11 @@ public class Utility {
 		return new Matrix4(values).getRotation(new Quaternion());
 	}
 
+	public static float magnitude(Quaternion origin, Quaternion target) {
+		Quaternion difference = origin.cpy().conjugate().mul(target);
+		float angle = (float) (2 * Math.acos(difference.w));
+		return angle > Math.PI ? (float) Math.abs(angle - 2 * Math.PI) : angle;
+	}
 	/**
 	 * Original example code from Xoppa on irc. Doesn't achieve correct rotation.
 	 * @param origin

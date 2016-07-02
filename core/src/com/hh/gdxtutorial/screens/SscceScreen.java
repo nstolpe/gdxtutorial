@@ -1,43 +1,20 @@
 package com.hh.gdxtutorial.screens;
 
-import com.badlogic.ashley.core.Engine;
-import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.ModelLoader;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
-import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader;
-import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter;
 import com.badlogic.gdx.math.*;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.hh.gdxtutorial.ai.Messages;
-import com.hh.gdxtutorial.entity.components.*;
-import com.hh.gdxtutorial.entity.systems.ModelBatchRenderer;
-import com.hh.gdxtutorial.entity.systems.TurnSystem;
-import com.hh.gdxtutorial.helpers.Utility;
-import com.hh.gdxtutorial.screens.FpsScreen;
-import com.hh.gdxtutorial.screens.MainMenuScreen;
+import com.hh.gdxtutorial.libraries.Utility;
 import com.hh.gdxtutorial.screens.input.DemoInputController;
 import com.hh.gdxtutorial.shaders.PerPixelShaderProvider;
 
@@ -79,7 +56,7 @@ public class SscceScreen extends FpsScreen {
 
 		instances.add(character);
 		instances.add(new ModelInstance(assetManager.get("models/plane.g3dj", Model.class)));
-		rotation = Utility.getRotTo(new Vector3(0,0,0), new Vector3(5,0,5));
+		rotation = Utility.facingRotation(new Vector3(0, 0, 0), new Vector3(5, 0, 5));
 	}
 
 	@Override
@@ -89,7 +66,7 @@ public class SscceScreen extends FpsScreen {
 		camController.update();
 		MessageManager.getInstance().update();
 
-		character.transform.set(new Vector3(0,0,0), rotation);
+		character.transform.set(new Vector3(0, 0, 0), rotation);
 
 		modelBatch.begin(camera);
 		modelBatch.render(instances, environment);

@@ -1,4 +1,4 @@
-package com.hh.gdxtutorial.tweenengine.accessors;
+package com.hh.gdxtutorial.libraries.tweenengine.accessors;
 
 import aurelienribon.tweenengine.Pool;
 import aurelienribon.tweenengine.Tween;

@@ -1,4 +1,4 @@
-package com.hh.gdxtutorial.tweenengine;
+package com.hh.gdxtutorial.libraries.tweenengine;
 
 import aurelienribon.tweenengine.BaseTween;
 import aurelienribon.tweenengine.TweenCallback;

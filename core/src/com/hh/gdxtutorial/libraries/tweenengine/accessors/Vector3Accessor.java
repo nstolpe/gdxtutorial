@@ -1,4 +1,4 @@
-package com.hh.gdxtutorial.tweenengine.accessors;
+package com.hh.gdxtutorial.libraries.tweenengine.accessors;
 
 import aurelienribon.tweenengine.TweenAccessor;
 import com.badlogic.gdx.math.Vector3;

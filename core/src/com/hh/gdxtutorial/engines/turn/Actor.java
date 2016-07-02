@@ -12,7 +12,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.hh.gdxtutorial.ai.Messages;
-import com.hh.gdxtutorial.tweenengine.accessors.Vector3Accessor;
+import com.hh.gdxtutorial.libraries.tweenengine.accessors.Vector3Accessor;
 
 public class Actor implements Telegraph {
 	public static final int PLAYER = 0;

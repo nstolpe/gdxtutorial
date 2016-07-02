@@ -18,12 +18,12 @@ import com.badlogic.gdx.utils.ArrayMap;
 import com.hh.gdxtutorial.ai.Messages;
 import com.hh.gdxtutorial.ai.states.MobState;
 import com.hh.gdxtutorial.entity.components.*;
-import com.hh.gdxtutorial.helpers.Utility;
+import com.hh.gdxtutorial.libraries.Utility;
+import com.hh.gdxtutorial.libraries.tweenengine.Tweens;
 import com.hh.gdxtutorial.singletons.Manager;
-import com.hh.gdxtutorial.tweenengine.Callbacks;
-import com.hh.gdxtutorial.tweenengine.accessors.QuaternionAccessor;
-import com.hh.gdxtutorial.tweenengine.accessors.SlerpTween;
-import com.hh.gdxtutorial.tweenengine.accessors.Vector3Accessor;
+import com.hh.gdxtutorial.libraries.tweenengine.Callbacks;
+import com.hh.gdxtutorial.libraries.tweenengine.accessors.QuaternionAccessor;
+import com.hh.gdxtutorial.libraries.tweenengine.accessors.Vector3Accessor;
 
 import java.util.Comparator;
 
@@ -105,28 +105,13 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	 * @TODO Move this to a Tween Library. Tweens.Vector3.Position(start, end, duration)
 	 */
 	private void startTurnAction(Entity actor, Vector3 destination, TweenCallback callback) {
-//		Quaternion targetRotation = Utility.getRotationTo(position, destination, rotation);
 		Vector3 position = Mappers.POSITION.get(actor).position();
 		Quaternion rotation = Mappers.ROTATION.get(actor).rotation();
-
-		Quaternion targetRotation = Utility.getRotTo(position, destination);
-		Quaternion qd = rotation.cpy().conjugate().mul(targetRotation);
-
-		float angle = 2 * (float) Math.atan2(new Vector3(qd.x, qd.y, qd.z).len(), qd.w);
-		angle = angle > Math.PI ? (float) Math.abs(angle - 2 * Math.PI) : angle;
-
-// angle and acos are the same.
-System.out.println("acos: " + 2 * Math.acos(qd.w));
-System.out.println("angle: " + angle);
-
-		Tween rotate = SlerpTween.to(rotation, QuaternionAccessor.ROTATION, angle / 4)
-			.target(targetRotation.x, targetRotation.y, targetRotation.z, targetRotation.w)
-			.ease(Quad.INOUT);
-
-		Tween translate = Tween.to(position, Vector3Accessor.XYZ, position.dst(destination) / 16)
-			.target(destination.x, destination.y, destination.z)
-			.ease(Quad.INOUT);
-
+		Quaternion targetRotation = Utility.facingRotation(position, destination);
+		float speed = Utility.magnitude(rotation, targetRotation);
+		// @TODO make speed divisors come from component.
+		Tween rotate = Tweens.rotateToTween(rotation, targetRotation, speed / 4, Quad.INOUT, null);
+		Tween translate = Tweens.translateToTween(position, destination, position.dst(destination) / 16, Quad.INOUT, null);
 		Timeline.createSequence().push(rotate).push(translate).setCallback(callback).start(Manager.getInstance().tweenManager());
 	}
 	/**
@@ -224,7 +209,7 @@ System.out.println("angle: " + angle);
 				// msg.extraInfo holds the x and z coords.
 				// y is set to 0 since there's no height yet.
 				Vector3 targetPosition = (Vector3) msg.extraInfo;
-				targetPosition.y = 10;
+				targetPosition.y = 0;
 				// remove the listener for INTERACT_TOUCH
 				MessageManager.getInstance().removeListener(this, Messages.INTERACT_TOUCH);
 				startTurnAction(sortedActors.get(activeIndex), targetPosition, Callbacks.dispatchMessageCallback(Messages.ADVANCE_TURN_CONTROL));
