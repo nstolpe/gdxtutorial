@@ -113,7 +113,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 		Quaternion qd = rotation.cpy().conjugate().mul(targetRotation);
 
 		float angle = 2 * (float) Math.atan2(new Vector3(qd.x, qd.y, qd.z).len(), qd.w);
-		if (angle > Math.PI) angle = (float) Math.abs(angle - 2 * Math.PI);
+		angle = angle > Math.PI ? (float) Math.abs(angle - 2 * Math.PI) : angle;
 
 // angle and acos are the same.
 System.out.println("acos: " + 2 * Math.acos(qd.w));

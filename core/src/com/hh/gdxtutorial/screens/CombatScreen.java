@@ -7,10 +7,7 @@ import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.assets.loaders.ModelLoader;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
@@ -23,15 +20,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.hh.gdxtutorial.ai.Messages;
 import com.hh.gdxtutorial.entity.components.*;
 import com.hh.gdxtutorial.entity.systems.ModelBatchRenderer;
@@ -56,9 +45,6 @@ public class CombatScreen extends FpsScreen {
 	// particle @TODO should come from config.
 	private ParticleEffect blastRed;
 	private ParticleEffect blastBlue;
-	private TextField xTextfield;
-	private TextField yTextfield;
-	private TextField zTextfield;
 
 	/**
 	 * Setup input, 3d environment, the modelBatch and the modelBatchRenderer.assetManager.
@@ -100,76 +86,10 @@ public class CombatScreen extends FpsScreen {
 	 */
 	@Override
 	public void initStage() {
-		stage = new Stage(new ScreenViewport());
-		font = new BitmapFont();
-		label = new Label(" ", new Label.LabelStyle(font, Color.WHITE));
-		buttonStyle = new TextButton.TextButtonStyle();
-		buttonStyle.font = font;
-		buttonStyle.fontColor = new Color(1.0f, 0.0f, 0.0f, 1.0f);
-		mainMenuScreenButton = new TextButton("MainMenuScreen", buttonStyle);
-
-		mainMenuScreenButton.addListener(new ClickListener() {
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				MessageManager.getInstance().dispatchMessage(0, Messages.CHANGE_SCREEN, new MainMenuScreen());
-			}
-		});
-
-		table = new Table();
-		table.left().top();
-		table.setFillParent(true);
-
-		table.add(label).colspan(2).left();
-		table.add(mainMenuScreenButton).expandX().right();
-
-		TextField.TextFieldStyle textFieldStyle = new TextField.TextFieldStyle();
-		textFieldStyle.font = font;
-		textFieldStyle.fontColor = Color.BLACK;
-		Pixmap pm = new Pixmap(1, 1, Pixmap.Format.RGB565);
-		pm.setColor(Color.WHITE);
-		pm.fill();
-		textFieldStyle.background = new TextureRegionDrawable(new TextureRegion(new Texture(pm)));
-		Label xLabel = new Label("x: ", new Label.LabelStyle(font, Color.WHITE));
-		Label yLabel = new Label("y: ", new Label.LabelStyle(font, Color.WHITE));
-		Label zLabel = new Label("z: ", new Label.LabelStyle(font, Color.WHITE));
-		xTextfield = new TextField("", textFieldStyle);
-		yTextfield = new TextField("", textFieldStyle);
-		zTextfield = new TextField("", textFieldStyle);
-
-		final TextButton setButton = new TextButton("set", buttonStyle);
-		setButton.addListener(new ClickListener() {
-			@Override
-			public void clicked(InputEvent event, float a, float b) {
-				float x = xTextfield.getText().isEmpty() || false == true? 0 : Float.parseFloat(xTextfield.getText());
-				float y = yTextfield.getText().isEmpty() ? 0 : Float.parseFloat(yTextfield.getText());
-				float z = zTextfield.getText().isEmpty() ? 0 : Float.parseFloat(zTextfield.getText());
-				MessageManager.getInstance().dispatchMessage(0, Messages.INTERACT_TOUCH, new Vector3(x, y, z));
-				stage.setKeyboardFocus(null);
-			}
-		});
-
-		table.row().padBottom(5).padLeft(5);
-		table.add(xLabel).width(10).left();
-		table.add(xTextfield).width(40).left();
-
-		table.row().padBottom(5).padLeft(5);
-		table.add(yLabel).width(10).left();
-		table.add(yTextfield).width(40).left();
-
-		table.row().padBottom(5).padLeft(5);
-		table.add(zLabel).width(10).left();
-		table.add(zTextfield).width(40).left();
-
-		table.row().width(50);
-		table.add(setButton).colspan(2).width(30).center();
-
-		table.row();
+		super.initStage();
 		turnLabel = new Label(" ", new Label.LabelStyle(font, Color.WHITE));
 		table.row();
-		table.add(turnLabel).expandY().bottom().colspan(2).left();
-
-//		table.debug();
-		stage.addActor(table);
+		table.add(turnLabel).expandY().bottom();
 	}
 	@Override
 	public void render(float delta) {
@@ -222,10 +142,11 @@ public class CombatScreen extends FpsScreen {
 
 		blastBlue = modelBatchRenderer.assetManager.get("effects/blast.blue.pfx", ParticleEffect.class);
 
-//		for (int i = -1; i <= 1; i += 2)
-//			for (int j = -1; j <= 1; j += 2)
-//				createActor("models/mask.ghost.white.g3dj", blastBlue, i * 20, j * 20, false);
+		for (int i = -1; i <= 1; i += 2)
+			for (int j = -1; j <= 1; j += 2)
+				createActor("models/mask.ghost.white.g3dj", blastBlue, i * 20, j * 20, false);
 	}
+
 	/**
 	 * Creates an actor
 	 * @param modelString  String path to the actors model, relative to android/assets.
