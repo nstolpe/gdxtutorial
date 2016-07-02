@@ -121,6 +121,9 @@ public enum MobState implements State<Entity> {
 			blast.position = attachmentMatrix.getTranslation(blast.position);
 		}
 	},
+	/**
+	 * Handles the last animation in the attack chain.
+	 */
 	ATTACK_POST() {
 		@Override
 		public void enter(final Entity mob) {
@@ -129,9 +132,14 @@ public enum MobState implements State<Entity> {
 			final Vector3 targetPosition = Mappers.POSITION.get(Mappers.TARGET.get(mob).target).position;
 			final EffectsComponent.Effect blast = Mappers.EFFECTS.get(mob).getEffect("blast");
 
+			// set the animation to skeleton|attack.post
 			Mappers.MODEL_INSTANCE.get(mob).controller.setAnimation(
 				"skeleton|attack.post",
 				new AnimationController.AnimationListener() {
+					/**
+					 * Shoot the blast at the target.
+					 * @param animation
+					 */
 					@Override
 					public void onEnd(AnimationController.AnimationDesc animation) {
 						mob.remove(TargetComponent.class);

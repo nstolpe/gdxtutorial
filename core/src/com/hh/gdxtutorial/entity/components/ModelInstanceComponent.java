@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.ArrayMap;
 
@@ -14,6 +15,10 @@ public class ModelInstanceComponent implements Component {
 	public ModelInstance instance;
 	public AnimationController controller;
 	public BoundingBox boundingBox;
+	public Vector3 center;
+	public Vector3 dimensions;
+	public float radius;
+
 	// nodes keyed to strings where things can be attached.
 	//
 	private ArrayMap<String, Node> attachmentPoints = new ArrayMap<String, Node>();
@@ -29,6 +34,8 @@ public class ModelInstanceComponent implements Component {
 	 */
 	public ModelInstanceComponent(ModelInstance instance) {
 		this.instance = instance;
+		boundingBox = instance.calculateBoundingBox(new BoundingBox());
+
 		this.controller = new AnimationController(this.instance);
 	}
 	/**

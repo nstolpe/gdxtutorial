@@ -20,6 +20,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.hh.gdxtutorial.ai.Messages;
 import com.hh.gdxtutorial.entity.components.*;
@@ -148,7 +149,7 @@ public class CombatScreen extends FpsScreen {
 	}
 
 	/**
-	 * Creates an actor
+	 * Creates an actor. Needs to come after doneLoading() to ensure assets are loaded.
 	 * @param modelString  String path to the actors model, relative to android/assets.
 	 * @param effectSource ParticleEffect source for the particle effect. Will be copied.
 	 * @param x            x position of the actor.
