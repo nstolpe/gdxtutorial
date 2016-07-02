@@ -8,7 +8,6 @@ import com.badlogic.gdx.ai.fsm.State;
 import com.badlogic.gdx.ai.fsm.StateMachine;
 import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegram;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.MathUtils;
@@ -27,26 +26,24 @@ import com.hh.gdxtutorial.singletons.Manager;
 /**
  * Created by nils on 6/26/16.
  */
-public enum MobState implements State<Entity> {
+public enum PCState implements State<Entity> {
 	// rest state, plays the floating animation
 	REST() {
 		@Override
-		public void enter(Entity mob) {
-			Mappers.MODEL_INSTANCE.get(mob).controller.animate("skeleton|rest", -1, null, 1);
+		public void enter(Entity pc) {
+			Mappers.MODEL_INSTANCE.get(pc).controller.animate("skeleton|rest", -1, null, 1);
 		}
 	},
 	ACTIVE() {
 		@Override
-		public void enter(Entity mob) {
-			Vector3 actorPosition = Mappers.POSITION.get(mob).position();
-			Quaternion actorRotation = Mappers.ROTATION.get(mob).rotation();
+		public void enter(Entity pc) {
 			Vector3 targetPosition = new Vector3(MathUtils.random(-20, 20), 0, MathUtils.random(-20, 20));
 		}
 	},
 	TARGETING() {
 		@Override
-		public void enter(Entity mob) {
-			final StateMachine<Entity, MobState> stateMachine = Mappers.MOB.get(mob).stateMachine;
+		public void enter(Entity pc) {
+			final StateMachine<Entity, PCState> stateMachine = Mappers.PC.get(pc).stateMachine;
 			TweenCallback callback = new TweenCallback() {
 				@Override
 				public void onEvent(int i, BaseTween<?> baseTween) {
@@ -54,9 +51,9 @@ public enum MobState implements State<Entity> {
 				}
 			};
 
-			Entity target = Mappers.TARGET.get(mob).target;
-			Vector3 position = Mappers.POSITION.get(mob).position;
-			Quaternion rotation = Mappers.ROTATION.get(mob).rotation;
+			Entity target = Mappers.TARGET.get(pc).target;
+			Vector3 position = Mappers.POSITION.get(pc).position;
+			Quaternion rotation = Mappers.ROTATION.get(pc).rotation;
 			Vector3 destination = Mappers.POSITION.get(target).position;
 			Quaternion targetRotation = Utility.facingRotation(position, destination);
 			float speed = Utility.magnitude(rotation, targetRotation);
@@ -72,9 +69,9 @@ public enum MobState implements State<Entity> {
 	},
 	ATTACK_PRE() {
 		@Override
-		public void enter(Entity mob) {
-			final StateMachine<Entity, MobState> stateMachine = Mappers.MOB.get(mob).stateMachine;
-			Mappers.MODEL_INSTANCE.get(mob).controller.setAnimation(
+		public void enter(Entity pc) {
+			final StateMachine<Entity, PCState> stateMachine = Mappers.PC.get(pc).stateMachine;
+			Mappers.MODEL_INSTANCE.get(pc).controller.setAnimation(
 				"skeleton|attack.pre",
 				new AnimationController.AnimationListener() {
 					@Override
@@ -90,10 +87,10 @@ public enum MobState implements State<Entity> {
 	},
 	ATTACK() {
 		@Override
-		public void enter(final Entity mob) {
-			final StateMachine<Entity, MobState> stateMachine = Mappers.MOB.get(mob).stateMachine;
-			final ModelInstanceComponent modelInstanceComponent = Mappers.MODEL_INSTANCE.get(mob);
-			final EffectsComponent.Effect blast = Mappers.EFFECTS.get(mob).getEffect("blast");
+		public void enter(final Entity pc) {
+			final StateMachine<Entity, PCState> stateMachine = Mappers.PC.get(pc).stateMachine;
+			final ModelInstanceComponent modelInstanceComponent = Mappers.MODEL_INSTANCE.get(pc);
+			final EffectsComponent.Effect blast = Mappers.EFFECTS.get(pc).getEffect("blast");
 
 			// set the 'blast' effect's position to the model's attach.projectile node
 			Matrix4 attachmentMatrix = modelInstanceComponent.instance.transform.cpy().mul(modelInstanceComponent.instance.getNode("attach.projectile").globalTransform);
@@ -114,9 +111,9 @@ public enum MobState implements State<Entity> {
 		}
 
 		@Override
-		public void update(Entity mob) {
-			final ModelInstanceComponent modelInstanceComponent = Mappers.MODEL_INSTANCE.get(mob);
-			final EffectsComponent.Effect blast = Mappers.EFFECTS.get(mob).getEffect("blast");
+		public void update(Entity pc) {
+			final ModelInstanceComponent modelInstanceComponent = Mappers.MODEL_INSTANCE.get(pc);
+			final EffectsComponent.Effect blast = Mappers.EFFECTS.get(pc).getEffect("blast");
 
 			Matrix4 attachmentMatrix = modelInstanceComponent.instance.transform.cpy().mul(modelInstanceComponent.instance.getNode("attach.projectile").globalTransform);
 			blast.position = attachmentMatrix.getTranslation(blast.position);
@@ -127,16 +124,16 @@ public enum MobState implements State<Entity> {
 	 */
 	ATTACK_POST() {
 		@Override
-		public void enter(final Entity mob) {
-			final StateMachine<Entity, MobState> stateMachine = Mappers.MOB.get(mob).stateMachine;
-			final Vector3 position = Mappers.POSITION.get(mob).position;
-			final Entity target = Mappers.TARGET.get(mob).target;
+		public void enter(final Entity pc) {
+			final StateMachine<Entity, PCState> stateMachine = Mappers.PC.get(pc).stateMachine;
+			final Vector3 position = Mappers.POSITION.get(pc).position;
+			final Entity target = Mappers.TARGET.get(pc).target;
 			final ModelInstanceComponent targetInstanceComponent = Mappers.MODEL_INSTANCE.get(target);
 			final Vector3 targetPosition = targetInstanceComponent.instance.transform.cpy().mul(targetInstanceComponent.instance.getNode("impact.main").globalTransform).getTranslation(new Vector3());
-			final EffectsComponent.Effect blast = Mappers.EFFECTS.get(mob).getEffect("blast");
+			final EffectsComponent.Effect blast = Mappers.EFFECTS.get(pc).getEffect("blast");
 
 			// set the animation to skeleton|attack.post
-			Mappers.MODEL_INSTANCE.get(mob).controller.setAnimation(
+			Mappers.MODEL_INSTANCE.get(pc).controller.setAnimation(
 				"skeleton|attack.post",
 				new AnimationController.AnimationListener() {
 					/**
@@ -145,7 +142,7 @@ public enum MobState implements State<Entity> {
 					 */
 					@Override
 					public void onEnd(AnimationController.AnimationDesc animation) {
-						mob.remove(TargetComponent.class);
+						pc.remove(TargetComponent.class);
 						Tweens.translateToTween(
 							blast.position,
 							targetPosition,
@@ -168,11 +165,11 @@ public enum MobState implements State<Entity> {
 				});
 		}
 		@Override
-		public void update(Entity mob) {
+		public void update(Entity pc) {
 			// projectile has been launched if there's no target, so the Tween will take over.
-			if (Mappers.TARGET.has(mob)) {
-				final ModelInstanceComponent modelInstanceComponent = Mappers.MODEL_INSTANCE.get(mob);
-				final EffectsComponent.Effect blast = Mappers.EFFECTS.get(mob).getEffect("blast");
+			if (Mappers.TARGET.has(pc)) {
+				final ModelInstanceComponent modelInstanceComponent = Mappers.MODEL_INSTANCE.get(pc);
+				final EffectsComponent.Effect blast = Mappers.EFFECTS.get(pc).getEffect("blast");
 
 				Matrix4 attachmentMatrix = modelInstanceComponent.instance.transform.cpy().mul(modelInstanceComponent.instance.getNode("attach.projectile").globalTransform);
 				blast.position = attachmentMatrix.getTranslation(blast.position);
@@ -183,19 +180,19 @@ public enum MobState implements State<Entity> {
 	};
 
 	@Override
-	public void enter(Entity mob) {
+	public void enter(Entity pc) {
 	}
 
 	@Override
-	public void update(Entity mob) {
+	public void update(Entity pc) {
 	}
 
 	@Override
-	public void exit(Entity mob) {
+	public void exit(Entity pc) {
 	}
 
 	@Override
-	public boolean onMessage(Entity mob, Telegram telegram) {
+	public boolean onMessage(Entity pc, Telegram telegram) {
 		return false;
 	}
 }

@@ -20,7 +20,6 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.hh.gdxtutorial.ai.Messages;
 import com.hh.gdxtutorial.entity.components.*;
@@ -168,9 +167,9 @@ public class CombatScreen extends FpsScreen {
 				.add(new HealthComponent(MathUtils.random(6, 10)))
 				.add(new EffectsComponent().addEffect("blast", effect));
 		if (player) {
-			entity.add(new PlayerComponent());
+			entity.add(new PCComponent(entity));
 		} else {
-			MobComponent mob = new MobComponent(entity);
+			NPCComponent mob = new NPCComponent(entity);
 			entity.add(mob);
 		}
 		engine.addEntity(entity);

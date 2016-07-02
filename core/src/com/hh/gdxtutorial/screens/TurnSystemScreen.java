@@ -164,8 +164,8 @@ public class TurnSystemScreen extends FpsScreen {
 		Entity player = new Entity()
 			.add(new PositionComponent(new Vector3(0, 2, 0)))
 			.add(new ModelInstanceComponent(new ModelInstance(assetManager.get("models/mask.ghost.red.g3dj", Model.class))))
-			.add(new InitiativeComponent(MathUtils.random(10)))
-			.add(new PlayerComponent());
+			.add(new InitiativeComponent(MathUtils.random(10)));
+			player.add(new PCComponent(player));
 
 		// @TODO get animation controller to its own spot.
 		controller = new AnimationController(player.getComponent(ModelInstanceComponent.class).instance());
@@ -188,7 +188,7 @@ public class TurnSystemScreen extends FpsScreen {
 						.add(new PositionComponent(new Vector3(i * 20, 2, j * 20)))
 						.add(new ModelInstanceComponent(mi))
 						.add(new InitiativeComponent(MathUtils.random(10)));
-//						.add(new MobComponent());
+//						.add(new NPCComponent());
 				engine.addEntity(mob);
 			}
 		}

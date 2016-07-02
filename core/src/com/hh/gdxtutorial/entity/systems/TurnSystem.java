@@ -16,7 +16,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.hh.gdxtutorial.ai.Messages;
-import com.hh.gdxtutorial.ai.states.MobState;
+import com.hh.gdxtutorial.ai.states.NPCState;
 import com.hh.gdxtutorial.entity.components.*;
 import com.hh.gdxtutorial.libraries.Utility;
 import com.hh.gdxtutorial.libraries.tweenengine.Tweens;
@@ -89,7 +89,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 			advanceTurnControl();
 		} else {
 			actor.add(new TargetComponent(validTargets.get(keys.first())));
-			Mappers.MOB.get(actor).stateMachine.changeState(MobState.TARGETING);
+			Mappers.NPC.get(actor).stateMachine.changeState(NPCState.TARGETING);
 		}
 	}
 	public void startPlayerTurn(Entity actor) {
@@ -150,7 +150,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	public void addedToEngine(Engine engine) {
 		actors = engine.getEntitiesFor(Family
 				.all(InitiativeComponent.class)
-				.one(MobComponent.class, PlayerComponent.class)
+				.one(NPCComponent.class, PCComponent.class)
 				.get());
 
 		if (actors.size() > 0) {
@@ -167,7 +167,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	/**
 	 * Checks if a entity is taking its turn (inTurn) and, if not, starts the turn
 	 * of the next entity.
-	 * @TODO Move MOB and player specific stuff out of here. Have a component handle it. MOB should be pulled in
+	 * @TODO Move NPC and player specific stuff out of here. Have a component handle it. NPC should be pulled in
 	 * from somewhere.
 	 * @param deltaTime
 	 */
@@ -178,8 +178,8 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 
 		// update the state machine of each actor
 		for (Entity actor : actors) {
-			if (Mappers.MOB.has(actor)) {
-				Mappers.MOB.get(actor).stateMachine.update();
+			if (Mappers.NPC.has(actor)) {
+				Mappers.NPC.get(actor).stateMachine.update();
 			}
 		}
 		// if a turn has just ended,  update the active
@@ -188,9 +188,9 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 			inTurn = true;
 			Entity active = sortedActors.get(activeIndex);
 
-			if (Mappers.PLAYER.get(active) != null)
+			if (Mappers.PC.get(active) != null)
 				startPlayerTurn(active);
-			else if (Mappers.MOB.get(active) != null)
+			else if (Mappers.NPC.get(active) != null)
 				startMobTurn(active);
 		}
 	}

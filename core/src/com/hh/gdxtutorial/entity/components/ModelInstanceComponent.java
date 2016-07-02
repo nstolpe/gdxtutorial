@@ -15,8 +15,8 @@ public class ModelInstanceComponent implements Component {
 	public ModelInstance instance;
 	public AnimationController controller;
 	public BoundingBox boundingBox;
-	public Vector3 center;
-	public Vector3 dimensions;
+	public Vector3 center = new Vector3();
+	public Vector3 dimensions = new Vector3();
 	public float radius;
 
 	// nodes keyed to strings where things can be attached.
