@@ -107,7 +107,6 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	private void startTurnAction(Entity actor, Vector3 destination, TweenCallback callback) {
 //		Quaternion targetRotation = Utility.getRotationTo(position, destination, rotation);
 		Vector3 position = Mappers.POSITION.get(actor).position();
-		Vector3 direction = Mappers.DIRECTION.get(actor).direction();
 		Quaternion rotation = Mappers.ROTATION.get(actor).rotation();
 
 		Quaternion targetRotation = Utility.getRotTo(position, destination);
