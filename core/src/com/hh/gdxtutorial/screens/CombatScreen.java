@@ -98,7 +98,7 @@ public class CombatScreen extends FpsScreen {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		camController.update();
 		MessageManager.getInstance().update();
-		engine.update(delta);
+		Manager.getInstance().update(delta);
 
 		if (loading && modelBatchRenderer.assetManager.update()) doneLoading();
 
