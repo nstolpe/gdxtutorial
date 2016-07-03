@@ -62,7 +62,6 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 
 	public void getValidTargets(final Entity actor) {
 		final Vector3 position = Mappers.POSITION.get(actor).position;
-		Quaternion rotation = Mappers.ROTATION.get(actor).rotation;
 		Vector3 tmp;
 
 		// create a map of distances to entitiyes
@@ -96,8 +95,9 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 		MessageManager.getInstance().addListener(this, Messages.INTERACT_TOUCH);
 	}
 	public void startMobTurn(Entity actor) {
-		Vector3 targetPosition = new Vector3(MathUtils.random(-20, 20), 0, MathUtils.random(-20, 20));
-		startTurnAction(actor, targetPosition, scanForTargetsCallback);
+//		Vector3 targetPosition = new Vector3(MathUtils.random(-20, 20), 0, MathUtils.random(-20, 20));
+//		startTurnAction(actor, targetPosition, scanForTargetsCallback);
+		Mappers.NPC.get(actor).stateMachine.changeState(NPCState.EVALUATE);
 	}
 	/**
 	 * Sets up and starts a tween from Vector3 position to Vector3 destination for float duration.

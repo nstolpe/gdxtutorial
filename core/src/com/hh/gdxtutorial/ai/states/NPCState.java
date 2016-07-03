@@ -1,6 +1,8 @@
 package com.hh.gdxtutorial.ai.states;
 
 import aurelienribon.tweenengine.BaseTween;
+import aurelienribon.tweenengine.Timeline;
+import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenCallback;
 import aurelienribon.tweenengine.equations.Quad;
 import com.badlogic.ashley.core.Entity;
@@ -19,6 +21,7 @@ import com.hh.gdxtutorial.entity.components.EffectsComponent;
 import com.hh.gdxtutorial.entity.components.Mappers;
 import com.hh.gdxtutorial.entity.components.ModelInstanceComponent;
 import com.hh.gdxtutorial.entity.components.TargetComponent;
+import com.hh.gdxtutorial.entity.systems.TurnSystem;
 import com.hh.gdxtutorial.libraries.Utility;
 import com.hh.gdxtutorial.libraries.tweenengine.Tweens;
 import com.hh.gdxtutorial.singletons.Manager;
@@ -34,12 +37,32 @@ public enum NPCState implements State<Entity> {
 			Mappers.MODEL_INSTANCE.get(npc).controller.animate("skeleton|rest", -1, null, 1);
 		}
 	},
-	ACTIVE() {
+	EVALUATE() {
 		@Override
 		public void enter(Entity npc) {
-			Vector3 actorPosition = Mappers.POSITION.get(npc).position();
-			Quaternion actorRotation = Mappers.ROTATION.get(npc).rotation();
-			Vector3 targetPosition = new Vector3(MathUtils.random(-20, 20), 0, MathUtils.random(-20, 20));
+			Vector3 position = Mappers.POSITION.get(npc).position();
+			Quaternion rotation = Mappers.ROTATION.get(npc).rotation();
+			Vector3 destination = new Vector3(MathUtils.random(-20, 20), 0, MathUtils.random(-20, 20));
+			Quaternion targetRotation = Utility.facingRotation(position, destination);
+			float speed = Utility.magnitude(rotation, targetRotation);
+			Tween rotate = Tweens.rotateToTween(rotation, targetRotation, speed / 4, Quad.INOUT, null);
+			final Entity fnpc = npc;
+			TweenCallback callback = new TweenCallback() {
+				@Override
+				public void onEvent(int type, BaseTween<?> source) {
+					switch (type) {
+						case COMPLETE:
+							// @TODO go over this again. Bouncing back to the TurnSystem seems kind of weird
+							// but kind of ok.
+							Manager.getInstance().engine().getSystem(TurnSystem.class).getValidTargets(fnpc);
+							break;
+						default:
+							break;
+					}
+				}
+			};
+			Tween translate = Tweens.translateToTween(position, destination, position.dst(destination) / 16, Quad.INOUT, null);
+			Timeline.createSequence().push(rotate).push(translate).setCallback(callback).start(Manager.getInstance().tweenManager());
 		}
 	},
 	TARGETING() {

@@ -1,6 +1,7 @@
 package com.hh.gdxtutorial.singletons;
 
 import aurelienribon.tweenengine.TweenManager;
+import com.badlogic.ashley.core.Engine;
 
 /**
  * Singleton that lazy loads various classes that can be used globally.
@@ -8,6 +9,7 @@ import aurelienribon.tweenengine.TweenManager;
 public class Manager {
 	private static Manager instance = new Manager();
 	private TweenManager tweenManager;
+	private Engine engine;
 
 	private Manager() {}
 
@@ -17,6 +19,7 @@ public class Manager {
 
 	public void update(float deltaTime) {
 		if (tweenManager != null) tweenManager.update(deltaTime);
+		if (engine != null) engine.update(deltaTime);
 	}
 
 	/**
@@ -26,5 +29,13 @@ public class Manager {
 	public TweenManager tweenManager() {
 		if (tweenManager == null) tweenManager = new TweenManager();
 		return tweenManager;
+	}
+	/**
+	 * Access or instantiate and access tweenManager
+	 * @return
+	 */
+	public Engine engine() {
+		if (engine == null) engine = new Engine();
+		return engine;
 	}
 }

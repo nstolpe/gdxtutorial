@@ -27,12 +27,12 @@ import com.hh.gdxtutorial.entity.systems.ModelBatchRenderer;
 import com.hh.gdxtutorial.entity.systems.TurnSystem;
 import com.hh.gdxtutorial.screens.input.DemoInputController;
 import com.hh.gdxtutorial.shaders.PerPixelShaderProvider;
+import com.hh.gdxtutorial.singletons.Manager;
 
 /**
  * Created by nils on 5/27/16.
  */
 public class CombatScreen extends FpsScreen {
-	public Engine engine = new Engine();
 	public DemoInputController camController;
 
 	public ModelBatch modelBatch;
@@ -67,7 +67,7 @@ public class CombatScreen extends FpsScreen {
 		modelBatchRenderer = new ModelBatchRenderer(modelBatch, camera, environment);
 		modelBatchRenderer.setProcessing(false);
 
-		// gets rid of the ane effect
+		// gets rid of the moire effect
 		ModelLoader.ModelParameters texParam = new ModelLoader.ModelParameters();
 		texParam.textureParameter.minFilter = Texture.TextureFilter.MipMapLinearNearest;
 		texParam.textureParameter.genMipMaps = true;
@@ -93,6 +93,7 @@ public class CombatScreen extends FpsScreen {
 	}
 	@Override
 	public void render(float delta) {
+		Engine engine = Manager.getInstance().engine();
 		Gdx.gl.glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		camController.update();
@@ -131,8 +132,8 @@ public class CombatScreen extends FpsScreen {
 		setupScene();
 		setupActors();
 
-		engine.addSystem(new TurnSystem());
-		engine.addSystem(modelBatchRenderer);
+		Manager.getInstance().engine().addSystem(new TurnSystem());
+		Manager.getInstance().engine().addSystem(modelBatchRenderer);
 		modelBatchRenderer.setProcessing(true);
 	}
 
@@ -172,7 +173,7 @@ public class CombatScreen extends FpsScreen {
 			NPCComponent mob = new NPCComponent(entity);
 			entity.add(mob);
 		}
-		engine.addEntity(entity);
+		Manager.getInstance().engine().addEntity(entity);
 	}
 
 	public void setupScene() {
@@ -181,7 +182,7 @@ public class CombatScreen extends FpsScreen {
 				.add(new RotationComponent(new Quaternion()))
 				.add(new PositionComponent(new Vector3(0.0f, 0.0f, 0.0f)));
 
-		engine.addEntity(p);
+		Manager.getInstance().engine().addEntity(p);
 	}
 
 	@Override
