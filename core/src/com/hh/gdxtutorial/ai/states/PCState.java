@@ -1,6 +1,8 @@
 package com.hh.gdxtutorial.ai.states;
 
 import aurelienribon.tweenengine.BaseTween;
+import aurelienribon.tweenengine.Timeline;
+import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenCallback;
 import aurelienribon.tweenengine.equations.Quad;
 import com.badlogic.ashley.core.Entity;
@@ -12,10 +14,7 @@ import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
 import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
-import com.badlogic.gdx.math.Intersector;
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Quaternion;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.hh.gdxtutorial.ai.Messages;
@@ -61,8 +60,36 @@ public enum PCState implements State<Entity> {
 				case Messages.TOUCH_CLICK_INPUT:
 					Vector3 screenCoordinates = (Vector3) telegram.extraInfo;
 					ImmutableArray<Entity> actors = Manager.getInstance().engine().getSystem(TurnSystem.class).actors();
-					int f = testTargets(new Array<Entity>(actors.toArray()), screenCoordinates.x, screenCoordinates.z);
-					System.out.println(f);
+					int targetIndex = testTargets(pc, new Array<Entity>(actors.toArray()), screenCoordinates.x, screenCoordinates.z);
+
+					if (targetIndex < 0) {
+						Ray ray = Manager.getInstance().engine().getSystem(ModelBatchRenderer.class).camera.getPickRay(screenCoordinates.x, screenCoordinates.z);
+						Plane xzPlane = new Plane(new Vector3(0, 1, 0), 0);
+						Vector3 intersection = new Vector3();
+						Intersector.intersectRayPlane(ray, xzPlane, intersection);
+						Vector3 position = Mappers.POSITION.get(pc).position;
+						Quaternion rotation = Mappers.ROTATION.get(pc).rotation;
+						Quaternion targetRotation = Utility.facingRotation(position, intersection);
+						float speed = Utility.magnitude(rotation, targetRotation);
+						Tween rotate = Tweens.rotateToTween(rotation, targetRotation, speed / 4, Quad.INOUT, null);
+						final Entity fpc = pc;
+						TweenCallback callback = new TweenCallback() {
+							@Override
+							public void onEvent(int type, BaseTween<?> source) {
+								switch (type) {
+									case COMPLETE:
+										// Maybe add system that manages entity position and rotation, move that code from the render system.
+//										Manager.getInstance().engine().getSystem(TurnSystem.class).getValidTargets(fpc);
+										break;
+									default:
+										break;
+								}
+							}
+						};
+						Tween translate = Tweens.translateToTween(position, intersection, position.dst(intersection) / 16, Quad.INOUT, null);
+						Timeline.createSequence().push(rotate).push(translate).setCallback(callback).start(Manager.getInstance().tweenManager());
+					}
+					System.out.println(targetIndex);
 					break;
 				default:
 					break;
@@ -215,24 +242,24 @@ public enum PCState implements State<Entity> {
 	 * @param screenY
 	 * @return
 	 */
-	private static int testTargets(Array<Entity> actors, float screenX, float screenY) {
+	private static int testTargets(Entity pc, Array<Entity> actors, float screenX, float screenY) {
 		Ray ray = Manager.getInstance().engine().getSystem(ModelBatchRenderer.class).camera.getPickRay(screenX, screenY);
 		int result = -1;
 		float distance = -1;
 
 		for (int i = 0; i < actors.size; i++) {
+			if (actors.get(i).equals(pc)) continue;
 			final ModelInstanceComponent mic = Mappers.MODEL_INSTANCE.get(actors.get(i));
 			Vector3 position = mic.instance.transform.getTranslation(new Vector3());
 			position.add(mic.center);
 
 			final float len = ray.direction.dot(position.x - ray.origin.x, position.y - ray.origin.y, position.z - ray.origin.z);
-			if (len < 0f)
-				continue;
+
+			if (len < 0f) continue;
 
 			float dist2 = position.dst2(ray.origin.x+ray.direction.x*len, ray.origin.y+ray.direction.y*len, ray.origin.z+ray.direction.z*len);
 
-			if (distance >= 0f && dist2 > distance)
-				continue;
+			if (distance >= 0f && dist2 > distance) continue;
 
 			// *2 seems more accurate than he squaring.
 			// if (dist2 <= mic.radius * mic.radius) {
