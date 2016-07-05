@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Plane;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.hh.gdxtutorial.ai.Messages;
@@ -29,11 +28,11 @@ public class TurnInputController extends CameraInputController {
 	@Override
 	public boolean touchDown (int screenX, int screenY, int pointer, int button) {
 		boolean ret = super.touchDown(screenX, screenY, pointer, button);
-		// only send the INTERACT_TOUCH message if the interactButton is pressed
+		// only send the TOUCH_CLICK_INPUT message if the interactButton is pressed
 		if (button == interactButton) {
 			Ray pickRay = camera.getPickRay(screenX, screenY);
 			Intersector.intersectRayPlane(pickRay, xzPlane, intersection);
-			MessageManager.getInstance().dispatchMessage(0, Messages.INTERACT_TOUCH, new Vector3(intersection.x, 0, intersection.z));
+			MessageManager.getInstance().dispatchMessage(0, Messages.TOUCH_CLICK_INPUT, new Vector3(intersection.x, 0, intersection.z));
 		}
 		return ret;
 	}

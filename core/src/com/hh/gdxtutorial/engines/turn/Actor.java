@@ -47,7 +47,7 @@ public class Actor implements Telegraph {
 	}
 
 	private void queuePlayerInput() {
-		MessageManager.getInstance().addListener(this, Messages.INTERACT_TOUCH);
+		MessageManager.getInstance().addListener(this, Messages.TOUCH_CLICK_INPUT);
 	}
 
 	private void runAi() {
@@ -79,7 +79,7 @@ public class Actor implements Telegraph {
 
 	@Override
 	public boolean handleMessage(Telegram msg) {
-		MessageManager.getInstance().removeListener(this, Messages.INTERACT_TOUCH);
+		MessageManager.getInstance().removeListener(this, Messages.TOUCH_CLICK_INPUT);
 		Vector3 xz = (Vector3) msg.extraInfo;
 		moveTo(new Vector3(xz.x, 2, xz.z));
 		return false;

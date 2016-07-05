@@ -37,6 +37,12 @@ public enum NPCState implements State<Entity> {
 			Mappers.MODEL_INSTANCE.get(npc).controller.animate("skeleton|rest", -1, null, 1);
 		}
 	},
+	/**
+	 * Starts off an npc turn. A random destination is chosen, Tweens to rotate to face that destination
+	 * and then move to it are created and then run with a callback to getValidTargets from the turn engine.
+	 * @TODO make the mob's actually evaluate the situation here. Basic level: see what targets are in range,
+	 * choose closest/weakest, attack. If not in range, move towards out of range targets and do the same.
+	 */
 	EVALUATE() {
 		@Override
 		public void enter(Entity npc) {
@@ -52,8 +58,8 @@ public enum NPCState implements State<Entity> {
 				public void onEvent(int type, BaseTween<?> source) {
 					switch (type) {
 						case COMPLETE:
-							// @TODO go over this again. Bouncing back to the TurnSystem seems kind of weird
-							// but kind of ok.
+							// @TODO go over this again. Bouncing back to the TurnSystem seems kind of weird.
+							// Maybe add system that manages entity position and rotation, move that code from the render system.
 							Manager.getInstance().engine().getSystem(TurnSystem.class).getValidTargets(fnpc);
 							break;
 						default:

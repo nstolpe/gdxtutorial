@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.hh.gdxtutorial.ai.Messages;
 import com.hh.gdxtutorial.ai.states.NPCState;
+import com.hh.gdxtutorial.ai.states.PCState;
 import com.hh.gdxtutorial.entity.components.*;
 import com.hh.gdxtutorial.libraries.Utility;
 import com.hh.gdxtutorial.libraries.tweenengine.Tweens;
@@ -46,7 +47,9 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	public int activeIndex() {
 		return activeIndex;
 	}
-
+	public ImmutableArray<Entity> actors() {
+		return this.actors;
+	}
 	public void getValidTargets(final Entity actor) {
 		final Vector3 position = Mappers.POSITION.get(actor).position;
 		Vector3 tmp;
@@ -163,19 +166,21 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 		}
 		// if a turn has just ended,  update the active
 		// actor and start a new one.
-		if (!inTurn) {
-			inTurn = true;
-			Entity active = sortedActors.get(activeIndex);
+		if (!inTurn) startNextTurn();
+	}
 
-			if (Mappers.PC.get(active) != null)
-				MessageManager.getInstance().addListener(this, Messages.INTERACT_TOUCH);
-			else if (Mappers.NPC.get(active) != null)
-				Mappers.NPC.get(active).stateMachine.changeState(NPCState.EVALUATE);
-		}
+	public void startNextTurn() {
+		inTurn = true;
+		Entity active = sortedActors.get(activeIndex);
+
+		if (Mappers.PC.get(active) != null)
+			Mappers.PC.get(active).stateMachine.changeState(PCState.EVALUATE);
+		else if (Mappers.NPC.get(active) != null)
+			Mappers.NPC.get(active).stateMachine.changeState(NPCState.EVALUATE);
 	}
 	/**
 	 * From Telegraph. Will listen to advance a turn and receive touch input for a user controlled character.
-	 * @param msg   extraInfo is used with INTERACT_TOUCH. It expects a Vector3 and casts to it.
+	 * @param msg   extraInfo is used with TOUCH_CLICK_INPUT. It expects a Vector3 and casts to it.
 	 * @return
 	 */
 	@Override
@@ -184,13 +189,13 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 			case Messages.ADVANCE_TURN_CONTROL:
 				advanceTurnControl();
 				break;
-			case Messages.INTERACT_TOUCH:
+			case Messages.TOUCH_CLICK_INPUT:
 				// msg.extraInfo holds the x and z coords.
 				// y is set to 0 since there's no height yet.
 				Vector3 targetPosition = (Vector3) msg.extraInfo;
 				targetPosition.y = 0;
-				// remove the listener for INTERACT_TOUCH
-				MessageManager.getInstance().removeListener(this, Messages.INTERACT_TOUCH);
+				// remove the listener for TOUCH_CLICK_INPUT
+				MessageManager.getInstance().removeListener(this, Messages.TOUCH_CLICK_INPUT);
 				startTurnAction(sortedActors.get(activeIndex), targetPosition, Callbacks.dispatchMessageCallback(Messages.ADVANCE_TURN_CONTROL));
 				break;
 			default:

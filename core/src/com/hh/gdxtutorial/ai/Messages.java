@@ -1,6 +1,7 @@
 package com.hh.gdxtutorial.ai;
 
 import com.badlogic.ashley.core.Entity;
+import com.hh.gdxtutorial.ai.states.PCState;
 
 /**
  * Created by nils on 6/4/16.
@@ -8,8 +9,14 @@ import com.badlogic.ashley.core.Entity;
 public class Messages {
 	// Screens for Tutorial class
 	public static final int CHANGE_SCREEN        = 0x00;
-	// interact button (left) has been clicked
-	public static final int INTERACT_TOUCH       = 0x01;
+	/*
+	 * Message sent when at touch of click event is captured by the input.
+	 *   Example Telegram.extraInfo sent with this message type:
+	 *     Vector3 (x and z hold the screen coordinates),
+	 *     Vector2 (x = screen.x, y = screen.z)
+	 *     int[]{screen.x, screen.y}
+	 */
+	public static final int TOUCH_CLICK_INPUT = 0x01;
 	// advanceActor
 	public static final int ADVANCE_TURN_CONTROL = 0x02;
 	public static final int SCREEN_RESIZE        = 0x03;
@@ -20,19 +27,4 @@ public class Messages {
 	public static final int ATTACK               = 0x08;
 	public static final int ATTACK_POST          = 0x09;
 	public static final int REST                 = 0x10;
-
-	/**
-	 * Message extraInfo
-	 */
-	public static class TargetMessageData {
-		public Entity actor;
-		public Entity target;
-
-		public TargetMessageData() {}
-
-		public TargetMessageData(Entity actor, Entity target) {
-			this.actor = actor;
-			this.target = target;
-		}
-	}
 }

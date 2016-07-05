@@ -36,7 +36,7 @@ public class ModelInstanceComponent implements Component {
 		boundingBox = instance.calculateBoundingBox(new BoundingBox());
 		boundingBox.getCenter(center);
 		boundingBox.getDimensions(dimensions);
-		radius = dimensions.len() / 2;
+		radius = dimensions.len() / 2f;
 		this.controller = new AnimationController(this.instance);
 	}
 	/**

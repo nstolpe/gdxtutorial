@@ -51,11 +51,12 @@ public class DemoInputController extends CameraInputController {
 	@Override
 	public boolean touchDown (int screenX, int screenY, int pointer, int button) {
 		boolean ret = super.touchDown(screenX, screenY, pointer, button);
-		// only send the INTERACT_TOUCH message if the interactButton is pressed
+		// only send the TOUCH_CLICK_INPUT message if the interactButton is pressed
 		if (button == interactButton && !altLeftPressed) {
 			Ray pickRay = camera.getPickRay(screenX, screenY);
 			Intersector.intersectRayPlane(pickRay, xzPlane, intersection);
-			MessageManager.getInstance().dispatchMessage(0, Messages.INTERACT_TOUCH, new Vector3(intersection.x, 0, intersection.z));
+			MessageManager.getInstance().dispatchMessage(0, Messages.TOUCH_CLICK_INPUT, new Vector3(screenX, 0, screenY));
+//			MessageManager.getInstance().dispatchMessage(0, Messages.TOUCH_CLICK_INPUT, new Vector3(intersection.x, 0, intersection.z));
 		}
 		return ret;
 	}

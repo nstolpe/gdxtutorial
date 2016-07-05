@@ -44,6 +44,9 @@ public class ModelBatchRenderer extends EntitySystem implements Disposable, Tele
 
 	public AssetManager assetManager;
 	public ParticleSystem particleSystem = new ParticleSystem();
+	protected Vector3 tmpVec = new Vector3();
+	protected Matrix4 tmpMat;
+	protected Quaternion tmpQuat = new Quaternion();
 
 
 	public ModelBatchRenderer(ModelBatch modelBatch, Camera camera, Environment env) {
@@ -101,16 +104,12 @@ public class ModelBatchRenderer extends EntitySystem implements Disposable, Tele
 			modelBatch.render(instance, env);
 
 			if (Mappers.EFFECTS.has(e)) {
-				ModelInstance i = Mappers.MODEL_INSTANCE.get(e).instance();
 				EffectsComponent.Effect blast = Mappers.EFFECTS.get(e).getEffect("blast");
-//				Matrix4 m4 = i.transform.mul(i.getNode("attach.projectile").globalTransform);
 				//@TODO make the quat and v3 members to reuse.
-				Matrix4 m4 = new Matrix4(blast.position, new Quaternion(), new Vector3(1,1,1));
-				blast.effect.setTransform(m4);
-//				blast.effect.setTransform(new Matrix4(Mappers.EFFECTS.get(e).getEffect("blast").position, new Quaternion(), new Vector3(1, 1, 1)));
-//				blast.effect.setTransform();
-//				blast.effect.translate(Mappers.EFFECTS.get(e).getEffect("blast").position);
+				tmpMat = new Matrix4(blast.position, tmpQuat, tmpVec.set(1,1,1));
+				blast.effect.setTransform(tmpMat);
 			}
+			tmpVec.set(Vector3.Zero);
 		}
 
 		// particle systems

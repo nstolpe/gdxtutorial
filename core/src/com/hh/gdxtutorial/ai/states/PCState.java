@@ -4,21 +4,27 @@ import aurelienribon.tweenengine.BaseTween;
 import aurelienribon.tweenengine.TweenCallback;
 import aurelienribon.tweenengine.equations.Quad;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.ai.fsm.State;
 import com.badlogic.gdx.ai.fsm.StateMachine;
 import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegram;
+import com.badlogic.gdx.ai.msg.Telegraph;
 import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
-import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.Ray;
+import com.badlogic.gdx.utils.Array;
 import com.hh.gdxtutorial.ai.Messages;
 import com.hh.gdxtutorial.entity.components.EffectsComponent;
 import com.hh.gdxtutorial.entity.components.Mappers;
 import com.hh.gdxtutorial.entity.components.ModelInstanceComponent;
 import com.hh.gdxtutorial.entity.components.TargetComponent;
+import com.hh.gdxtutorial.entity.systems.ModelBatchRenderer;
+import com.hh.gdxtutorial.entity.systems.TurnSystem;
 import com.hh.gdxtutorial.libraries.Utility;
 import com.hh.gdxtutorial.libraries.tweenengine.Tweens;
 import com.hh.gdxtutorial.singletons.Manager;
@@ -34,10 +40,34 @@ public enum PCState implements State<Entity> {
 			Mappers.MODEL_INSTANCE.get(pc).controller.animate("skeleton|rest", -1, null, 1);
 		}
 	},
-	ACTIVE() {
+	EVALUATE() {
+		/**
+		 * Register's the player character stateMachine as a listener to mouse/touch input.
+		 * @param pc
+		 */
 		@Override
 		public void enter(Entity pc) {
-			Vector3 targetPosition = new Vector3(MathUtils.random(-20, 20), 0, MathUtils.random(-20, 20));
+			MessageManager.getInstance().addListener(Mappers.PC.get(pc).stateMachine, Messages.TOUCH_CLICK_INPUT);
+		}
+		/**
+		 * Handles incoming messages related to touch/click input. Ignores the rest.
+		 * @param pc
+		 * @param telegram
+		 * @return
+		 */
+		@Override
+		public boolean onMessage(Entity pc, Telegram telegram) {
+			switch (telegram.message) {
+				case Messages.TOUCH_CLICK_INPUT:
+					Vector3 screenCoordinates = (Vector3) telegram.extraInfo;
+					ImmutableArray<Entity> actors = Manager.getInstance().engine().getSystem(TurnSystem.class).actors();
+					int f = testTargets(new Array<Entity>(actors.toArray()), screenCoordinates.x, screenCoordinates.z);
+					System.out.println(f);
+					break;
+				default:
+					break;
+			}
+			return false;
 		}
 	},
 	TARGETING() {
@@ -178,6 +208,39 @@ public enum PCState implements State<Entity> {
 	},
 	GLOBAL() {
 	};
+
+	/**
+	 * Tests if a ray from screen coordinates intersects any actors in an array of actors (Entities).
+	 * @param screenX
+	 * @param screenY
+	 * @return
+	 */
+	private static int testTargets(Array<Entity> actors, float screenX, float screenY) {
+		Ray ray = Manager.getInstance().engine().getSystem(ModelBatchRenderer.class).camera.getPickRay(screenX, screenY);
+		int result = -1;
+		float distance = -1;
+
+		for (int i = 0; i < actors.size; i++) {
+			final ModelInstanceComponent mic = Mappers.MODEL_INSTANCE.get(actors.get(i));
+			Vector3 position = mic.instance.transform.getTranslation(new Vector3());
+			position.add(mic.center);
+
+			final float len = ray.direction.dot(position.x - ray.origin.x, position.y - ray.origin.y, position.z - ray.origin.z);
+			if (len < 0f)
+				continue;
+
+			float dist2 = position.dst2(ray.origin.x+ray.direction.x*len, ray.origin.y+ray.direction.y*len, ray.origin.z+ray.direction.z*len);
+
+			if (distance >= 0f && dist2 > distance)
+				continue;
+
+			if (dist2 <= mic.radius * mic.radius) {
+				result = i;
+				distance = dist2;
+			}
+		}
+		return result;
+	}
 
 	@Override
 	public void enter(Entity pc) {
