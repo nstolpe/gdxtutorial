@@ -39,19 +39,6 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	public int turnCount = 0;
 	public float attentionRadius = 20.0f;
 
-	private TweenCallback scanForTargetsCallback = new TweenCallback() {
-		@Override
-		public void onEvent(int type, BaseTween<?> source) {
-			switch (type) {
-				case COMPLETE:
-					getValidTargets(sortedActors.get(activeIndex));
-					break;
-				default:
-					break;
-			}
-		}
-	};
-
 	/**
 	 * Getter for activeIndex.
 	 * @return
