@@ -94,11 +94,6 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	public void startPlayerTurn(Entity actor) {
 		MessageManager.getInstance().addListener(this, Messages.INTERACT_TOUCH);
 	}
-	public void startMobTurn(Entity actor) {
-//		Vector3 targetPosition = new Vector3(MathUtils.random(-20, 20), 0, MathUtils.random(-20, 20));
-//		startTurnAction(actor, targetPosition, scanForTargetsCallback);
-		Mappers.NPC.get(actor).stateMachine.changeState(NPCState.EVALUATE);
-	}
 	/**
 	 * Sets up and starts a tween from Vector3 position to Vector3 destination for float duration.
 	 * @param destination  Ending Vector3 for tween
@@ -191,7 +186,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 			if (Mappers.PC.get(active) != null)
 				startPlayerTurn(active);
 			else if (Mappers.NPC.get(active) != null)
-				startMobTurn(active);
+				Mappers.NPC.get(active).stateMachine.changeState(NPCState.EVALUATE);
 		}
 	}
 	/**

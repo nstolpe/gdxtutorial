@@ -20,7 +20,6 @@ public class ModelInstanceComponent implements Component {
 	public float radius;
 
 	// nodes keyed to strings where things can be attached.
-	//
 	private ArrayMap<String, Node> attachmentPoints = new ArrayMap<String, Node>();
 
 	/**
