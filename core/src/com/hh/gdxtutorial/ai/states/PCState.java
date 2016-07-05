@@ -234,7 +234,9 @@ public enum PCState implements State<Entity> {
 			if (distance >= 0f && dist2 > distance)
 				continue;
 
-			if (dist2 <= mic.radius * mic.radius) {
+			// *2 seems more accurate than he squaring.
+			// if (dist2 <= mic.radius * mic.radius) {
+			if (dist2 <= mic.radius * 2) {
 				result = i;
 				distance = dist2;
 			}
