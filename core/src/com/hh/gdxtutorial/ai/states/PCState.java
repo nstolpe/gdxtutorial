@@ -39,7 +39,7 @@ public enum PCState implements State<Entity> {
 			Mappers.MODEL_INSTANCE.get(pc).controller.animate("skeleton|rest", -1, null, 1);
 		}
 	},
-	EVALUATE() {
+	WAIT() {
 		/**
 		 * Register's the player character stateMachine as a listener to mouse/touch input.
 		 * @param pc
@@ -78,8 +78,8 @@ public enum PCState implements State<Entity> {
 							public void onEvent(int type, BaseTween<?> source) {
 								switch (type) {
 									case COMPLETE:
-										// Maybe add system that manages entity position and rotation, move that code from the render system.
-//										Manager.getInstance().engine().getSystem(TurnSystem.class).getValidTargets(fpc);
+										// Move the else below to it's own state that requires target selection,
+										// then enter it through this callback (as well as in the else).
 										break;
 									default:
 										break;
@@ -88,8 +88,11 @@ public enum PCState implements State<Entity> {
 						};
 						Tween translate = Tweens.translateToTween(position, intersection, position.dst(intersection) / 16, Quad.INOUT, null);
 						Timeline.createSequence().push(rotate).push(translate).setCallback(callback).start(Manager.getInstance().tweenManager());
+					} else {
+						pc.add(new TargetComponent(actors.get(targetIndex)));
+						System.out.println(targetIndex);
+						Mappers.PC.get(pc).stateMachine.changeState(TARGETING);
 					}
-					System.out.println(targetIndex);
 					break;
 				default:
 					break;
@@ -97,6 +100,9 @@ public enum PCState implements State<Entity> {
 			return false;
 		}
 	},
+	/**
+	 * A target has been selected, the PC Entity will perform a rotation tween to face the target.
+	 */
 	TARGETING() {
 		@Override
 		public void enter(Entity pc) {
@@ -127,6 +133,7 @@ public enum PCState implements State<Entity> {
 	ATTACK_PRE() {
 		@Override
 		public void enter(Entity pc) {
+			System.out.println("ATTACK_PRE");
 			final StateMachine<Entity, PCState> stateMachine = Mappers.PC.get(pc).stateMachine;
 			Mappers.MODEL_INSTANCE.get(pc).controller.setAnimation(
 				"skeleton|attack.pre",
@@ -145,6 +152,7 @@ public enum PCState implements State<Entity> {
 	ATTACK() {
 		@Override
 		public void enter(final Entity pc) {
+			System.out.println("ATTACK");
 			final StateMachine<Entity, PCState> stateMachine = Mappers.PC.get(pc).stateMachine;
 			final ModelInstanceComponent modelInstanceComponent = Mappers.MODEL_INSTANCE.get(pc);
 			final EffectsComponent.Effect blast = Mappers.EFFECTS.get(pc).getEffect("blast");
@@ -152,7 +160,7 @@ public enum PCState implements State<Entity> {
 			// set the 'blast' effect's position to the model's attach.projectile node
 			Matrix4 attachmentMatrix = modelInstanceComponent.instance.transform.cpy().mul(modelInstanceComponent.instance.getNode("attach.projectile").globalTransform);
 			blast.position = attachmentMatrix.getTranslation(blast.position);
-			// turn on the blast emmitter
+			// turn on the blast emitter
 			blast.emitter.setEmissionMode(RegularEmitter.EmissionMode.Enabled);
 
 			modelInstanceComponent.controller.setAnimation(
@@ -167,11 +175,15 @@ public enum PCState implements State<Entity> {
 				});
 		}
 
+		/**
+		 * On update, the blast's position needs to be updated.
+		 * @param pc
+		 */
 		@Override
 		public void update(Entity pc) {
 			final ModelInstanceComponent modelInstanceComponent = Mappers.MODEL_INSTANCE.get(pc);
 			final EffectsComponent.Effect blast = Mappers.EFFECTS.get(pc).getEffect("blast");
-
+			// create a copy of the character's modelInstance.matrix and multiply it by the attachment node's globalTransform matrix.
 			Matrix4 attachmentMatrix = modelInstanceComponent.instance.transform.cpy().mul(modelInstanceComponent.instance.getNode("attach.projectile").globalTransform);
 			blast.position = attachmentMatrix.getTranslation(blast.position);
 		}
@@ -182,6 +194,7 @@ public enum PCState implements State<Entity> {
 	ATTACK_POST() {
 		@Override
 		public void enter(final Entity pc) {
+			System.out.println("ATTACK_POST");
 			final StateMachine<Entity, PCState> stateMachine = Mappers.PC.get(pc).stateMachine;
 			final Vector3 position = Mappers.POSITION.get(pc).position;
 			final Entity target = Mappers.TARGET.get(pc).target;
@@ -205,12 +218,14 @@ public enum PCState implements State<Entity> {
 							targetPosition,
 							position.dst(targetPosition.x, blast.position.y, targetPosition.z) / 24,
 							Quad.OUT,
+							// the callback sets the stateMachine back to REST, turns off the emitter,
+							// and dispatches the ADVANCE_TURN_CONTROL message.
 							new TweenCallback() {
 								@Override
 								public void onEvent(int i, BaseTween<?> baseTween) {
 									stateMachine.changeState(REST);
-									MessageManager.getInstance().dispatchMessage(0, Messages.ADVANCE_TURN_CONTROL);
 									blast.emitter.setEmissionMode(RegularEmitter.EmissionMode.EnabledUntilCycleEnd);
+									MessageManager.getInstance().dispatchMessage(0, Messages.ADVANCE_TURN_CONTROL);
 								}
 							}
 						).start(Manager.getInstance().tweenManager());

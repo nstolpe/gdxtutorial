@@ -174,7 +174,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 		Entity active = sortedActors.get(activeIndex);
 
 		if (Mappers.PC.get(active) != null)
-			Mappers.PC.get(active).stateMachine.changeState(PCState.EVALUATE);
+			Mappers.PC.get(active).stateMachine.changeState(PCState.WAIT);
 		else if (Mappers.NPC.get(active) != null)
 			Mappers.NPC.get(active).stateMachine.changeState(NPCState.EVALUATE);
 	}

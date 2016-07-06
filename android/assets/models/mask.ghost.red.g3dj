@@ -2154,7 +2154,7 @@
 			"shininess":  1.764706, 
 			"textures": [
 				{
-					"id": "skin.white.001", 
+					"id": "skin.red.001", 
 					"filename": "ghost.red.png", 
 					"type": "DIFFUSE"
 				}
@@ -2170,7 +2170,7 @@
 			"shininess":  5.686275, 
 			"textures": [
 				{
-					"id": "skin.white.001", 
+					"id": "skin.red.001", 
 					"filename": "ghost.red.png", 
 					"type": "DIFFUSE"
 				}
@@ -2186,7 +2186,7 @@
 			"shininess":  1.764706, 
 			"textures": [
 				{
-					"id": "skin.white.001", 
+					"id": "skin.red.001", 
 					"filename": "ghost.red.png", 
 					"type": "DIFFUSE"
 				}
