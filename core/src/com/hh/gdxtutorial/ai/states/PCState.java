@@ -90,7 +90,6 @@ public enum PCState implements State<Entity> {
 						Timeline.createSequence().push(rotate).push(translate).setCallback(callback).start(Manager.getInstance().tweenManager());
 					} else {
 						pc.add(new TargetComponent(actors.get(targetIndex)));
-						System.out.println(targetIndex);
 						Mappers.PC.get(pc).stateMachine.changeState(TARGETING);
 					}
 					break;
@@ -133,7 +132,6 @@ public enum PCState implements State<Entity> {
 	ATTACK_PRE() {
 		@Override
 		public void enter(Entity pc) {
-			System.out.println("ATTACK_PRE");
 			final StateMachine<Entity, PCState> stateMachine = Mappers.PC.get(pc).stateMachine;
 			Mappers.MODEL_INSTANCE.get(pc).controller.setAnimation(
 				"skeleton|attack.pre",
@@ -152,7 +150,6 @@ public enum PCState implements State<Entity> {
 	ATTACK() {
 		@Override
 		public void enter(final Entity pc) {
-			System.out.println("ATTACK");
 			final StateMachine<Entity, PCState> stateMachine = Mappers.PC.get(pc).stateMachine;
 			final ModelInstanceComponent modelInstanceComponent = Mappers.MODEL_INSTANCE.get(pc);
 			final EffectsComponent.Effect blast = Mappers.EFFECTS.get(pc).getEffect("blast");
@@ -194,7 +191,6 @@ public enum PCState implements State<Entity> {
 	ATTACK_POST() {
 		@Override
 		public void enter(final Entity pc) {
-			System.out.println("ATTACK_POST");
 			final StateMachine<Entity, PCState> stateMachine = Mappers.PC.get(pc).stateMachine;
 			final Vector3 position = Mappers.POSITION.get(pc).position;
 			final Entity target = Mappers.TARGET.get(pc).target;

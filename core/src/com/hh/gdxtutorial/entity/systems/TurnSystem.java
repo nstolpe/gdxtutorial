@@ -160,9 +160,8 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 
 		// update the state machine of each actor
 		for (Entity actor : actors) {
-			if (Mappers.NPC.has(actor)) {
-				Mappers.NPC.get(actor).stateMachine.update();
-			}
+			if (Mappers.NPC.has(actor)) Mappers.NPC.get(actor).stateMachine.update();
+			if (Mappers.PC.has(actor)) Mappers.PC.get(actor).stateMachine.update();
 		}
 		// if a turn has just ended,  update the active
 		// actor and start a new one.
