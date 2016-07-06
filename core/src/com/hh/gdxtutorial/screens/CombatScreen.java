@@ -188,7 +188,7 @@ public class CombatScreen extends FpsScreen {
 	@Override
 	public void dispose() {
 		super.dispose();
-		modelBatchRenderer.assetManager.dispose();
+		Manager.getInstance().engine().removeAllEntities();
 		modelBatchRenderer.dispose();
 	}
 }
