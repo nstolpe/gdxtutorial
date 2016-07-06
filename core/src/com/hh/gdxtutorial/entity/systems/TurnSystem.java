@@ -155,9 +155,6 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	 */
 	@Override
 	public void update (float deltaTime) {
-		// @TODO move Manager update to screen, maybe abstract.
-//		Manager.getInstance().update(deltaTime);
-
 		// update the state machine of each actor
 		for (Entity actor : actors) {
 			if (Mappers.NPC.has(actor)) Mappers.NPC.get(actor).stateMachine.update();
