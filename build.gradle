@@ -74,7 +74,8 @@ project(":android") {
         natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-x86_64"
         compile "com.badlogicgames.gdx:gdx-ai:$aiVersion"
         compile "com.badlogicgames.ashley:ashley:$ashleyVersion"
-    }
+    	compile fileTree(dir: '../libs', include: '*.jar')
+	}
 }
 
 project(":html") {
@@ -105,7 +106,8 @@ project(":core") {
         //compile "aurelienribon:tweenengine:6.3.3"
         //compile "aurelienribon:tweenengine:6.3.3:sources"
 		//compile "com.github.nstolpe:universal-tween-engine:v6.3.3.002"
-		compile "com.github.nstolpe:universal-tween-engine:master-SNAPSHOT"
+		//compile "com.github.nstolpe:universal-tween-engine:master-SNAPSHOT"
+		compile fileTree(dir: '../libs', include: '*.jar')
     }
 }
 tasks.eclipse.doLast {
