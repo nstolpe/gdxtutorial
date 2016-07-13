@@ -28,5 +28,8 @@
               }
               document.getElementById('embed-html').addEventListener('mousedown', handleMouseDown, false);
               document.getElementById('embed-html').addEventListener('mouseup', handleMouseUp, false);
-       </script>
+			document.addEventListener('contextmenu', function(e) {
+				e.preventDefault();				
+			}, false);
+	   </script>
 </html>
