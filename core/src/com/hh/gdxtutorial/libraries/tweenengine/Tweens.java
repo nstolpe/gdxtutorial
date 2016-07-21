@@ -6,7 +6,6 @@ import aurelienribon.tweenengine.TweenEquation;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.hh.gdxtutorial.libraries.tweenengine.accessors.QuaternionAccessor;
-import com.hh.gdxtutorial.libraries.tweenengine.accessors.SlerpTween;
 import com.hh.gdxtutorial.libraries.tweenengine.accessors.Vector3Accessor;
 
 /**
