@@ -1,1 +1,3 @@
-This projects is a collection of LibGDX screens that each demonstrate how to accomplish something with the framework. Right now there are demos for a Gaussian blur shader, a multi-pass cel shader, a tilt shift shader, and a turn based engine. You can access these different demos as different screens in the project. Desktop and HTML projects have been tested to work. The Android project is included but hasn't been tested on a device yet. 
+Ghost Engine is a 3D game engine built on [LibGdx](https://github.com/libgdx/libgdx). Few features are implemented right now besides a turn-based combat system.
+
+[Demo](http://dev.harpoonandhatchet.com/combat-demo/)
