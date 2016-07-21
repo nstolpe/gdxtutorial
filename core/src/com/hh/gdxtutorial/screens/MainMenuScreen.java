@@ -49,36 +49,6 @@ public class MainMenuScreen extends AbstractScreen {
 		combatScreenButton = new TextButton("CombatScreen", buttonStyle);
 		characterScreenButton = new TextButton("AnimationChainScreen", buttonStyle);
 
-		celShaderScreenButton.addListener(new ClickListener() {
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				MessageManager.getInstance().dispatchMessage(0, Messages.CHANGE_SCREEN, new CelShaderScreen());
-			}
-		});
-		gaussianBlurShaderScreenButton.addListener(new ClickListener() {
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				MessageManager.getInstance().dispatchMessage(0, Messages.CHANGE_SCREEN, new GaussianBlurShaderScreen());
-			}
-		});
-		tiltShiftShaderScreenButton.addListener(new ClickListener() {
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				MessageManager.getInstance().dispatchMessage(0, Messages.CHANGE_SCREEN, new TiltShiftShaderScreen());
-			}
-		});
-		turnEngineScreenButton.addListener(new ClickListener() {
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				MessageManager.getInstance().dispatchMessage(0, Messages.CHANGE_SCREEN, new TurnEngineScreen());
-			}
-		});
-		turnSystemScreenButton.addListener(new ClickListener() {
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				MessageManager.getInstance().dispatchMessage(0, Messages.CHANGE_SCREEN, new TurnSystemScreen());
-			}
-		});
 		combatScreenButton.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
