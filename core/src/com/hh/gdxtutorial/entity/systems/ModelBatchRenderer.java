@@ -59,23 +59,6 @@ public class ModelBatchRenderer extends EntitySystem implements Disposable, Tele
 		billboardParticleBatch.setCamera(camera);
 		particleSystem.add(billboardParticleBatch);
 	}
-
-	/**
-	 * Sets a new ModelBatch and disposes of the old, if it exists.
-	 * @param modelBatch
-	 */
-	public void modelBatch(ModelBatch modelBatch) {
-		if (this.modelBatch != null) this.modelBatch.dispose();
-		this.modelBatch = modelBatch;
-	}
-
-	/**
-	 * Getter for modelBatch.
-	 * @return
-	 */
-	public ModelBatch modelBatch() {
-		return this.modelBatch;
-	}
 	/**
 	 * Triggered when SCREEN_RESIZE message is received.
 	 * @param dimensions
