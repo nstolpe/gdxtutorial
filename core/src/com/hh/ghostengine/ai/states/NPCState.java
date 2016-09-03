@@ -42,6 +42,7 @@ public enum NPCState implements State<Entity> {
 	 * and then move to it are created and then run with a callback to getValidTargets from the turn engine.
 	 * @TODO make the mob's actually evaluate the situation here. Basic level: see what targets are in range,
 	 * choose closest/weakest, attack. If not in range, move towards out of range targets and do the same.
+	 * Also, move the logic out.
 	 */
 	EVALUATE() {
 		@Override
