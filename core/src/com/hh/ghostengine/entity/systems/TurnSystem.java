@@ -92,14 +92,14 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 		Quaternion targetRotation = Utility.facingRotation(position, destination);
 		float speed = Utility.magnitude(rotation, targetRotation);
 		// @TODO make speed divisors come from component.
-		Tween rotate = Tweens.rotateToTween(rotation, targetRotation, speed / 4, Quad.INOUT, null);
-		Tween translate = Tweens.translateToTween(position, destination, position.dst(destination) / 16, Quad.INOUT, null);
+		Tween rotate = Tweens.rotateTo(rotation, targetRotation, speed / 4, Quad.INOUT, null);
+		Tween translate = Tweens.translateTo(position, destination, position.dst(destination) / 16, Quad.INOUT, null);
 		Timeline.createSequence().push(rotate).push(translate).setCallback(callback).start(Manager.getInstance().tweenManager());
 	}
 	/**
 	 * Passes control of the turn to the next actor in sortedActors
 	 * If the activeIndex is the last entity, generate random values
-	 * for the InitiativeComponent and resort sorted actors.
+	 * for the InitiativeComponent and re-sort sorted actors.
 	 */
 	public void advanceTurnControl() {
 		// if last actor is taking its turn action

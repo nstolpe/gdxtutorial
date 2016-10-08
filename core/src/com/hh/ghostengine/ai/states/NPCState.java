@@ -4,6 +4,7 @@ import aurelienribon.tweenengine.BaseTween;
 import aurelienribon.tweenengine.Timeline;
 import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenCallback;
+import aurelienribon.tweenengine.equations.Linear;
 import aurelienribon.tweenengine.equations.Quad;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.ai.fsm.State;
@@ -52,7 +53,7 @@ public enum NPCState implements State<Entity> {
 			Vector3 destination = new Vector3(MathUtils.random(-20, 20), 0, MathUtils.random(-20, 20));
 			Quaternion targetRotation = Utility.facingRotation(position, destination);
 			float speed = Utility.magnitude(rotation, targetRotation);
-			Tween rotate = Tweens.rotateToTween(rotation, targetRotation, speed / 4, Quad.INOUT, null);
+			Tween rotate = Tweens.rotateTo(rotation, targetRotation, speed / 4, Linear.INOUT, null);
 			final Entity fnpc = npc;
 			TweenCallback callback = new TweenCallback() {
 				@Override
@@ -68,7 +69,7 @@ public enum NPCState implements State<Entity> {
 					}
 				}
 			};
-			Tween translate = Tweens.translateToTween(position, destination, position.dst(destination) / 16, Quad.INOUT, null);
+			Tween translate = Tweens.translateTo(position, destination, position.dst(destination) / 16, Linear.INOUT, null);
 			Timeline.createSequence().push(rotate).push(translate).setCallback(callback).start(Manager.getInstance().tweenManager());
 		}
 	},
@@ -93,11 +94,11 @@ public enum NPCState implements State<Entity> {
 			Quaternion targetRotation = Utility.facingRotation(position, destination);
 			float speed = Utility.magnitude(rotation, targetRotation);
 			// @TODO have speed divisor depend on some entity attribute
-			Tweens.rotateToTween(
+			Tweens.rotateTo(
 				rotation,
 				targetRotation,
 				speed / 4,
-				Quad.INOUT,
+				Linear.INOUT,
 				callback
 			).start(Manager.getInstance().tweenManager());
 		}
@@ -181,7 +182,7 @@ public enum NPCState implements State<Entity> {
 					@Override
 					public void onEnd(AnimationController.AnimationDesc animation) {
 						npc.remove(TargetComponent.class);
-						Tweens.translateToTween(
+						Tweens.translateTo(
 							blast.position,
 							targetPosition,
 							position.dst(targetPosition.x, blast.position.y, targetPosition.z) / 24,

@@ -4,6 +4,7 @@ import aurelienribon.tweenengine.BaseTween;
 import aurelienribon.tweenengine.Timeline;
 import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenCallback;
+import aurelienribon.tweenengine.equations.Linear;
 import aurelienribon.tweenengine.equations.Quad;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.utils.ImmutableArray;
@@ -42,6 +43,7 @@ public enum PCState implements State<Entity> {
 		/**
 		 * Register's the player character stateMachine as a listener to mouse/touch input.
 		 * @param pc
+		 * @TODO make the message something more specific to what is happening, TOUCH_CLICK_INPUT should trigger the sending of that message.
 		 */
 		@Override
 		public void enter(Entity pc) {
@@ -70,7 +72,7 @@ public enum PCState implements State<Entity> {
 						Quaternion rotation = Mappers.ROTATION.get(pc).rotation;
 						Quaternion targetRotation = Utility.facingRotation(position, intersection);
 						float speed = Utility.magnitude(rotation, targetRotation);
-						Tween rotate = Tweens.rotateToTween(rotation, targetRotation, speed / 4, Quad.INOUT, null);
+						Tween rotate = Tweens.rotateTo(rotation, targetRotation, speed / 4, Linear.INOUT, null);
 						final Entity fpc = pc;
 						TweenCallback callback = new TweenCallback() {
 							@Override
@@ -85,7 +87,7 @@ public enum PCState implements State<Entity> {
 								}
 							}
 						};
-						Tween translate = Tweens.translateToTween(position, intersection, position.dst(intersection) / 16, Quad.INOUT, null);
+						Tween translate = Tweens.translateTo(position, intersection, position.dst(intersection) / 16, Linear.INOUT, null);
 						Timeline.createSequence().push(rotate).push(translate).setCallback(callback).start(Manager.getInstance().tweenManager());
 					} else {
 						pc.add(new TargetComponent(actors.get(targetIndex)));
@@ -119,11 +121,11 @@ public enum PCState implements State<Entity> {
 			Quaternion targetRotation = Utility.facingRotation(position, destination);
 			float speed = Utility.magnitude(rotation, targetRotation);
 			// @TODO have speed divisor depend on some entity attribute
-			Tweens.rotateToTween(
+			Tweens.rotateTo(
 				rotation,
 				targetRotation,
 				speed / 4,
-				Quad.INOUT,
+				Linear.INOUT,
 				callback
 			).start(Manager.getInstance().tweenManager());
 		}
@@ -147,6 +149,10 @@ public enum PCState implements State<Entity> {
 		}
 	},
 	ATTACK() {
+		/**
+		 * @TODO move the blast effect handling to its own state machine.
+		 * @param pc
+		 */
 		@Override
 		public void enter(final Entity pc) {
 			final StateMachine<Entity, PCState> stateMachine = Mappers.PC.get(pc).stateMachine;
@@ -174,6 +180,7 @@ public enum PCState implements State<Entity> {
 		/**
 		 * On update, the blast's position needs to be updated.
 		 * @param pc
+		 * @TODO move the blast effect's states tp their own machine.
 		 */
 		@Override
 		public void update(Entity pc) {
@@ -204,11 +211,12 @@ public enum PCState implements State<Entity> {
 					/**
 					 * Shoot the blast at the target.
 					 * @param animation
+					 * @TODO make onEnd trigger an update to the blast state machine so that the tween is built and started there.
 					 */
 					@Override
 					public void onEnd(AnimationController.AnimationDesc animation) {
 						pc.remove(TargetComponent.class);
-						Tweens.translateToTween(
+						Tweens.translateTo(
 							blast.position,
 							targetPosition,
 							position.dst(targetPosition.x, blast.position.y, targetPosition.z) / 24,
@@ -248,6 +256,7 @@ public enum PCState implements State<Entity> {
 
 	/**
 	 * Tests if a ray from screen coordinates intersects any actors in an array of actors (Entities).
+	 * @TODO get this out of here and into somewhere more sensible.
 	 * @param screenX
 	 * @param screenY
 	 * @return
