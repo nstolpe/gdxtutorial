@@ -65,7 +65,6 @@ public class CombatScreen extends FpsScreen {
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, 0.4f, 1.0f, -0.3f));
 
 		modelBatchRenderer = new ModelBatchRenderer(modelBatch, camera, environment);
-		modelBatchRenderer.setProcessing(false);
 
 		// gets rid of the moire effect
 		ModelLoader.ModelParameters texParam = new ModelLoader.ModelParameters();
@@ -179,7 +178,7 @@ public class CombatScreen extends FpsScreen {
 
 	public void setupScene() {
 		Entity p = new Entity()
-				.add(new ModelInstanceComponent( new ModelInstance(modelBatchRenderer.assetManager.get("models/plane.g3dj", Model.class))))
+				.add(new ModelInstanceComponent(new ModelInstance(modelBatchRenderer.assetManager.get("models/plane.g3dj", Model.class))))
 				.add(new RotationComponent(new Quaternion()))
 				.add(new PositionComponent(new Vector3(0.0f, 0.0f, 0.0f)));
 
