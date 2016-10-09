@@ -46,8 +46,8 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	@Override
 	public void addedToEngine(Engine engine) {
 		actors = engine.getEntitiesFor(Family
-				.all(InitiativeComponent.class)
-				.one(NPCComponent.class, PCComponent.class)
+				.all(InitiativeComponent.class, CharacterAnimationStateComponent.class)
+//				.one(NPCComponent.class, PCComponent.class)
 				.get());
 
 		if (actors.size() > 0) {
@@ -72,8 +72,9 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	public void update (float deltaTime) {
 		// update the state machine of each actor
 		for (Entity actor : actors) {
-			if (Mappers.NPC.has(actor)) Mappers.NPC.get(actor).stateMachine.update();
-			if (Mappers.PC.has(actor)) Mappers.PC.get(actor).stateMachine.update();
+//			if (Mappers.NPC.has(actor)) Mappers.NPC.get(actor).stateMachine.update();
+//			if (Mappers.PC.has(actor)) Mappers.PC.get(actor).stateMachine.update();
+			if (Mappers.CHARACTER_ANIMATION_STATE.has(actor)) Mappers.CHARACTER_ANIMATION_STATE.get(actor).stateMachine.update();
 		}
 		// if a turn has just ended,  update the active
 		// actor and start a new one.
@@ -90,6 +91,9 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 			case Messages.ADVANCE_TURN_CONTROL:
 				advanceTurnControl();
 				break;
+			case Messages.TOUCH_CLICK_INPUT:
+				System.out.println("touched");
+				break;
 			default:
 				return false;
 		}
@@ -100,9 +104,11 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 		Entity active = sortedActors.get(activeIndex);
 
 		if (Mappers.PC.get(active) != null)
-			Mappers.PC.get(active).stateMachine.changeState(PCState.WAIT);
-		else if (Mappers.NPC.get(active) != null)
-			Mappers.NPC.get(active).stateMachine.changeState(NPCState.EVALUATE);
+			MessageManager.getInstance().addListener(this, Messages.TOUCH_CLICK_INPUT);
+
+//			Mappers.PC.get(active).stateMachine.changeState(PCState.WAIT);
+//		else if (Mappers.NPC.get(active) != null)
+//			Mappers.NPC.get(active).stateMachine.changeState(NPCState.EVALUATE);
 	}
 	/**
 	 * Getter for activeIndex.

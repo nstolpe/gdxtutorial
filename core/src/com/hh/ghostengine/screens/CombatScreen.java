@@ -143,9 +143,9 @@ public class CombatScreen extends FpsScreen {
 
 		blastBlue = modelBatchRenderer.assetManager.get("effects/blast.blue.pfx", ParticleEffect.class);
 
-		for (int i = -1; i <= 1; i += 2)
-			for (int j = -1; j <= 1; j += 2)
-				createActor("models/mask.ghost.white.g3dj", blastBlue, i * 20, j * 20, false);
+//		for (int i = -1; i <= 1; i += 2)
+//			for (int j = -1; j <= 1; j += 2)
+//				createActor("models/mask.ghost.white.g3dj", blastBlue, i * 20, j * 20, false);
 	}
 
 	/**
@@ -173,6 +173,7 @@ public class CombatScreen extends FpsScreen {
 			NPCComponent mob = new NPCComponent(entity);
 			entity.add(mob);
 		}
+		entity.add(new CharacterAnimationStateComponent(entity));
 		Manager.getInstance().engine().addEntity(entity);
 	}
 

@@ -49,6 +49,8 @@ public class Utility {
 	/**
 	 * Tests if a ray from screen coordinates intersects any actors in an array of actors (Entities).
 	 * @TODO This is ok here for now (better than in the state), but should move to its own lib eventually.
+	 * @TODO Check bounding spheres first, then drill down to actual geometry.
+	 * @TODO Only check targets on screen.
 	 * @param screenX
 	 * @param screenY
 	 * @return
