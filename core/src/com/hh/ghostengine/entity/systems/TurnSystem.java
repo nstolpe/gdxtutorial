@@ -1,7 +1,6 @@
 package com.hh.ghostengine.entity.systems;
 
 import aurelienribon.tweenengine.*;
-import aurelienribon.tweenengine.equations.*;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
@@ -19,9 +18,7 @@ import com.hh.ghostengine.ai.Messages;
 import com.hh.ghostengine.ai.states.NPCState;
 import com.hh.ghostengine.ai.states.PCState;
 import com.hh.ghostengine.entity.components.*;
-import com.hh.ghostengine.libraries.Utility;
 import com.hh.ghostengine.libraries.tweenengine.Tweens;
-import com.hh.ghostengine.singletons.Manager;
 import com.hh.ghostengine.libraries.tweenengine.Callbacks;
 import com.hh.ghostengine.libraries.tweenengine.accessors.QuaternionAccessor;
 import com.hh.ghostengine.libraries.tweenengine.accessors.Vector3Accessor;
@@ -100,7 +97,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 				targetPosition.y = 0;
 				// remove the listener for TOUCH_CLICK_INPUT
 				MessageManager.getInstance().removeListener(this, Messages.TOUCH_CLICK_INPUT);
-				startTurnAction(sortedActors.get(activeIndex), targetPosition, Callbacks.dispatchMessageCallback(Messages.ADVANCE_TURN_CONTROL));
+				Tweens.startTurnAction(sortedActors.get(activeIndex), targetPosition, Callbacks.dispatchMessageCallback(Messages.ADVANCE_TURN_CONTROL));
 				break;
 			default:
 				return false;
@@ -157,21 +154,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 			Mappers.NPC.get(actor).stateMachine.changeState(NPCState.TARGETING);
 		}
 	}
-	/**
-	 * Sets up and starts a tween from Vector3 position to Vector3 destination for float duration.
-	 * @param destination  Ending Vector3 for tween
-	 * @TODO Move this to a Tween Library. Tweens.Vector3.Position(start, end, duration)
-	 */
-	private void startTurnAction(Entity actor, Vector3 destination, TweenCallback callback) {
-		Vector3 position = Mappers.POSITION.get(actor).position();
-		Quaternion rotation = Mappers.ROTATION.get(actor).rotation();
-		Quaternion targetRotation = Utility.facingRotation(position, destination);
-		float speed = Utility.magnitude(rotation, targetRotation);
-		// @TODO make speed divisors come from component.
-		Tween rotate = Tweens.rotateTo(rotation, targetRotation, speed / 4, Quad.INOUT, null);
-		Tween translate = Tweens.translateTo(position, destination, position.dst(destination) / 16, Quad.INOUT, null);
-		Timeline.createSequence().push(rotate).push(translate).setCallback(callback).start(Manager.getInstance().tweenManager());
-	}
+
 	/**
 	 * Passes control of the turn to the next actor in sortedActors
 	 * If the activeIndex is the last entity, generate random values
