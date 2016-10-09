@@ -71,8 +71,7 @@ public enum PCState implements State<Entity> {
 						Vector3 position = Mappers.POSITION.get(pc).position;
 						Quaternion rotation = Mappers.ROTATION.get(pc).rotation;
 						Quaternion targetRotation = Utility.facingRotation(position, intersection);
-						float speed = Utility.magnitude(rotation, targetRotation);
-						Tween rotate = Tweens.rotateTo(rotation, targetRotation, speed / 4, Linear.INOUT, null);
+						Tween rotate = Tweens.rotateTo(rotation, targetRotation, Utility.magnitude(rotation, targetRotation) / 4, Linear.INOUT, null);
 						final Entity fpc = pc;
 						TweenCallback callback = new TweenCallback() {
 							@Override

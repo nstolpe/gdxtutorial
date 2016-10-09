@@ -90,15 +90,6 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 			case Messages.ADVANCE_TURN_CONTROL:
 				advanceTurnControl();
 				break;
-			case Messages.TOUCH_CLICK_INPUT:
-				// msg.extraInfo holds the x and z coords.
-				// y is set to 0 since there's no height yet.
-				Vector3 targetPosition = (Vector3) msg.extraInfo;
-				targetPosition.y = 0;
-				// remove the listener for TOUCH_CLICK_INPUT
-				MessageManager.getInstance().removeListener(this, Messages.TOUCH_CLICK_INPUT);
-				Tweens.startTurnAction(sortedActors.get(activeIndex), targetPosition, Callbacks.dispatchMessageCallback(Messages.ADVANCE_TURN_CONTROL));
-				break;
 			default:
 				return false;
 		}

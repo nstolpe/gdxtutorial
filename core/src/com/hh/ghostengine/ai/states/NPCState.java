@@ -24,6 +24,7 @@ import com.hh.ghostengine.entity.components.ModelInstanceComponent;
 import com.hh.ghostengine.entity.components.TargetComponent;
 import com.hh.ghostengine.entity.systems.TurnSystem;
 import com.hh.ghostengine.libraries.Utility;
+import com.hh.ghostengine.libraries.tweenengine.Callbacks;
 import com.hh.ghostengine.libraries.tweenengine.Tweens;
 import com.hh.ghostengine.singletons.Manager;
 
@@ -52,9 +53,8 @@ public enum NPCState implements State<Entity> {
 			Quaternion rotation = Mappers.ROTATION.get(npc).rotation();
 			Vector3 destination = new Vector3(MathUtils.random(-20, 20), 0, MathUtils.random(-20, 20));
 			Quaternion targetRotation = Utility.facingRotation(position, destination);
-			float speed = Utility.magnitude(rotation, targetRotation);
-			Tween rotate = Tweens.rotateTo(rotation, targetRotation, speed / 4, Linear.INOUT, null);
 			final Entity fnpc = npc;
+			// @TODO this should happen in a new state. See entity system comment below.
 			TweenCallback callback = new TweenCallback() {
 				@Override
 				public void onEvent(int type, BaseTween<?> source) {
@@ -69,8 +69,10 @@ public enum NPCState implements State<Entity> {
 					}
 				}
 			};
+			Tween rotate = Tweens.rotateTo(rotation, targetRotation, Utility.magnitude(rotation, targetRotation) / 4, Linear.INOUT, null);
 			Tween translate = Tweens.translateTo(position, destination, position.dst(destination) / 16, Linear.INOUT, null);
 			Timeline.createSequence().push(rotate).push(translate).setCallback(callback).start(Manager.getInstance().tweenManager());
+
 		}
 	},
 	/**
