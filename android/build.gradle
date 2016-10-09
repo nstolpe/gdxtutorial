@@ -15,7 +15,7 @@ android {
         instrumentTest.setRoot('tests')
     }
     defaultConfig {
-        applicationId "com.hh.gdxtutorial"
+        applicationId "com.hh.ghostengine"
         minSdkVersion 8
         targetSdkVersion 20
     }
@@ -65,7 +65,7 @@ task run(type: Exec) {
     }
 
     def adb = path + "/platform-tools/adb"
-    commandLine "$adb", 'shell', 'am', 'start', '-n', 'com.hh.gdxtutorial/com.hh.gdxtutorial.AndroidLauncher'
+    commandLine "$adb", 'shell', 'am', 'start', '-n', 'com.hh.ghostengine/com.hh.ghostengine.AndroidLauncher'
 }
 // sets up the Android Eclipse project, using the old Ant based build.
 eclipse {

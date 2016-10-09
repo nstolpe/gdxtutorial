@@ -22,7 +22,7 @@ allprojects {
 
     version = '1.0'
     ext {
-        appName = "GDX Tutorial"
+        appName = "Ghost Engine"
         gdxVersion = '1.9.3'
         roboVMVersion = '2.1.0'
         box2DLightsVersion = '1.4'
