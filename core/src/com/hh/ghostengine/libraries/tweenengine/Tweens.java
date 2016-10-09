@@ -1,18 +1,12 @@
 package com.hh.ghostengine.libraries.tweenengine;
 
-import aurelienribon.tweenengine.Timeline;
 import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenCallback;
 import aurelienribon.tweenengine.TweenEquation;
-import aurelienribon.tweenengine.equations.Quad;
-import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
-import com.hh.ghostengine.entity.components.Mappers;
-import com.hh.ghostengine.libraries.Utility;
 import com.hh.ghostengine.libraries.tweenengine.accessors.QuaternionAccessor;
 import com.hh.ghostengine.libraries.tweenengine.accessors.Vector3Accessor;
-import com.hh.ghostengine.singletons.Manager;
 
 /**
  * Created by nils on 7/2/16.

@@ -18,7 +18,7 @@ import com.hh.ghostengine.entity.components.Mappers;
 import com.hh.ghostengine.entity.components.ModelInstanceComponent;
 import com.hh.ghostengine.entity.components.TargetComponent;
 import com.hh.ghostengine.libraries.tweenengine.Tweens;
-import com.hh.ghostengine.singletons.Manager;
+import com.hh.ghostengine.globals.Manager;
 
 /**
  * Created by nils on 10/8/16.

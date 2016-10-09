@@ -26,7 +26,7 @@ import com.hh.ghostengine.entity.systems.ModelBatchRenderer;
 import com.hh.ghostengine.entity.systems.TurnSystem;
 import com.hh.ghostengine.libraries.Utility;
 import com.hh.ghostengine.libraries.tweenengine.Tweens;
-import com.hh.ghostengine.singletons.Manager;
+import com.hh.ghostengine.globals.Manager;
 
 /**
  * Created by nils on 6/26/16.

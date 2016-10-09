@@ -27,7 +27,7 @@ import com.hh.ghostengine.entity.systems.ModelBatchRenderer;
 import com.hh.ghostengine.entity.systems.TurnSystem;
 import com.hh.ghostengine.screens.input.DemoInputController;
 import com.hh.ghostengine.shaders.PerPixelShaderProvider;
-import com.hh.ghostengine.singletons.Manager;
+import com.hh.ghostengine.globals.Manager;
 
 /**
  * Created by nils on 5/27/16.

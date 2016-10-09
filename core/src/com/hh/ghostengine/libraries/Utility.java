@@ -9,7 +9,7 @@ import com.badlogic.gdx.utils.Array;
 import com.hh.ghostengine.entity.components.Mappers;
 import com.hh.ghostengine.entity.components.ModelInstanceComponent;
 import com.hh.ghostengine.entity.systems.ModelBatchRenderer;
-import com.hh.ghostengine.singletons.Manager;
+import com.hh.ghostengine.globals.Manager;
 
 /**
  * Created by nils on 6/24/16.
