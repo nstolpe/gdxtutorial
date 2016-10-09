@@ -103,7 +103,7 @@ public class CombatScreen extends FpsScreen {
 		if (loading && modelBatchRenderer.assetManager.update()) doneLoading();
 
 		stringBuilder.setLength(0);
-		stringBuilder.append(" Turn: ").append(engine.getSystem(TurnSystem.class) == null ? "" : engine.getSystem(TurnSystem.class).turnCount + ": " + engine.getSystem(TurnSystem.class).activeIndex());
+		stringBuilder.append(" Turn: ").append(engine.getSystem(TurnSystem.class) == null ? "" : engine.getSystem(TurnSystem.class).turnCount + ": " + engine.getSystem(TurnSystem.class).activeIndex);
 		turnLabel.setText(stringBuilder);
 
 		super.render(delta);
