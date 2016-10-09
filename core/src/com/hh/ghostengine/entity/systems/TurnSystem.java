@@ -1,6 +1,6 @@
 package com.hh.ghostengine.entity.systems;
 
-import aurelienribon.tweenengine.*;
+import aurelienribon.tweenengine.Tween;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
@@ -16,10 +16,10 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.hh.ghostengine.ai.Messages;
 import com.hh.ghostengine.ai.states.NPCState;
-import com.hh.ghostengine.ai.states.PCState;
-import com.hh.ghostengine.entity.components.*;
-import com.hh.ghostengine.libraries.tweenengine.Tweens;
-import com.hh.ghostengine.libraries.tweenengine.Callbacks;
+import com.hh.ghostengine.entity.components.CharacterAnimationStateComponent;
+import com.hh.ghostengine.entity.components.InitiativeComponent;
+import com.hh.ghostengine.entity.components.Mappers;
+import com.hh.ghostengine.entity.components.TargetComponent;
 import com.hh.ghostengine.libraries.tweenengine.accessors.QuaternionAccessor;
 import com.hh.ghostengine.libraries.tweenengine.accessors.Vector3Accessor;
 
@@ -32,7 +32,7 @@ import java.util.Comparator;
 public class TurnSystem extends EntitySystem implements Telegraph {
 	private ImmutableArray<Entity> actors;
 	private Array<Entity> sortedActors = new Array<Entity>();
-	private int activeIndex;
+	public int activeIndex;
 	private boolean inTurn = false;
 	public int turnCount = 0;
 	public float attentionRadius = 20.0f;
@@ -110,16 +110,12 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 //		else if (Mappers.NPC.get(active) != null)
 //			Mappers.NPC.get(active).stateMachine.changeState(NPCState.EVALUATE);
 	}
-	/**
-	 * Getter for activeIndex.
-	 * @return
-	 */
-	public int activeIndex() {
-		return activeIndex;
-	}
+
 	public ImmutableArray<Entity> actors() {
 		return this.actors;
 	}
+
+	// only used by NPCState
 	public void getValidTargets(final Entity actor) {
 		final Vector3 position = Mappers.POSITION.get(actor).position;
 		Vector3 tmp;
