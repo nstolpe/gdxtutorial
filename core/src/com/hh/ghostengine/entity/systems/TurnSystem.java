@@ -41,6 +41,82 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 	public float attentionRadius = 20.0f;
 
 	/**
+	 * Gets actors from Family and builds/sorts sortedActors by InitiativeComponent.initiative
+	 * Starts listening to ADVANCE_TURN_CONTROL and registers the Vector3Accessor
+	 * @param engine
+	 * @TODO move tween accessor registration out to a movement or transform system.
+	 */
+	@Override
+	public void addedToEngine(Engine engine) {
+		actors = engine.getEntitiesFor(Family
+				.all(InitiativeComponent.class)
+				.one(NPCComponent.class, PCComponent.class)
+				.get());
+
+		if (actors.size() > 0) {
+			for (int i = 0; i < actors.size(); i++) sortedActors.add(actors.get(i));
+			sortedActors.sort(new InitiativeComponentComparator());
+		}
+
+		MessageManager.getInstance().addListener(this, Messages.ADVANCE_TURN_CONTROL);
+		Tween.registerAccessor(Vector3.class, new Vector3Accessor());
+		Tween.registerAccessor(Quaternion.class, new QuaternionAccessor());
+
+		activeIndex = 0;
+	}
+	/**
+	 * Checks if a entity is taking its turn (inTurn) and, if not, starts the turn
+	 * of the next entity.
+	 * @TODO Move NPC and player specific stuff out of here. Have a component handle it. NPC should be pulled in
+	 * from somewhere.
+	 * @param deltaTime
+	 */
+	@Override
+	public void update (float deltaTime) {
+		// update the state machine of each actor
+		for (Entity actor : actors) {
+			if (Mappers.NPC.has(actor)) Mappers.NPC.get(actor).stateMachine.update();
+			if (Mappers.PC.has(actor)) Mappers.PC.get(actor).stateMachine.update();
+		}
+		// if a turn has just ended,  update the active
+		// actor and start a new one.
+		if (!inTurn) startNextTurn();
+	}
+	/**
+	 * From Telegraph. Will listen to advance a turn and receive touch input for a user controlled character.
+	 * @param msg   extraInfo is used with TOUCH_CLICK_INPUT. It expects a Vector3 and casts to it.
+	 * @return
+	 */
+	@Override
+	public boolean handleMessage(Telegram msg) {
+		switch (msg.message) {
+			case Messages.ADVANCE_TURN_CONTROL:
+				advanceTurnControl();
+				break;
+			case Messages.TOUCH_CLICK_INPUT:
+				// msg.extraInfo holds the x and z coords.
+				// y is set to 0 since there's no height yet.
+				Vector3 targetPosition = (Vector3) msg.extraInfo;
+				targetPosition.y = 0;
+				// remove the listener for TOUCH_CLICK_INPUT
+				MessageManager.getInstance().removeListener(this, Messages.TOUCH_CLICK_INPUT);
+				startTurnAction(sortedActors.get(activeIndex), targetPosition, Callbacks.dispatchMessageCallback(Messages.ADVANCE_TURN_CONTROL));
+				break;
+			default:
+				return false;
+		}
+		return true;
+	}
+	public void startNextTurn() {
+		inTurn = true;
+		Entity active = sortedActors.get(activeIndex);
+
+		if (Mappers.PC.get(active) != null)
+			Mappers.PC.get(active).stateMachine.changeState(PCState.WAIT);
+		else if (Mappers.NPC.get(active) != null)
+			Mappers.NPC.get(active).stateMachine.changeState(NPCState.EVALUATE);
+	}
+	/**
 	 * Getter for activeIndex.
 	 * @return
 	 */
@@ -120,85 +196,6 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 		}
 
 		inTurn = false;
-	}
-
-	/**
-	 * Gets actors from Family and builds/sorts sortedActors by InitiativeComponent.initiative
-	 * Starts listening to ADVANCE_TURN_CONTROL and registers the Vector3Accessor
-	 * @param engine
-	 * @TODO move tween accessor registration out to a movement or transform system.
-	 */
-	@Override
-	public void addedToEngine(Engine engine) {
-		actors = engine.getEntitiesFor(Family
-				.all(InitiativeComponent.class)
-				.one(NPCComponent.class, PCComponent.class)
-				.get());
-
-		if (actors.size() > 0) {
-			for (int i = 0; i < actors.size(); i++) sortedActors.add(actors.get(i));
-			sortedActors.sort(new InitiativeComponentComparator());
-		}
-
-		MessageManager.getInstance().addListener(this, Messages.ADVANCE_TURN_CONTROL);
-		Tween.registerAccessor(Vector3.class, new Vector3Accessor());
-		Tween.registerAccessor(Quaternion.class, new QuaternionAccessor());
-
-		activeIndex = 0;
-	}
-	/**
-	 * Checks if a entity is taking its turn (inTurn) and, if not, starts the turn
-	 * of the next entity.
-	 * @TODO Move NPC and player specific stuff out of here. Have a component handle it. NPC should be pulled in
-	 * from somewhere.
-	 * @param deltaTime
-	 */
-	@Override
-	public void update (float deltaTime) {
-		// update the state machine of each actor
-		for (Entity actor : actors) {
-			if (Mappers.NPC.has(actor)) Mappers.NPC.get(actor).stateMachine.update();
-			if (Mappers.PC.has(actor)) Mappers.PC.get(actor).stateMachine.update();
-		}
-		// if a turn has just ended,  update the active
-		// actor and start a new one.
-		if (!inTurn) startNextTurn();
-	}
-
-	public void startNextTurn() {
-		inTurn = true;
-		Entity active = sortedActors.get(activeIndex);
-
-		if (Mappers.PC.get(active) != null)
-			Mappers.PC.get(active).stateMachine.changeState(PCState.WAIT);
-		else if (Mappers.NPC.get(active) != null)
-			Mappers.NPC.get(active).stateMachine.changeState(NPCState.EVALUATE);
-	}
-	/**
-	 * From Telegraph. Will listen to advance a turn and receive touch input for a user controlled character.
-	 * @param msg   extraInfo is used with TOUCH_CLICK_INPUT. It expects a Vector3 and casts to it.
-	 * @return
-	 */
-	@Override
-	public boolean handleMessage(Telegram msg) {
-		switch (msg.message) {
-			case Messages.ADVANCE_TURN_CONTROL:
-				advanceTurnControl();
-				break;
-			case Messages.TOUCH_CLICK_INPUT:
-				// msg.extraInfo holds the x and z coords.
-				// y is set to 0 since there's no height yet.
-				Vector3 targetPosition = (Vector3) msg.extraInfo;
-				targetPosition.y = 0;
-				// remove the listener for TOUCH_CLICK_INPUT
-				MessageManager.getInstance().removeListener(this, Messages.TOUCH_CLICK_INPUT);
-				startTurnAction(sortedActors.get(activeIndex), targetPosition, Callbacks.dispatchMessageCallback(Messages.ADVANCE_TURN_CONTROL));
-				break;
-			default:
-				return false;
-		}
-		return true;
-
 	}
 	/**
 	 * Comparator for =, >, <
