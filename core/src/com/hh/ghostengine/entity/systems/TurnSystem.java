@@ -49,13 +49,13 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 				.all(InitiativeComponent.class, CharacterAnimationStateComponent.class)
 //				.one(NPCComponent.class, PCComponent.class)
 				.get());
-
 		if (actors.size() > 0) {
 			for (int i = 0; i < actors.size(); i++) sortedActors.add(actors.get(i));
 			sortedActors.sort(new InitiativeComponentComparator());
 		}
 
 		MessageManager.getInstance().addListener(this, Messages.ADVANCE_TURN_CONTROL);
+		// @TODO get tween logic out of here.
 		Tween.registerAccessor(Vector3.class, new Vector3Accessor());
 		Tween.registerAccessor(Quaternion.class, new QuaternionAccessor());
 
@@ -75,6 +75,7 @@ public class TurnSystem extends EntitySystem implements Telegraph {
 //			if (Mappers.NPC.has(actor)) Mappers.NPC.get(actor).stateMachine.update();
 //			if (Mappers.PC.has(actor)) Mappers.PC.get(actor).stateMachine.update();
 			if (Mappers.CHARACTER_ANIMATION_STATE.has(actor)) Mappers.CHARACTER_ANIMATION_STATE.get(actor).stateMachine.update();
+
 		}
 		// if a turn has just ended,  update the active
 		// actor and start a new one.
