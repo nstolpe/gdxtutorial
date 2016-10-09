@@ -58,7 +58,7 @@ public class ModelBatchRenderer extends EntitySystem implements Disposable, Tele
 	 */
 	public ModelBatchRenderer(ModelBatch modelBatch, Camera camera, Environment env) {
 		super();
-		this.setProcessing(false);
+//		this.setProcessing(false);
 		this.modelBatch = modelBatch;
 		this.camera = camera;
 		this.env = env;
@@ -135,7 +135,7 @@ public class ModelBatchRenderer extends EntitySystem implements Disposable, Tele
 
 	@Override
 	public void removedFromEngine(Engine engine) {
-		System.out.println("removing from engine");
+		System.out.println("ModelBatchRenderer removed from engine");
 	}
 	/**
 	 * Disposables are managed here.
