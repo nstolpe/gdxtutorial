@@ -49,7 +49,16 @@ public class ModelBatchRenderer extends EntitySystem implements Disposable, Tele
 	protected Quaternion tmpQuat = new Quaternion();
 
 
+	/**
+	 * An entity system for processing a modelbatch and its models. Not processing on default
+	 * to avoid asset loading errors.
+	 * @param modelBatch
+	 * @param camera
+	 * @param env
+	 */
 	public ModelBatchRenderer(ModelBatch modelBatch, Camera camera, Environment env) {
+		super();
+		this.setProcessing(false);
 		this.modelBatch = modelBatch;
 		this.camera = camera;
 		this.env = env;
