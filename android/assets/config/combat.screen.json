@@ -1,0 +1,103 @@
+{
+  "scene": {
+    "model": "plane.g3dj",
+    "position": { "x": 0, "y": 0, "z": 0 },
+    "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+    "lights": {
+      "ambient": null,
+      "directional": [
+        {
+          "direction": { "dirX": -0.5, "dirY": -0.6, "dirZ": -0.7 },
+          "color": { "r": 1.0, "g": 1.0, "b": 1.0 }
+        },
+        {
+          "direction": { "dirX": 0.4, "dirY": 1.0, "dirZ": -0.3 },
+          "color": { "r": 0.8, "g": 0.8, "b": 0.8 }
+        }
+      ],
+      "point": []
+    }
+  },
+  "pc": {
+    "type": "ghost.white",
+    "name": "Mob 1",
+    "model": "mask.ghost.white.g3dj",
+    "position": { "x": 0, "y": 0, "z": 0 },
+    "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+    "effects": [
+      {
+        "name": "blast",
+        "effect": "blast.red.pfx",
+        "type": "PARTICLE",
+        "state": "ATTACK",
+        "node": "emit.root"
+      }
+    ]
+  },
+  "mobs": [
+    {
+      "type": "ghost.white",
+      "name": "Mob 1",
+      "model": "mask.ghost.white.g3dj",
+      "position": { "x": 20, "y": 0, "z": 20 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "effects": [
+        {
+          "name": "blast",
+          "effect": "blast.blue.pfx",
+          "type": "PARTICLE",
+          "state": "ATTACK",
+          "node": "emit.root"
+        }
+      ]
+    },
+    {
+      "type": "ghost.white",
+      "name": "Mob 2",
+      "model": "mask.ghost.white.g3dj",
+      "position": { "x": -20, "y": 0, "z": 20 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "effects": [
+        {
+          "name": "blast",
+          "effect": "blast.blue.pfx",
+          "type": "PARTICLE",
+          "state": "ATTACK",
+          "node": "emit.root"
+        }
+      ]
+    },
+    {
+      "type": "ghost.white",
+      "name": "Mob 3",
+      "model": "mask.ghost.white.g3dj",
+      "position": { "x": 20, "y": 0, "z": -20 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "effects": [
+        {
+          "name": "blast",
+          "effect": "blast.blue.pfx",
+          "type": "PARTICLE",
+          "state": "ATTACK",
+          "node": "emit.root"
+        }
+      ]
+    },
+    {
+      "type": "ghost.white",
+      "name": "Mob 4",
+      "model": "mask.ghost.white.g3dj",
+      "position": { "x": -20, "y": 0, "z": -20 },
+      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "effects": [
+        {
+          "name": "blast",
+          "effect": "blast.blue.pfx",
+          "type": "PARTICLE",
+          "state": "ATTACK",
+          "node": "emit.root"
+        }
+      ]
+    }
+  ]
+}
