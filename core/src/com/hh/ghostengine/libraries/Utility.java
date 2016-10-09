@@ -1,8 +1,15 @@
 package com.hh.ghostengine.libraries;
 
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.Ray;
+import com.badlogic.gdx.utils.Array;
+import com.hh.ghostengine.entity.components.Mappers;
+import com.hh.ghostengine.entity.components.ModelInstanceComponent;
+import com.hh.ghostengine.entity.systems.ModelBatchRenderer;
+import com.hh.ghostengine.singletons.Manager;
 
 /**
  * Created by nils on 6/24/16.
@@ -38,6 +45,41 @@ public class Utility {
 		Quaternion difference = origin.cpy().conjugate().mul(target);
 		float angle = (float) (2 * Math.acos(difference.w));
 		return angle > Math.PI ? (float) Math.abs(angle - 2 * Math.PI) : angle;
+	}
+	/**
+	 * Tests if a ray from screen coordinates intersects any actors in an array of actors (Entities).
+	 * @TODO This is ok here for now (better than in the state), but should move to its own lib eventually.
+	 * @param screenX
+	 * @param screenY
+	 * @return
+	 */
+	public static int testTargets(Entity pc, Array<Entity> actors, float screenX, float screenY) {
+		Ray ray = Manager.getInstance().engine().getSystem(ModelBatchRenderer.class).camera.getPickRay(screenX, screenY);
+		int result = -1;
+		float distance = -1;
+
+		for (int i = 0; i < actors.size; i++) {
+			if (actors.get(i).equals(pc)) continue;
+			final ModelInstanceComponent mic = Mappers.MODEL_INSTANCE.get(actors.get(i));
+			Vector3 position = mic.instance.transform.getTranslation(new Vector3());
+			position.add(mic.center);
+
+			final float len = ray.direction.dot(position.x - ray.origin.x, position.y - ray.origin.y, position.z - ray.origin.z);
+
+			if (len < 0f) continue;
+
+			float dist2 = position.dst2(ray.origin.x+ray.direction.x*len, ray.origin.y+ray.direction.y*len, ray.origin.z+ray.direction.z*len);
+
+			if (distance >= 0f && dist2 > distance) continue;
+
+			// *2 seems more accurate than he squaring.
+			// if (dist2 <= mic.radius * mic.radius) {
+			if (dist2 <= mic.radius * 2) {
+				result = i;
+				distance = dist2;
+			}
+		}
+		return result;
 	}
 	/**
 	 * Original example code from Xoppa on irc. Doesn't achieve correct rotation.

@@ -61,7 +61,7 @@ public enum PCState implements State<Entity> {
 				case Messages.TOUCH_CLICK_INPUT:
 					Vector3 screenCoordinates = (Vector3) telegram.extraInfo;
 					ImmutableArray<Entity> actors = Manager.getInstance().engine().getSystem(TurnSystem.class).actors();
-					int targetIndex = testTargets(pc, new Array<Entity>(actors.toArray()), screenCoordinates.x, screenCoordinates.z);
+					int targetIndex = Utility.testTargets(pc, new Array<Entity>(actors.toArray()), screenCoordinates.x, screenCoordinates.z);
 
 					if (targetIndex < 0) {
 						Ray ray = Manager.getInstance().engine().getSystem(ModelBatchRenderer.class).camera.getPickRay(screenCoordinates.x, screenCoordinates.z);
@@ -253,42 +253,6 @@ public enum PCState implements State<Entity> {
 	},
 	GLOBAL() {
 	};
-
-	/**
-	 * Tests if a ray from screen coordinates intersects any actors in an array of actors (Entities).
-	 * @TODO get this out of here and into somewhere more sensible.
-	 * @param screenX
-	 * @param screenY
-	 * @return
-	 */
-	private static int testTargets(Entity pc, Array<Entity> actors, float screenX, float screenY) {
-		Ray ray = Manager.getInstance().engine().getSystem(ModelBatchRenderer.class).camera.getPickRay(screenX, screenY);
-		int result = -1;
-		float distance = -1;
-
-		for (int i = 0; i < actors.size; i++) {
-			if (actors.get(i).equals(pc)) continue;
-			final ModelInstanceComponent mic = Mappers.MODEL_INSTANCE.get(actors.get(i));
-			Vector3 position = mic.instance.transform.getTranslation(new Vector3());
-			position.add(mic.center);
-
-			final float len = ray.direction.dot(position.x - ray.origin.x, position.y - ray.origin.y, position.z - ray.origin.z);
-
-			if (len < 0f) continue;
-
-			float dist2 = position.dst2(ray.origin.x+ray.direction.x*len, ray.origin.y+ray.direction.y*len, ray.origin.z+ray.direction.z*len);
-
-			if (distance >= 0f && dist2 > distance) continue;
-
-			// *2 seems more accurate than he squaring.
-			// if (dist2 <= mic.radius * mic.radius) {
-			if (dist2 <= mic.radius * 2) {
-				result = i;
-				distance = dist2;
-			}
-		}
-		return result;
-	}
 
 	@Override
 	public void enter(Entity pc) {
