@@ -1,4 +1,4 @@
-package com.hh.ghostengine.singletons;
+package com.hh.ghostengine.globals;
 
 import aurelienribon.tweenengine.TweenManager;
 import com.badlogic.ashley.core.Engine;
