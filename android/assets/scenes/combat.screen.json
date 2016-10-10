@@ -21,16 +21,28 @@
   "pc": {
     "type": "ghost.white",
     "name": "Mob 1",
+    "stats": {
+      "initiative": 6
+    },
     "model": "mask.ghost.white.g3dj",
     "position": { "x": 0, "y": 0, "z": 0 },
     "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+    "nodes": {
+      "rangedAttack": "attach.projectile",
+      "rangedImpact": "impact.main"
+    },
+    "animations": {
+      "default": "skeleton|rest",
+      "preAttack": "skeleton|attack.pre",
+      "attack": "skeleton|attack",
+      "postAttack": "skeleton|attack.post"
+    },
     "effects": [
       {
         "name": "blast",
         "effect": "blast.red.pfx",
         "type": "PARTICLE",
-        "state": "ATTACK",
-        "node": "emit.root"
+        "state": "ATTACK"
       }
     ]
   },
@@ -38,64 +50,88 @@
     {
       "type": "ghost.white",
       "name": "Mob 1",
+      "stats": {
+        "initiative": 4
+      },
       "model": "mask.ghost.white.g3dj",
       "position": { "x": 20, "y": 0, "z": 20 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "nodes": {
+        "rangedAttack": "attach.projectile",
+        "rangedImpact": "impact.main"
+      },
       "effects": [
         {
           "name": "blast",
           "effect": "blast.blue.pfx",
           "type": "PARTICLE",
-          "state": "ATTACK",
-          "node": "emit.root"
+          "state": "ATTACK"
         }
       ]
     },
     {
       "type": "ghost.white",
       "name": "Mob 2",
+      "stats": {
+        "initiative": 6
+      },
       "model": "mask.ghost.white.g3dj",
       "position": { "x": -20, "y": 0, "z": 20 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "nodes": {
+        "rangedAttack": "attach.projectile",
+        "rangedImpact": "impact.main"
+      },
       "effects": [
         {
           "name": "blast",
           "effect": "blast.blue.pfx",
           "type": "PARTICLE",
-          "state": "ATTACK",
-          "node": "emit.root"
+          "state": "ATTACK"
         }
       ]
     },
     {
       "type": "ghost.white",
       "name": "Mob 3",
+      "stats": {
+        "initiative": 8
+      },
       "model": "mask.ghost.white.g3dj",
       "position": { "x": 20, "y": 0, "z": -20 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "nodes": {
+        "rangedAttack": "attach.projectile",
+        "rangedImpact": "impact.main"
+      },
       "effects": [
         {
           "name": "blast",
           "effect": "blast.blue.pfx",
           "type": "PARTICLE",
-          "state": "ATTACK",
-          "node": "emit.root"
+          "state": "ATTACK"
         }
       ]
     },
     {
       "type": "ghost.white",
       "name": "Mob 4",
+      "stats": {
+        "initiative": 2
+      },
       "model": "mask.ghost.white.g3dj",
       "position": { "x": -20, "y": 0, "z": -20 },
       "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+      "nodes": {
+        "rangedAttack": "attach.projectile",
+        "rangedImpact": "impact.main"
+      },
       "effects": [
         {
           "name": "blast",
           "effect": "blast.blue.pfx",
           "type": "PARTICLE",
-          "state": "ATTACK",
-          "node": "emit.root"
+          "state": "ATTACK"
         }
       ]
     }
