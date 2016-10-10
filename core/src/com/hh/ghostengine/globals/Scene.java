@@ -24,6 +24,7 @@ public class Scene {
 		Environment environment = new Environment();
 		Entity scene = new Entity();
 		setUpLights(scene, environment, sceneData.get("lights"));
+		Manager.getInstance().engine().addEntity(scene);
 	}
 
 	private static void setUpLights(Entity scene, Environment environment, JsonValue lights) {
@@ -65,6 +66,7 @@ public class Scene {
 		scene.add(component);
 		environment.add(light);
 	}
+
 	private static void addPointLight(Entity scene, Environment environment, JsonValue lightData) {
 		float r = lightData.get("color").get("r").asFloat();
 		float g = lightData.get("color").get("g").asFloat();
@@ -78,6 +80,7 @@ public class Scene {
 		scene.add(component);
 		environment.add(light);
 	}
+
 	private static void addSpotLight(Entity scene, Environment environment, JsonValue lightData) {
 		float r = lightData.get("color").get("r").asFloat();
 		float g = lightData.get("color").get("g").asFloat();
