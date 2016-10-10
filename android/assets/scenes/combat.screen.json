@@ -1,139 +1,142 @@
 {
-  "scene": {
-    "model": "plane.g3dj",
-    "position": { "x": 0, "y": 0, "z": 0 },
-    "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-    "lights": {
-      "ambient": null,
-      "directional": [
-        {
-          "direction": { "dirX": -0.5, "dirY": -0.6, "dirZ": -0.7 },
-          "color": { "r": 1.0, "g": 1.0, "b": 1.0 }
-        },
-        {
-          "direction": { "dirX": 0.4, "dirY": 1.0, "dirZ": -0.3 },
-          "color": { "r": 0.8, "g": 0.8, "b": 0.8 }
-        }
-      ],
-      "point": []
-    }
-  },
-  "pc": {
-    "type": "ghost.white",
-    "name": "Mob 1",
-    "stats": {
-      "initiative": 6
-    },
-    "model": "mask.ghost.white.g3dj",
-    "position": { "x": 0, "y": 0, "z": 0 },
-    "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-    "nodes": {
-      "rangedAttack": "attach.projectile",
-      "rangedImpact": "impact.main"
-    },
-    "animations": {
-      "default": "skeleton|rest",
-      "preAttack": "skeleton|attack.pre",
-      "attack": "skeleton|attack",
-      "postAttack": "skeleton|attack.post"
-    },
-    "effects": [
+  "model": "plane.g3dj",
+  "position": { "x": 0, "y": 0, "z": 0 },
+  "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+  "lights": {
+    "ambient": { "r": 1.0, "g": 1.0, "b": 1.0, "a": 0.5 },
+    "directional": [
       {
-        "name": "blast",
-        "effect": "blast.red.pfx",
-        "type": "PARTICLE",
-        "state": "ATTACK"
+        "direction": { "x": -0.5, "y": -0.6, "z": -0.7 },
+        "color": { "r": 1.0, "g": 1.0, "b": 1.0 }
+      },
+      {
+        "direction": { "x": 0.4, "y": 1.0, "z": -0.3 },
+        "color": { "r": 0.8, "g": 0.8, "b": 0.8 }
+      }
+    ],
+    "point": [],
+    "spot": []
+  },
+  "actors": {
+    "player": [
+      {
+        "type": "Masked Ghost",
+        "name": "Player",
+        "stats": {
+          "initiative": 6
+        },
+        "model": "mask.ghost.red.g3dj",
+        "position": { "x": 0, "y": 0, "z": 0 },
+        "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+        "nodes": {
+          "rangedAttack": "attach.projectile",
+          "rangedImpact": "impact.main"
+        },
+        "animations": {
+          "default": "skeleton|rest",
+          "preAttack": "skeleton|attack.pre",
+          "attack": "skeleton|attack",
+          "postAttack": "skeleton|attack.post"
+        },
+        "effects": [
+          {
+            "name": "blast",
+            "effect": "blast.red.pfx",
+            "type": "PARTICLE",
+            "state": "ATTACK"
+          }
+        ]
+      }
+    ],
+    "ai": [
+      {
+        "type": "Masked Ghost",
+        "name": "Mob 1",
+        "stats": {
+          "initiative": 4
+        },
+        "model": "mask.ghost.white.g3dj",
+        "position": { "x": 20, "y": 0, "z": 20 },
+        "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+        "nodes": {
+          "rangedAttack": "attach.projectile",
+          "rangedImpact": "impact.main"
+        },
+        "effects": [
+          {
+            "name": "blast",
+            "effect": "blast.blue.pfx",
+            "type": "PARTICLE",
+            "state": "ATTACK"
+          }
+        ]
+      },
+      {
+        "type": "Masked Ghost",
+        "name": "Mob 2",
+        "stats": {
+          "initiative": 6
+        },
+        "model": "mask.ghost.white.g3dj",
+        "position": { "x": -20, "y": 0, "z": 20 },
+        "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+        "nodes": {
+          "rangedAttack": "attach.projectile",
+          "rangedImpact": "impact.main"
+        },
+        "effects": [
+          {
+            "name": "blast",
+            "effect": "blast.blue.pfx",
+            "type": "PARTICLE",
+            "state": "ATTACK"
+          }
+        ]
+      },
+      {
+        "type": "Masked Ghost",
+        "name": "Mob 3",
+        "stats": {
+          "initiative": 8
+        },
+        "model": "mask.ghost.white.g3dj",
+        "position": { "x": 20, "y": 0, "z": -20 },
+        "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+        "nodes": {
+          "rangedAttack": "attach.projectile",
+          "rangedImpact": "impact.main"
+        },
+        "effects": [
+          {
+            "name": "blast",
+            "effect": "blast.blue.pfx",
+            "type": "PARTICLE",
+            "state": "ATTACK"
+          }
+        ]
+      },
+      {
+        "type": "Masked Ghost",
+        "name": "Mob 4",
+        "stats": {
+          "initiative": 2
+        },
+        "model": "mask.ghost.white.g3dj",
+        "position": { "x": -20, "y": 0, "z": -20 },
+        "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
+        "nodes": {
+          "rangedAttack": "attach.projectile",
+          "rangedImpact": "impact.main"
+        },
+        "effects": [
+          {
+            "name": "blast",
+            "effect": "blast.blue.pfx",
+            "type": "PARTICLE",
+            "state": "ATTACK"
+          }
+        ]
       }
     ]
-  },
-  "mobs": [
-    {
-      "type": "ghost.white",
-      "name": "Mob 1",
-      "stats": {
-        "initiative": 4
-      },
-      "model": "mask.ghost.white.g3dj",
-      "position": { "x": 20, "y": 0, "z": 20 },
-      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "nodes": {
-        "rangedAttack": "attach.projectile",
-        "rangedImpact": "impact.main"
-      },
-      "effects": [
-        {
-          "name": "blast",
-          "effect": "blast.blue.pfx",
-          "type": "PARTICLE",
-          "state": "ATTACK"
-        }
-      ]
-    },
-    {
-      "type": "ghost.white",
-      "name": "Mob 2",
-      "stats": {
-        "initiative": 6
-      },
-      "model": "mask.ghost.white.g3dj",
-      "position": { "x": -20, "y": 0, "z": 20 },
-      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "nodes": {
-        "rangedAttack": "attach.projectile",
-        "rangedImpact": "impact.main"
-      },
-      "effects": [
-        {
-          "name": "blast",
-          "effect": "blast.blue.pfx",
-          "type": "PARTICLE",
-          "state": "ATTACK"
-        }
-      ]
-    },
-    {
-      "type": "ghost.white",
-      "name": "Mob 3",
-      "stats": {
-        "initiative": 8
-      },
-      "model": "mask.ghost.white.g3dj",
-      "position": { "x": 20, "y": 0, "z": -20 },
-      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "nodes": {
-        "rangedAttack": "attach.projectile",
-        "rangedImpact": "impact.main"
-      },
-      "effects": [
-        {
-          "name": "blast",
-          "effect": "blast.blue.pfx",
-          "type": "PARTICLE",
-          "state": "ATTACK"
-        }
-      ]
-    },
-    {
-      "type": "ghost.white",
-      "name": "Mob 4",
-      "stats": {
-        "initiative": 2
-      },
-      "model": "mask.ghost.white.g3dj",
-      "position": { "x": -20, "y": 0, "z": -20 },
-      "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
-      "nodes": {
-        "rangedAttack": "attach.projectile",
-        "rangedImpact": "impact.main"
-      },
-      "effects": [
-        {
-          "name": "blast",
-          "effect": "blast.blue.pfx",
-          "type": "PARTICLE",
-          "state": "ATTACK"
-        }
-      ]
-    }
-  ]
+  }
 }
