@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader;
@@ -21,10 +22,14 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
 import com.hh.ghostengine.ai.Messages;
 import com.hh.ghostengine.entity.components.*;
 import com.hh.ghostengine.entity.systems.ModelBatchRenderer;
 import com.hh.ghostengine.entity.systems.TurnSystem;
+import com.hh.ghostengine.globals.Scene;
 import com.hh.ghostengine.screens.input.DemoInputController;
 import com.hh.ghostengine.shaders.PerPixelShaderProvider;
 import com.hh.ghostengine.globals.Manager;
@@ -55,11 +60,11 @@ public class CombatScreen extends FpsScreen {
 		// declare camController and set it as the input processor.
 		camController = new DemoInputController(camera);
 		multiplexer.addProcessor(camController);
-
+		Scene.SetupScene(Gdx.files.internal("scenes/combat.screen.json"));
 		modelBatch = new ModelBatch(new PerPixelShaderProvider());
 
 		environment = new Environment();
-//		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 1f, 1f, 1f, 1f));
+		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 1f, 1f, 1f, 1f));
 
 		environment.add(new DirectionalLight().set(1.0f, 1.0f, 1.0f, -0.5f, -0.6f, -0.7f));
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, 0.4f, 1.0f, -0.3f));
