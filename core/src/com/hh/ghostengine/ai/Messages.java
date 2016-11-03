@@ -4,6 +4,7 @@ package com.hh.ghostengine.ai;
  * Created by nils on 6/4/16.
  */
 public class Messages {
+	private Messages() {}
 	// Screens for GhostEngine class
 	public static final int CHANGE_SCREEN        = 0x00;
 	/*
