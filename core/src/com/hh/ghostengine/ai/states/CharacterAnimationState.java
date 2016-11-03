@@ -97,7 +97,6 @@ public enum CharacterAnimationState implements State<Entity> {
 			final ModelInstanceComponent targetInstanceComponent = Mappers.MODEL_INSTANCE.get(target);
 			final Vector3 targetPosition = targetInstanceComponent.instance.transform.cpy().mul(targetInstanceComponent.instance.getNode("impact.main").globalTransform).getTranslation(new Vector3());
 			final EffectsComponent.Effect blast = Mappers.EFFECTS.get(c).getEffect("blast");
-
 			// set the animation to skeleton|attack.post
 			Mappers.MODEL_INSTANCE.get(c).controller.setAnimation(
 					"skeleton|attack.post",
