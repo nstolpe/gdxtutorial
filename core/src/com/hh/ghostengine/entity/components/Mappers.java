@@ -1,6 +1,7 @@
 package com.hh.ghostengine.entity.components;
 
 import com.badlogic.ashley.core.ComponentMapper;
+import com.badlogic.gdx.graphics.g3d.Environment;
 
 /**
  * Created by nils on 6/5/16.
@@ -17,4 +18,5 @@ public class Mappers {
 	public static final ComponentMapper<EffectsComponent>                 EFFECTS                   = ComponentMapper.getFor(EffectsComponent.class);
 	public static final ComponentMapper<TargetComponent>                  TARGET                    = ComponentMapper.getFor(TargetComponent.class);
 	public static final ComponentMapper<CharacterAnimationStateComponent> CHARACTER_ANIMATION_STATE = ComponentMapper.getFor(CharacterAnimationStateComponent.class);
+	public static final ComponentMapper<EnvironmentComponent>             ENVIRONMENT               = ComponentMapper.getFor(EnvironmentComponent.class);
 }
